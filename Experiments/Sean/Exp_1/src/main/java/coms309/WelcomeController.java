@@ -1,8 +1,10 @@
 package coms309;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 class WelcomeController {
@@ -12,8 +14,21 @@ class WelcomeController {
         return "Hello and welcome to COMS 309";
     }
     
-    @GetMapping("/{name}")
+    @GetMapping("/welcome/{name}")
     public String welcome(@PathVariable String name) {
+        UserManager.addUser(new User(name));
         return "Hello and welcome to COMS 309: " + name;
+    }
+
+    @GetMapping("/user/{name}")
+    public String getUser(@PathVariable String name) {
+        User user = UserManager.getUser(name);
+        if (user == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "entity not found"
+            );
+        }
+
+        return user.name();
     }
 }
