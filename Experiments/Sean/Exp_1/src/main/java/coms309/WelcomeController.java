@@ -11,13 +11,13 @@ class WelcomeController {
 
     @GetMapping("/")
     public String welcome() {
-        return "Hello and welcome to COMS 309";
+        return "Hello and welcome to COMS 3090\n";
     }
-    
+
     @GetMapping("/welcome/{name}")
     public String welcome(@PathVariable String name) {
         UserManager.addUser(new User(name));
-        return "Hello and welcome to COMS 309: " + name;
+        return "Welcome to COMS 3090: " + name + "\n";
     }
 
     @GetMapping("/user/{name}")
@@ -29,6 +29,6 @@ class WelcomeController {
             );
         }
 
-        return user.name();
+        return user.name() + "\n";
     }
 }
