@@ -17,10 +17,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);             // link to Main activity XML
+        setContentView(R.layout.activity_main);             // link to activity_main XML
 
         /* initialize UI elements */
-        messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
-        messageText.setText("Hello World");
+        messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the activity_main XML
+        messageText.setText("Hello World and other planets!");
+
     }
 }
