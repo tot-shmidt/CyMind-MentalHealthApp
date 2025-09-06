@@ -29,4 +29,13 @@
         android:textColor="#ffffff">
     </Button>
 
+    <Button
+        android:id="@+id/main_exit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="300sp"
+        android:layout_marginBottom="0dp"
+        android:backgroundTint="#FF0000"
+        android:text="Exit Application" />
+
 </androidx.appcompat.widget.LinearLayoutCompat>

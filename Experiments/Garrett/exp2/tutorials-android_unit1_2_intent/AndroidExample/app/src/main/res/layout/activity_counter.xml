@@ -5,18 +5,18 @@
     tools:context=".MainActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:background="@color/black"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/number"
+        android:id="@+id/counter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:layout_gravity="center"
         android:textSize="150sp"
-        android:textColor="#E91E63"
-        android:text="0" >
-    </TextView>
+        android:textColor="#1B5E20"
+        android:text="0" />
 
     <Button
         android:id="@+id/counter_increase_btn"
@@ -24,8 +24,8 @@
         android:layout_height="80dp"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
-        android:text="Increase">
-    </Button>
+        android:backgroundTint="#00AB0B"
+        android:text="Increase" />
 
     <Button
         android:id="@+id/counter_decrease_btn"
@@ -33,8 +33,8 @@
         android:layout_height="80dp"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        android:text="Decrease">
-    </Button>
+        android:backgroundTint="#00AB0B"
+        android:text="Decrease" />
 
     <Button
         android:id="@+id/counter_back_btn"
@@ -42,8 +42,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
-        android:text="Back to Main" >
+        android:backgroundTint="#00AB0B"
+        android:text="Back to Main" />
 
-    </Button>
+
+    <Button
+        android:id="@+id/counter_reset_btn"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="-360dp"
+        android:backgroundTint="#00AB0B"
+        android:text="Reset" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
