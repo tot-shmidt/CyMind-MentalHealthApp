@@ -23,6 +23,6 @@ public class MainActivity extends AppCompatActivity {
         messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
         messageText.setText("Hello Iowa State University!");
         messageText.setTextColor(0xFF0000FF);
-        messageText.setTextSize(8);
+        messageText.setTextSize(85);
     }
 }
