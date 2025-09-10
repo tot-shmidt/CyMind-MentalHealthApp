@@ -1,8 +1,10 @@
 package coms309.people;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.security.KeyException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,8 +44,12 @@ public class PeopleController {
     // in this case because of @ResponseBody
     // Note: To CREATE we use POST method
     @PostMapping("/people")
-    public  String createPerson(@RequestBody Person person) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public  String createPerson(@RequestBody Person person) throws KeyException {
         System.out.println(person);
+        if (peopleList.containsKey(person.getFirstName())) {
+            throw new KeyException("Someone with that key already exists");
+        }
         peopleList.put(person.getFirstName(), person);
         return "New person "+ person.getFirstName() + " Saved";
     }
@@ -91,7 +97,10 @@ public class PeopleController {
             value="/people",
             params = { "firstName" }
     )
-    public Person updatePerson2(@RequestParam("firstName") String firstName, @RequestBody Person p) {
+    public Person updatePerson2(@RequestParam("firstName") String firstName, @RequestBody Person p) throws KeyException {
+        if (!peopleList.containsKey(firstName)) {
+            throw new KeyException("No such person with that key");
+        }
         peopleList.replace(firstName, p);
         return peopleList.get(firstName);
     }
@@ -106,6 +115,12 @@ public class PeopleController {
     public HashMap<String, Person> deletePerson(@PathVariable String firstName) {
         peopleList.remove(firstName);
         return peopleList;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(KeyException.class)
+    public String handleKeyException(KeyException e) {
+        return e.getMessage();
     }
 }
 

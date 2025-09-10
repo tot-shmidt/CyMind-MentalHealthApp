@@ -6,9 +6,10 @@ package coms309;
  * @author Vivek Bengre
  */
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.KeyException;
 
 @RestController
 class ExceptionController {
@@ -18,4 +19,9 @@ class ExceptionController {
         throw new RuntimeException("Check to see what happens when an exception is thrown");
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(RuntimeException.class)
+    public String handleRuntimeException() {
+        return "Our bad\n";
+    }
 }
