@@ -18,4 +18,6 @@ class ExceptionController {
         throw new RuntimeException("Check to see what happens when an exception is thrown");
     }
 
+
+
 }

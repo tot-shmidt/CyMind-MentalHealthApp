@@ -1,21 +1,15 @@
 package coms309;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserManager {
-    private static final ArrayList<User> users = new ArrayList<User>();
+    private static final HashMap<String, User> users = new HashMap<String, User>();
 
     public static void addUser(User user) {
-        users.add(user);
+        users.put(user.name(), user);
     }
 
     public static User getUser(String name) {
-        for (User user : users) {
-            if (user.name().equals(name)) {
-                return user;
-            }
-        }
-
-        return null;
+        return users.get(name);
     }
 }

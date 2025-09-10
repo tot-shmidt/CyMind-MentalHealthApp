@@ -1,4 +1,10 @@
 package coms309;
 
-public record User(String name) { }
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
+public record User(
+    @NotNull String name,
+    @Email String email,
+    String phone
+) {}
