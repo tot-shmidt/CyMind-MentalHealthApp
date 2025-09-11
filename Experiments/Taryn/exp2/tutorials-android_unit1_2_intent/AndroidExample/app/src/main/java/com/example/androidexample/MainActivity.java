@@ -25,10 +25,11 @@ public class MainActivity extends AppCompatActivity {
         /* initialize UI elements */
         messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
         counterButton = findViewById(R.id.main_counter_btn);// link to counter button in the Main activity XML
-        emailBox = findViewById(R.id.main_email_box);
+        emailBox = findViewById(R.id.main_email_box); //link to the edit text in the main activity
 
         /* extract data passed into this activity from another activity */
 
+        //message to prompt the user
             messageText.setText("Enter email to sign up");
 
 
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
                 /* when counter button is pressed, use intent to switch to Counter Activity */
                 Intent intent = new Intent(MainActivity.this, CounterActivity.class);
+                //passes user input as a variable into counter activity
                 intent.putExtra("Email", userEmail);
                 startActivity(intent);
             }

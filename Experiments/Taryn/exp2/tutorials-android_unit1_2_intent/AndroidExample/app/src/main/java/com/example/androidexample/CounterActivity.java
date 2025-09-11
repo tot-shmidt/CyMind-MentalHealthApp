@@ -23,8 +23,9 @@ public class CounterActivity extends AppCompatActivity {
         counterMsg = findViewById(R.id.counter_text);
         backBtn = findViewById(R.id.counter_back_btn);
 
-
+        //receive user input from main activity page
         Bundle extras = getIntent().getExtras();
+        //Ensure there was something passed in from Main Activity
         if(extras != null) {
             String userEmail = extras.getString("Email");
             counterMsg.setText("Hello " + userEmail + "!");

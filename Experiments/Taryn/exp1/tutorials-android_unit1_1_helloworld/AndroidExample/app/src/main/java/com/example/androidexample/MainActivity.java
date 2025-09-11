@@ -22,10 +22,10 @@ public class MainActivity extends AppCompatActivity {
 
         /* initialize UI elements */
         messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
-        messageText.setText("Hello Iowa State University!");
+        messageText.setText("Hello Iowa State Students!");
 
 
         secmessageText = findViewById(R.id.sec_msg_txt);      // link to message textview in the Main activity XML
-        secmessageText.setText("This is a simple test.");
+        secmessageText.setText("Welcome to CyMind!");
     }
 }

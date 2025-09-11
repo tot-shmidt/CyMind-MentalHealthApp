@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:context=".MainActivity"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Schedule In-Person Appointment"
+        android:layout_gravity="center"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="75dp"
+        android:textSize="30dp"
+        android:textColor="#fc0303">
+    </TextView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="First Name: "
+            android:textSize="20dp"
+            android:textColor="#000000">
+        </TextView>
+
+        <EditText
+            android:id="@+id/inPerson_first_edt"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:hint="Enter First Name Here">
+        </EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Name: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <EditText
+            android:id="@+id/inPerson_last_edt"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:layout_height="50dp"
+            android:hint="Enter Last Name Here">
+        </EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/inPerson_date_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/inPerson_time_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proffesional: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/inPerson_prof_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/inPerson_loc_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/inPerson_online_btn"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="Online"
+            android:textSize="20sp"
+            android:textColor="#ffffff">
+        </Button>
+
+        <Button
+            android:id="@+id/inPerson_submit_btn"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Submit"
+            android:textSize="20sp"
+            android:textColor="#ffffff">
+        </Button>
+
+    </LinearLayout>
+
+
+</androidx.appcompat.widget.LinearLayoutCompat>

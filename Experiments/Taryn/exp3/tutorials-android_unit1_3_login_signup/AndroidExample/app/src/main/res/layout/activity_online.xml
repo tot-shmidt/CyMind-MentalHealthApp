@@ -5,15 +5,16 @@
     tools:context=".MainActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Signup Example"
+        android:text="Schedule Online Appointment"
         android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="80dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="75dp"
         android:textSize="30dp"
         android:textColor="#fc0303">
     </TextView>
@@ -28,16 +29,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="username: "
+            android:text="First Name: "
             android:textSize="20dp"
             android:textColor="#000000">
         </TextView>
 
         <EditText
-            android:id="@+id/signup_username_edt"
+            android:id="@+id/online_first_edt"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:hint="Enter Username Here">
+            android:hint="Enter First Name Here">
         </EditText>
 
     </LinearLayout>
@@ -51,44 +52,99 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="password: "
-            android:textSize="20dp"
+            android:text="Last Name: "
+            android:textSize="20sp"
             android:textColor="#000000">
         </TextView>
 
         <EditText
-            android:id="@+id/signup_password_edt"
-            android:layout_width="wrap_content"
-            android:inputType="textPassword"
+            android:id="@+id/online_last_edt"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
             android:layout_height="50dp"
-            android:hint="Enter Password Here">
+            android:hint="Enter Last Name Here">
         </EditText>
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="70sp"
-            android:text="confirm\npassword: "
-            android:textSize="20dp"
+            android:layout_height="wrap_content"
+            android:text="Date: "
+            android:textSize="20sp"
             android:textColor="#000000">
         </TextView>
 
-        <EditText
-            android:id="@+id/signup_confirm_edt"
-            android:layout_width="wrap_content"
-            android:inputType="textPassword"
-            android:layout_height="70dp"
-            android:hint="Enter Password Here">
-        </EditText>
+    <Spinner
+        android:id="@+id/online_date_spinner"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_weight="1">
+
+    </Spinner>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/online_time_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proffesional: "
+            android:textSize="20sp"
+            android:textColor="#000000">
+        </TextView>
+
+        <Spinner
+            android:id="@+id/online_prof_spinner"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1">
+
+        </Spinner>
+
+    </LinearLayout>
+
+
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -98,21 +154,21 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/signup_login_btn"
+            android:id="@+id/online_submit_btn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:text="Login"
+            android:text="Submit"
             android:textSize="20sp"
             android:textColor="#ffffff">
         </Button>
 
         <Button
-            android:id="@+id/signup_signup_btn"
+            android:id="@+id/online_inPerson_btn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="Signup"
+            android:text="In-person"
             android:textSize="20sp"
             android:textColor="#ffffff">
         </Button>

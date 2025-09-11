@@ -8,14 +8,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView messageText;   // define message textview variable
-    private TextView usernameText;  // define username textview variable
-    private Button loginButton;     // define login button variable
-    private Button signupButton;    // define signup button variable
+    private TextView firstText;
+    private TextView lastText;
+    private TextView timeText;
+    private TextView dateText;
+    private TextView locText;
+    private TextView profText;
+    // define username textview variable
+    private Button onlineButton;     // define login button variable
+    private Button inPersonButton;    // define signup button variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,40 +28,53 @@ public class MainActivity extends AppCompatActivity {
 
         /* initialize UI elements */
         messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
-        usernameText = findViewById(R.id.main_username_txt);// link to username textview in the Main activity XML
-        loginButton = findViewById(R.id.main_login_btn);    // link to login button in the Main activity XML
-        signupButton = findViewById(R.id.main_signup_btn);  // link to signup button in the Main activity XML
+        firstText = findViewById(R.id.main_first_txt);// link to username textview in the Main activity XML
+        lastText = findViewById(R.id.main_last_txt);
+        timeText = findViewById(R.id.main_time_txt);
+        dateText = findViewById(R.id.main_date_txt);
+        profText = findViewById(R.id.main_prof_txt);
+        locText = findViewById(R.id.main_loc_txt);
+        onlineButton = findViewById(R.id.main_online_btn);    // link to login button in the Main activity XML
+        inPersonButton = findViewById(R.id.main_inPerson_btn);  // link to signup button in the Main activity XML
 
         /* extract data passed into this activity from another activity */
         Bundle extras = getIntent().getExtras();
         if(extras == null) {
-            messageText.setText("Home Page");
-            usernameText.setVisibility(View.INVISIBLE);             // set username text invisible initially
+            messageText.setText("Welcome! To make an appointment, select one of the options below.");
+            firstText.setVisibility(View.INVISIBLE);             // set username text invisible initially
         } else {
-            messageText.setText("Welcome");
-            usernameText.setText(extras.getString("USERNAME")); // this will come from LoginActivity
-            loginButton.setVisibility(View.INVISIBLE);              // set login button invisible
-            signupButton.setVisibility(View.INVISIBLE);             // set signup button invisible
+            messageText.setText("Your appointment is booked!");
+            // this will come from LoginActivity
+            firstText.setText(extras.getString("FIRST"));
+            //lastText.setText(extras.getString("LAST"));
+            dateText.setText(extras.getString("DATE"));
+            timeText.setText(extras.getString("TIME"));
+            profText.setText(extras.getString("PROF"));
+            locText.setText(extras.getString("LOC"));
+
+
+            onlineButton.setVisibility(View.INVISIBLE);              // set login button invisible
+            inPersonButton.setVisibility(View.INVISIBLE);             // set signup button invisible
         }
 
         /* click listener on login button pressed */
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        onlineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 /* when login button is pressed, use intent to switch to Login Activity */
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, OnlineActivity.class);
                 startActivity(intent);
             }
         });
 
         /* click listener on signup button pressed */
-        signupButton.setOnClickListener(new View.OnClickListener() {
+        inPersonButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 /* when signup button is pressed, use intent to switch to Signup Activity */
-                Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+                Intent intent = new Intent(MainActivity.this, InPersonActivity.class);
                 startActivity(intent);
             }
         });
