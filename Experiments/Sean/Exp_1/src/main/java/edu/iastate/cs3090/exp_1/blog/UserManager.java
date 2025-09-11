@@ -1,12 +1,14 @@
 package edu.iastate.cs3090.exp_1.blog;
 
 import edu.iastate.cs3090.exp_1.model.User;
+import lombok.Getter;
 
 import java.security.KeyException;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class UserManager {
+    @Getter
     private static final HashMap<UUID, User> users = new HashMap<UUID, User>();
 
     public static void addUser(User user) {
@@ -32,9 +34,5 @@ public class UserManager {
             throw new KeyException("UUID does not exist");
         }
         users.remove(id);
-    }
-
-    public static HashMap<UUID, User> getAllUsers() {
-        return users;
     }
 }
