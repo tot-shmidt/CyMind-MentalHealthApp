@@ -28,7 +28,7 @@ public class CustomUserController {
     }
 
     @GetMapping("/user/{email}")
-    public Object getUser(@PathVariable String email, Authentication auth) throws NoSuchElementException, AuthorizationDeniedException {
+    public CustomUser getUser(@PathVariable String email, Authentication auth) throws AuthorizationDeniedException {
         CustomUser customUser = users.get(email);
 
         String authenticatedUsername = ((UserDetails) auth.getPrincipal()).getUsername();
@@ -55,12 +55,6 @@ public class CustomUserController {
         users.put(newUser.getEmail(), newUser);
 
         return newUser;
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNoSuchElementException(Exception e) {
-        return e.getMessage();
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
