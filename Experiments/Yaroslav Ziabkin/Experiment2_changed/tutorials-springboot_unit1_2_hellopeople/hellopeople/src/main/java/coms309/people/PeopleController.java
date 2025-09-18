@@ -120,6 +120,12 @@ public class PeopleController {
     	return person;
     }
     
+    @GetMapping("/people/job/{firstName}")
+    public String whoIsThePerson(@PathVariable String firstName) {
+    	String str = "This person is " + peopleList.get(firstName).getJob();
+    	return str;
+    }
+    
     
 } // end of people controller
 
