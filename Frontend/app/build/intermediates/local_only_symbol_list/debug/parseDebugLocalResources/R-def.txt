@@ -1,0 +1,35 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color colorAccent
+color colorPrimary
+color colorPrimaryDark
+color light_gray
+color text_link
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+id background
+id buttonAppointments
+id buttonChat
+id buttonProfile
+id buttonResources
+id moodButtonHappy
+id moodButtonNeutral
+id moodButtonSad
+id welcomeMessage
+layout activity_homepage
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string email
+string forgot_password
+string login
+string login_logo_description
+string login_welcome_message
+string no_account_sign_up
+string password
+style Base.Theme.MyApplication
+style Theme.MyApplication
+xml backup_rules
+xml data_extraction_rules
