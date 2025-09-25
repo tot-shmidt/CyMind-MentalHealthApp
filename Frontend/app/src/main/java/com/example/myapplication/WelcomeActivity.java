@@ -32,8 +32,7 @@ public class WelcomeActivity extends AppCompatActivity {
         buttonUserSignin = findViewById(R.id.userSignin);
         buttonGuestSignin = findViewById(R.id.guestSignin);
         buttonProfessionalSignin = findViewById(R.id.professionalSignin);
-        textViewWelcome = findViewById(R.id.textViewWelcome);
-        imageViewLogo = findViewById(R.id.imageViewLogo);
+
 
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
