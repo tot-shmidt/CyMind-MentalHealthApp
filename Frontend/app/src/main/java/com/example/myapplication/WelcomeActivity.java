@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -45,6 +46,8 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: process signin details and navigate to user homepage when made
+                Intent intent = new Intent(WelcomeActivity.this, HomepageActivity.class);
+                startActivity(intent);
             }
         });
 
