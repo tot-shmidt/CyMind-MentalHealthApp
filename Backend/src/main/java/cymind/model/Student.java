@@ -1,4 +1,4 @@
-package myUsers;
+package cymind.model;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
