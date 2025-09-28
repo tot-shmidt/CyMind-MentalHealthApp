@@ -10,4 +10,5 @@ import cymind.model.AbstractUser;
  */
 public interface AbstractUserRepository extends JpaRepository<AbstractUser, Long> {
 	AbstractUser findByEmail(String email);
+	AbstractUser findById(long id);
 }
