@@ -43,7 +43,7 @@ public class UserController {
     }
     
     /**
-     * Returns a user by its id.
+     * Returns user by its id.
      * @param id
      * @return
      */
@@ -51,7 +51,7 @@ public class UserController {
     ResponseEntity<AbstractUser> getUserById(@PathVariable long id) {
     	AbstractUser user =  userRepository.findById(id);
     	
-    	// If no such user with the given id, HTTP 404 + empty body is sent.
+    	// If no such user with the given id: HTTP 404 and empty body is sent.
     	if (user == null) {
     		return ResponseEntity.notFound().build();
     	}
@@ -60,5 +60,29 @@ public class UserController {
     	return ResponseEntity.ok(user);
     }
     
-
+    /**
+     * Updates user`s data with specified id.
+     * @param id
+     * @param request
+     * @return
+     */
+    @PutMapping(path = "/{id}")
+    ResponseEntity<AbstractUser> updateUser(@PathVariable long id, @RequestBody AbstractUser request) {
+    	AbstractUser user = userRepository.findById(id);
+    	
+    	// If no such user with the given id: HTTP 404 and empty body is sent.
+    	if (user == null) {
+    		return ResponseEntity.notFound().build();
+    	}
+    	
+    	// Check if id from http body is the same with one of the current user.
+    	if (request.getId() != null && !request.getId().equals(id)) {
+    		throw new RuntimeException("Path variable id is different from request body id");
+    	}
+    	
+    	userRepository.save(request);
+    	return ResponseEntity.ok(user);  	
+    }
+    
+    
 }
