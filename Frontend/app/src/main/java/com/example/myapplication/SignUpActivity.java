@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    private EditText editTextName;
     private EditText editTextEmail;
     private EditText editTextPassword;
     private Button buttonRegister;
@@ -24,13 +25,14 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_signup);
 
         // View initializations
+        editTextName = findViewById(R.id.editTextName);
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonRegister = findViewById(R.id.register);
-        buttonUserSignin = findViewById(R.id.userSignin);
+        buttonUserSignin = findViewById(R.id.userSignup);
         buttonGuestSignin = findViewById(R.id.guestSignin);
         buttonProfessionalSignin = findViewById(R.id.professionalSignin);
 
@@ -46,8 +48,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: process signin details and navigate to user homepage when made
-                Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
-                startActivity(intent);
+
             }
         });
 
