@@ -7,110 +7,98 @@
     tools:context=".WelcomeActivity"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorAccent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login"
+    <ImageView
+        android:id="@+id/imageViewLogo"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="32dp"
         android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="100dp"
-        android:textSize="30dp"
-        android:textColor="#fc0303">
-    </TextView>
-
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="email:"
-            android:textSize="20dp"
-            android:textColor="#000000">
-        </TextView>
-
-        <EditText
-            android:id="@+id/editTextEmail"
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:hint="Enter Email"
-            android:inputType="textEmailAddress" >
-        </EditText>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="password: "
-            android:textSize="20dp"
-            android:textColor="#000000">
-        </TextView>
-
-
-        <EditText
-            android:id="@+id/editTextPassword"
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:hint="Enter password"
-            android:inputType="textPassword" >
-        </EditText>
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/userSignin"
-        android:layout_width="200dp"
-        android:layout_height="55dp"
-        android:textSize="25sp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center"
-        android:text="Sign in" />
-
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/login_logo_description"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="40dp"
+        android:orientation="vertical">
+
+        <!-- determine if we use login or sign-in for consistency -->
+        <TextView
+            android:id="@+id/textViewWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center"
+            android:text="Sign-in"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewLogo" />
+
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword" />
+
+        <!-- Buffer space for aesthetics -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dip" />
+    </LinearLayout>
+
+    <Button
+        android:layout_gravity="center"
+        android:id="@+id/userSignin"
+        android:layout_width="137dip"
+        android:layout_height="wrap_content"
+
+        android:layout_weight="0"
+        android:text="Sign-in" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="50dip" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/register"
-            android:layout_width="wrap_content"
+            android:layout_width="137dip"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_weight="1"
             android:text="Register" />
 
         <Button
-            android:id="@+id/guestSignin"
-            android:layout_width="wrap_content"
+            android:id="@+id/professionalSignin"
+            android:layout_width="137dip"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Guest" />
+            android:layout_weight="1"
+            android:text="Professional" />
 
         <Button
-            android:id="@+id/professionalSignin"
-            android:layout_width="wrap_content"
+            android:id="@+id/guestSignin"
+            android:layout_width="137dip"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="Professional" />
+            android:layout_weight="1"
+            android:text="Guest" />
     </LinearLayout>
-
-
 
 </androidx.appcompat.widget.LinearLayoutCompat>

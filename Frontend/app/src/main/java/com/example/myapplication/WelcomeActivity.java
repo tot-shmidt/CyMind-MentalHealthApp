@@ -39,6 +39,9 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: navigate to registration page when made
+                /*
+                Intent intent = new Intent(WelcomeActivity.this, INSERT REGISTRATION PAGE ACTIVITY);
+                startActivity(intent); */
             }
         });
 
@@ -54,7 +57,9 @@ public class WelcomeActivity extends AppCompatActivity {
         buttonGuestSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: navigate to homepage without user abilities
+                // Takes guest users to homepage on guest user button click.
+                Intent intent = new Intent(WelcomeActivity.this, HomepageActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -62,6 +67,9 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: navigate to professionals sign in page when made
+                /*
+                Intent intent = new Intent(WelcomeActivity.this, INSERT PRO PAGE ACTIVITY);
+                startActivity(intent); */
             }
         });
     }
