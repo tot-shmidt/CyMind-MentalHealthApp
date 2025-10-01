@@ -2,11 +2,16 @@ package cymind.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class AbstractUser {
+public class AbstractUser {
 	
 	// ========== Fields ==========
 	
@@ -27,7 +32,7 @@ public abstract class AbstractUser {
 	/**
 	 * How old is the person. Precise data birth is not necessary.
 	 */
-	private int ageFullYears;
+	private int age;
 
 	/**
 	 * Email annotation is part of the hibernate validator package that helps with validation of email input. 
@@ -36,10 +41,11 @@ public abstract class AbstractUser {
 	 */
     @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
             flags = Pattern.Flag.CASE_INSENSITIVE)
-    private String emailId;
+    @Column(unique = true)
+    @NotBlank()
+    private String email;
 
     // ========== Constructors ==========
-    
     /**
      * We can not directly create an object of this class but the constructor is for descendant classes.
      * @param firstName
@@ -47,88 +53,15 @@ public abstract class AbstractUser {
      * @param ageFullYears
      * @param email
      */
-    public AbstractUser(String firstName, String lastName, Integer ageFullYears, String emailId) {
+    public AbstractUser(String firstName, String lastName, int ageFullYears, String email) {
     	this.firstName = firstName;
     	this.lastName = lastName;
-    	this.ageFullYears = ageFullYears;
-    	this.emailId = emailId;
+    	this.age = ageFullYears;
+    	this.email = email;
     }
-    
+
     /**
      * Default constuctor is required by JPA/Spring to recreate objects from the data base.
      */
     public AbstractUser() {}
-	
-    
-    // ========== Getters and Setters ==========
-    
-    public Long getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Integer getAge() {
-        return ageFullYears;
-    }
-
-    public void setAge(Integer age) {
-        this.ageFullYears = age;
-    }
-
-    public String getEmail() {
-        return emailId;
-    }
-
-    public void setEmail(String email) {
-        this.emailId = email;
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

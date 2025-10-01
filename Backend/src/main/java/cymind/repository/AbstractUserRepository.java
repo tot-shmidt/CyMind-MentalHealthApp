@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AbstractUserRepository extends JpaRepository<AbstractUser, Long> {
-	AbstractUser findByEmailId(String emailId);
+	AbstractUser findByEmail(String email);
 	AbstractUser findById(long id);
 }

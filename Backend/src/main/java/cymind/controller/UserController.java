@@ -2,21 +2,19 @@ package cymind.controller;
 
 import java.util.List;
 
+import cymind.dto.AbstractUserDTO;
 import cymind.service.AbstractUserService;
+import jakarta.persistence.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import cymind.repository.AbstractUserRepository;
 import cymind.model.*;
@@ -95,8 +93,14 @@ public class UserController {
      * @return The created user
      */
     @PostMapping("/signup")
-    ResponseEntity<AbstractUser> createUser(@RequestBody AbstractUser request) {
-        AbstractUser abstractUser = abstractUserService.createUser(request);
-        return new ResponseEntity<>(abstractUser, HttpStatus.CREATED);
+    ResponseEntity<AbstractUserDTO> createUser(@RequestBody AbstractUser request) throws NonUniqueResultException {
+        AbstractUserDTO newUser = abstractUserService.createUser(request);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
+
+    @ExceptionHandler(NonUniqueResultException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleNonUniqueResultException(NonUniqueResultException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 }
