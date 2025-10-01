@@ -7,110 +7,109 @@
     tools:context=".HomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/welcomeMessage"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:text="Welcome!"
-        android:textAlignment="center"
-        android:textSize="48px"
-        app:layout_constraintBaseline_toBaselineOf="@+id/buttonProfile"
-        app:layout_constraintEnd_toStartOf="@+id/buttonProfile"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/buttonProfile"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginLeft="300dp"
-        android:text="Profile"
-        app:layout_constraintBottom_toTopOf="@+id/moodButtonSad"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/welcomeMessage"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/welcomeMessage"
+                android:layout_width="326dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:paddingLeft="25dip"
+                android:text="Welcome [insert name]!"
+                android:textSize="24pt"
+                app:layout_constraintBaseline_toBaselineOf="parent"
+                app:layout_constraintEnd_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/buttonProfile"
+                android:src="@drawable/profile"
+                android:layout_width="75dip"
+                android:layout_height="75dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="10dip"
+                android:text="Profile"
+                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="wrap_content"
+            android:layout_height="100dip"
+            app:layout_constraintBottom_toTopOf="@+id/moodButtonHappy"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/welcomeMessage" />
+
+        <TextView
+            android:id="@+id/moodMessage"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:textAlignment="center"
+            android:textSize="12pt"
+            android:text="How are you feeling today?"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/moodButtonHappy"
+                android:layout_width="137dip"
+                android:layout_height="wrap_content"
+                android:text="Happy"
+                app:layout_constraintBaseline_toBaselineOf="@+id/moodButtonNeutral"
+                app:layout_constraintEnd_toStartOf="@+id/moodButtonNeutral"
+                app:layout_constraintTop_toBottomOf="@id/space2" />
+
+            <Button
+                android:id="@+id/moodButtonNeutral"
+                android:layout_width="137dip"
+                android:layout_height="wrap_content"
+                android:text="Neutral"
+                app:layout_constraintEnd_toStartOf="@+id/moodButtonSad"
+                app:layout_constraintStart_toEndOf="@+id/moodButtonHappy"
+                app:layout_constraintTop_toTopOf="@+id/moodButtonSad" />
+
+            <Button
+                android:id="@+id/moodButtonSad"
+                android:layout_width="137dip"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="172dp"
+                android:text="Sad"
+                app:layout_constraintBottom_toTopOf="@+id/buttonAppointments"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/moodButtonNeutral"
+                app:layout_constraintTop_toBottomOf="@+id/buttonProfile" />
+        </LinearLayout>
+
+        <Space
+            android:id="@+id/space2"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/buttonChat"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </LinearLayout>
 
 
     <!-- TODO: generic app information -->
-    <Space
-        android:id="@+id/space"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        app:layout_constraintBottom_toTopOf="@+id/moodButtonHappy"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeMessage" />
 
     <!-- TODO: mood tracking -->
 
 
-    <Button
-        android:id="@+id/moodButtonHappy"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Happy"
-        app:layout_constraintBaseline_toBaselineOf="@+id/moodButtonNeutral"
-        app:layout_constraintEnd_toStartOf="@+id/moodButtonNeutral"
-        app:layout_constraintTop_toBottomOf="@id/space2" />
-
-    <Button
-        android:id="@+id/moodButtonNeutral"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Neutral"
-        app:layout_constraintEnd_toStartOf="@+id/moodButtonSad"
-        app:layout_constraintStart_toEndOf="@+id/moodButtonHappy"
-        app:layout_constraintTop_toTopOf="@+id/moodButtonSad" />
-
-    <Button
-        android:id="@+id/moodButtonSad"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="172dp"
-        android:text="Sad"
-        app:layout_constraintBottom_toTopOf="@+id/buttonAppointments"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/moodButtonNeutral"
-        app:layout_constraintTop_toBottomOf="@+id/buttonProfile" />
-
-
-    <Space
-        android:id="@+id/space2"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonChat"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <!-- TODO: page-to-page navigation menu -->
 
-
-    <Button
-        android:id="@+id/buttonChat"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Chat"
-        app:layout_constraintBaseline_toBaselineOf="@+id/buttonResources"
-        app:layout_constraintEnd_toStartOf="@+id/buttonResources"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/buttonResources"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Resources"
-        app:layout_constraintEnd_toStartOf="@+id/buttonAppointments"
-        app:layout_constraintStart_toEndOf="@+id/buttonChat"
-        app:layout_constraintTop_toTopOf="@+id/buttonAppointments" />
-
-    <Button
-        android:id="@+id/buttonAppointments"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="223dp"
-        android:text="Appointments"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonResources"
-        app:layout_constraintTop_toBottomOf="@+id/moodButtonSad" />
 
 </FrameLayout>
