@@ -24,6 +24,10 @@ public class Guest extends AbstractUser{
 	 * Unique identifier of a guest user.
 	 */
 	private String sessionToken;
+	/**
+	 * Integer represents the reason for visit depending on selected option from provided list of options. 
+	 */
+	private int reasonForVisit;
 	
 	
 	// ========== Constructors ==========
@@ -36,9 +40,10 @@ public class Guest extends AbstractUser{
 	 * @param emailId
 	 * @param sessionToken
 	 */
-	public Guest(String firstName, String lastName, Integer ageFullYears, String emailId, String sessionToken) {
+	public Guest(String firstName, String lastName, Integer ageFullYears, String emailId, String sessionToken, int reasonForVisit) {
         super(firstName, lastName, ageFullYears, emailId);
         this.sessionToken = sessionToken;
+        this.setReasonForVisit(reasonForVisit);
     }
 	
 	/**
@@ -56,5 +61,13 @@ public class Guest extends AbstractUser{
 
 	public void setSessionToken(String sessionToken) {
 		this.sessionToken = sessionToken;
+	}
+
+	public int getReasonForVisit() {
+		return reasonForVisit;
+	}
+
+	public void setReasonForVisit(int reasonForVisit) {
+		this.reasonForVisit = reasonForVisit;
 	}
 }
