@@ -17,9 +17,6 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
-        Log.d("ProfileActivity", "onCreate: ProfileActivity started successfully!");
-        TextView TextView = findViewById(R.id.textView); // If R.id.userName doesn't exist in activity_profile.xml
-        TextView.setText("Test"); // This will cause a NullPointerException
 
     }
 }
