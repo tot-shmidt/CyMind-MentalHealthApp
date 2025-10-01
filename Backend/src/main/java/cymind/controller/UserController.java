@@ -97,10 +97,4 @@ public class UserController {
         AbstractUserDTO newUser = abstractUserService.createUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
-
-    @ExceptionHandler(NonUniqueResultException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<String> handleNonUniqueResultException(NonUniqueResultException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-    }
 }

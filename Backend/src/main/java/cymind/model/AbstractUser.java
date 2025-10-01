@@ -24,6 +24,7 @@ public class AbstractUser {
 	/**
 	 * First name of the user.
 	 */
+    @NotBlank
 	private String firstName;
 	/**
 	 * Last name of the user.
@@ -40,7 +41,8 @@ public class AbstractUser {
 	 * as they are potential SQL injection risk. Flag here is used to discern that input is not case-sensitive.
 	 */
     @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
-            flags = Pattern.Flag.CASE_INSENSITIVE)
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "must be a valid email address")
     @Column(unique = true)
     @NotBlank()
     private String email;
