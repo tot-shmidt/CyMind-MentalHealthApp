@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'customExp3'
+rootProject.name = 'Frontend'
 include(':app')
