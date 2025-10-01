@@ -2,13 +2,113 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".WelcomeActivity"
+    android:orientation="vertical"
+    android:background="@color/colorAccent">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/returnButton"
+        android:layout_width="75dip"
+        android:layout_height="75dip"
+        android:text="X"
+        android:textSize="18pt"
+        android:layout_marginTop="15dip"
+        android:layout_marginLeft="-25dip"
+        android:paddingRight="7dp"
+        android:paddingTop="0dp"
+        app:cornerRadius="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="216dp"
-        tools:layout_editor_absoluteY="114dp" />
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/returnButton">
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"
+            android:layout_margin="15dip"
+            android:text="User's Name"
+            android:layout_gravity="center_horizontal"
+            android:textSize="12pt" />
+
+        <TextView
+            android:id="@+id/emailText"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:layout_height="30dip"
+            android:text="User's Email"
+            android:textSize="12pt" />
+
+        <TextView
+            android:id="@+id/ageText"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:layout_height="30dip"
+            android:text="User's Age"
+            android:textSize="12pt" />
+
+        <EditText
+            android:id="@+id/nameEditText"
+            android:layout_width="200dip"
+            android:layout_height="50dip"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:ems="10"
+            android:inputType="text"
+            android:hint="New name" />
+
+        <EditText
+            android:id="@+id/emailEditText"
+            android:layout_width="200dip"
+            android:layout_height="50dip"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:ems="10"
+            android:inputType="textEmailAddress"
+            android:hint="New email"/>
+
+        <EditText
+            android:id="@+id/ageEditText"
+            android:layout_width="200dip"
+            android:layout_height="50dip"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="New age"/>
+
+        <EditText
+            android:id="@+id/passwordEditText"
+            android:layout_width="200dip"
+            android:layout_height="50dip"
+            android:layout_gravity="center_horizontal"
+            android:ems="10"
+            android:layout_margin="15dip"
+            android:hint="New password"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/updateProfileButton"
+            android:layout_width="200dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="15dip"
+            android:text="Update Information" />
+
+        <Button
+            android:id="@+id/deleteProfilebutton"
+            android:layout_width="200dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Delete User Profile" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
