@@ -9,6 +9,6 @@ import cymind.model.AbstractUser;
  * This repository is responsible for managin the parent abstract class and child classes.
  */
 public interface AbstractUserRepository extends JpaRepository<AbstractUser, Long> {
-	AbstractUser findByEmail(String email);
+	AbstractUser findByEmailId(String emailId);
 	AbstractUser findById(long id);
 }
