@@ -7,6 +7,9 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,6 +33,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayList<ObjectNode> errors = new ArrayList<>();
+        e.getBindingResult().getAllErrors().forEach((error) -> {
+            ObjectNode node = mapper.createObjectNode();
+            node.put("entity", error.getObjectName());
+            node.put("message", error.getDefaultMessage());
+            errors.add(node);
+        });
+
+        return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(NonUniqueResultException.class)
     @ResponseStatus(HttpStatus.CONFLICT)

@@ -1,5 +1,6 @@
 package cymind.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -43,23 +44,37 @@ public class AbstractUser {
     @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
             flags = Pattern.Flag.CASE_INSENSITIVE,
             message = "must be a valid email address")
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     @NotBlank()
     private String email;
+
+    @JsonIgnore
+    @NotBlank
+    private String passwordHash;
 
     // ========== Constructors ==========
     /**
      * We can not directly create an object of this class but the constructor is for descendant classes.
      * @param firstName
      * @param lastName
-     * @param ageFullYears
+     * @param age
      * @param email
+     * @param passwordHash
      */
-    public AbstractUser(String firstName, String lastName, int ageFullYears, String email) {
+    public AbstractUser(String firstName, String lastName, int age, String email, String passwordHash) {
     	this.firstName = firstName;
     	this.lastName = lastName;
-    	this.age = ageFullYears;
+    	this.age = age;
     	this.email = email;
+        this.passwordHash = passwordHash;
+    }
+
+    public AbstractUser(String firstName, String lastName, int age, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.email = email;
+        this.passwordHash = "";
     }
 
     /**
