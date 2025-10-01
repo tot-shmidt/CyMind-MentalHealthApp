@@ -2,6 +2,7 @@ package cymind.controller;
 
 import java.util.List;
 
+import cymind.service.AbstractUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,12 +24,16 @@ import cymind.model.*;
 @RestController
 @RequestMapping("/users")  // This top level annotation says "Every endpoint inside this controller will start with /users"
 public class UserController {
-	/**
-	 * This let's us an instance of userRepository. RestController does not know about database itself.
-	 */
+    /**
+     * This lets us an instance of userRepository. RestController does not know about database itself.
+     */
+    @Autowired
+    AbstractUserRepository userRepository;
+
+    // Use Service Middleware to interact with User table
 	@Autowired
-	AbstractUserRepository userRepository;
-	
+    AbstractUserService abstractUserService;
+
 	// TO-DO: Do I need it?
     private String success = "{\"message\":\"success\"}";
     private String failure = "{\"message\":\"failure\"}";
@@ -83,6 +88,15 @@ public class UserController {
     	userRepository.save(request);
     	return ResponseEntity.ok(user);  	
     }
-    
-    
+
+    /**
+     * Create a new user under /user/signup. Will be validated for a correct email and password
+     * @param request
+     * @return The created user
+     */
+    @PostMapping("/signup")
+    ResponseEntity<AbstractUser> createUser(@RequestBody AbstractUser request) {
+        AbstractUser abstractUser = abstractUserService.createUser(request);
+        return new ResponseEntity<>(abstractUser, HttpStatus.CREATED);
+    }
 }
