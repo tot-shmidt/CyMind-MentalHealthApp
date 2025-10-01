@@ -7,6 +7,8 @@ import cymind.repository.AbstractUserRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -42,5 +44,11 @@ public class AbstractUserService {
         abstractUser.setPasswordHash(hash);
 
         return new AbstractUserDTO(abstractUserRepository.save(abstractUser));
+    }
+
+    public void deleteUser(long id) {
+        AbstractUser abstractUser = abstractUserRepository.findById(id);
+        userDetailsManager.deleteUser(abstractUser.getEmail());
+        abstractUserRepository.deleteById(id);
     }
 }

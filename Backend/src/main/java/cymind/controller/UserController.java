@@ -90,6 +90,18 @@ public class UserController {
     }
 
     /**
+     * Deletes the user with {id}, currently does not check if the user requesting that deletion is that user
+     * @param id
+     * @return HTTP 200
+     */
+    @DeleteMapping("/users/{id}")
+    ResponseEntity<?> deleteUser(@PathVariable long id) {
+        // No auth currently, will be added later
+        abstractUserService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
      * Create a new user under /signup. Will be validated for a correct email and password
      * @param request
      * @return The created user
@@ -99,4 +111,5 @@ public class UserController {
         AbstractUserDTO newUser = abstractUserService.createUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
+
 }
