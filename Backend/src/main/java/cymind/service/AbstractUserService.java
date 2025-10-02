@@ -7,12 +7,18 @@ import cymind.repository.AbstractUserRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+
+import javax.security.auth.login.AccountNotFoundException;
 
 @Service
 public class AbstractUserService {
@@ -20,10 +26,10 @@ public class AbstractUserService {
     private AbstractUserRepository abstractUserRepository;
 
     @Autowired
-    private UserDetailsManager userDetailsManager;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
 
     @Transactional
     public AbstractUserDTO createUser(CreateAbstractUserDTO createAbstractUserDTO) throws NonUniqueResultException {
@@ -34,21 +40,22 @@ public class AbstractUserService {
         AbstractUser abstractUser = new AbstractUser(createAbstractUserDTO.firstName(), createAbstractUserDTO.lastName(), createAbstractUserDTO.age(), createAbstractUserDTO.email());
 
         String hash = passwordEncoder.encode(createAbstractUserDTO.password());
-        userDetailsManager.createUser(
-                User.withUsername(createAbstractUserDTO.email())
-                        .password(hash)
-                        .roles("USER")
-                        .build()
-        );
         abstractUser.setPasswordHash(hash);
 
         return new AbstractUserDTO(abstractUserRepository.save(abstractUser));
     }
 
     @Transactional
-    public void deleteUser(long id) {
-        AbstractUser abstractUser = abstractUserRepository.findById(id);
-        userDetailsManager.deleteUser(abstractUser.getEmail());
+    public void deleteUser(long id) throws AccountNotFoundException, AuthorizationDeniedException {
+        AbstractUser abstractUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (abstractUser.getId() != id) {
+            throw new AuthorizationDeniedException("Attempting to delete a different user");
+        }
+
+        if  (abstractUserRepository.findById(id) == null) {
+            throw new AccountNotFoundException("Could not find user with that id");
+        }
+
         abstractUserRepository.deleteById(id);
     }
 }

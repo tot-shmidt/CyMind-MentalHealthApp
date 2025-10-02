@@ -7,6 +7,8 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.security.auth.login.AccountNotFoundException;
 import java.util.ArrayList;
 
 @ControllerAdvice
@@ -49,7 +52,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NonUniqueResultException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<String> handleNonUniqueResultException(NonUniqueResultException e) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -59,6 +61,32 @@ public class GlobalExceptionHandler {
         node.put("message", e.getMessage());
         errors.add(node);
 
+        return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<String> handleAccountNotFoundException(AccountNotFoundException e) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayList<ObjectNode> errors = new ArrayList<>();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("entity", "id");
+        node.put("message", e.getMessage());
+        errors.add(node);
+
         return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException e) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayList<ObjectNode> errors = new ArrayList<>();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("entity", "auth");
+        node.put("message", e.getMessage());
+        errors.add(node);
+
+        return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.UNAUTHORIZED);
     }
 }
