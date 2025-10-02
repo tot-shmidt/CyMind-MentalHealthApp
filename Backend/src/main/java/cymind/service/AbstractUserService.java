@@ -25,14 +25,13 @@ public class AbstractUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     @Transactional
     public AbstractUserDTO createUser(CreateAbstractUserDTO createAbstractUserDTO) throws NonUniqueResultException {
-        AbstractUser abstractUser = new AbstractUser(createAbstractUserDTO.firstName(), createAbstractUserDTO.lastName(), createAbstractUserDTO.age(), createAbstractUserDTO.email());
-
         if (abstractUserRepository.findByEmail(createAbstractUserDTO.email()) != null) {
             throw new NonUniqueResultException("Email already in use");
         }
+
+        AbstractUser abstractUser = new AbstractUser(createAbstractUserDTO.firstName(), createAbstractUserDTO.lastName(), createAbstractUserDTO.age(), createAbstractUserDTO.email());
 
         String hash = passwordEncoder.encode(createAbstractUserDTO.password());
         userDetailsManager.createUser(
@@ -46,6 +45,7 @@ public class AbstractUserService {
         return new AbstractUserDTO(abstractUserRepository.save(abstractUser));
     }
 
+    @Transactional
     public void deleteUser(long id) {
         AbstractUser abstractUser = abstractUserRepository.findById(id);
         userDetailsManager.deleteUser(abstractUser.getEmail());
