@@ -57,58 +57,86 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+        /*
+        Implemented logic that upon sign up submission, sends a Post request to the mock Postman server
+         */
         buttonUserSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO: navigate to registration page when made
 
+                //hold the user's email and password as a String
                 String userEmail = editTextEmail.getText().toString().trim();
                 String userPass = editTextPassword.getText().toString().trim();
 
+                //ensure that the user enters an email since it is required, if a user tries to sign up
+                //without entering, it will not work
                 if(userEmail.isEmpty()) {
                     editTextEmail.setError("Email field is required");
                     return;
                 }
 
+                //ensure user enters a pass, will come up with error to tell user to use a password
                 if(userPass.isEmpty()) {
                     editTextPassword.setError("Password field is required");
                     return;
                 }
+                //for now, come up with a random id for the user that will be assigned upon sign in
+                int userID = (int) (Math.random() * 100);
                 JSONObject request = new JSONObject();
+                //try to send the credentials
                 try {
                     request.put("email", userEmail);
                     request.put("password", userPass);
+                    request.put("id", userID);
                 }
+                //catch it if errors occur when retreiving info
                 catch(JSONException e) {
                     e.printStackTrace();
                     return;
                 }
 
+                //POSTMAN mock server connection plus endpoint (POST)
                 String postUrl = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users";
+                //We will be using volley for roundtrips, so set this request up early
                 RequestQueue queue = Volley.newRequestQueue(SignUpActivity.this);
 
+                //request to post info as json
                 JsonObjectRequest post = new JsonObjectRequest(Request.Method.POST, postUrl, request,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        //get the email and password from json in mock server
                         try {
                             String postedEmail = response.getString("email");
                             String postedPass = response.getString("password");
 
+                            //if POST was sucessful , display message on screen that the user was created.
+                            //For now will be dummy info since this is a mock server and we have not connected backend
                             Toast.makeText(SignUpActivity.this, "New user with email:" + postedEmail + "Password is: " + postedPass,
                                     Toast.LENGTH_LONG).show();
+
+                            //Use intent to go to the next page, in this case the home page
+                            Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
+
+                            //send user email and pass to homepage
+                            intent.putExtra("userEmail", userEmail);
+                            intent.putExtra("userID", userID);
+                            startActivity(intent);
+
                         } catch(JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 },
+                        //Ensure that the postman and app communicate and send/retreive info properly, if not display error message
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError err) {
                                 Toast.makeText(SignUpActivity.this, "Error request: " + err.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
-
+                //finally, add the post to queue
                 queue.add(post);
 
             }
