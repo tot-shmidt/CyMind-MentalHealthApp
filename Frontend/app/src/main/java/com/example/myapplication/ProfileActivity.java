@@ -84,7 +84,6 @@ public class ProfileActivity extends AppCompatActivity {
                 //POSTMAN URL for our DELETE endpoint
                 String deleteUserURL = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users/" + userID;
                 //request conenection from this page
-                RequestQueue queue = Volley.newRequestQueue(ProfileActivity.this);
 
                 //Tells postman this is a DELETE method for deleting a user
                 JsonObjectRequest delete = new JsonObjectRequest(Request.Method.DELETE, deleteUserURL, null,
@@ -105,10 +104,20 @@ public class ProfileActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(ProfileActivity.this, "Error occured while deleting user" + error.getMessage(), Toast.LENGTH_LONG).show();
                             }
-                        });
+                        }
+                ) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        // Define headers if needed
+                        HashMap<String, String> headers = new HashMap<>();
+                        // Example headers (uncomment if needed)
+                        headers.put("Content-Type", "application/json");
+                        return headers;
+                    }
+                };
 
                 //finally, if no issues, add the deleted user to queue
-                queue.add(delete);
+                VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delete);
             }
 
 

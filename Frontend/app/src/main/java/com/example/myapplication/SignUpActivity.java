@@ -26,6 +26,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText editTextName;
     private EditText editTextEmail;
+    private EditText editTextAge;
     private EditText editTextPassword;
     private Button buttonRegister;
     private Button buttonUserSignin;
@@ -43,6 +44,7 @@ public class SignUpActivity extends AppCompatActivity {
         // View initializations
         editTextName = findViewById(R.id.editTextName);
         editTextEmail = findViewById(R.id.editTextEmail);
+        editTextAge = findViewById(R.id.editTextAge);
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonRegister = findViewById(R.id.register);
         buttonUserSignin = findViewById(R.id.userSignup);
@@ -65,10 +67,18 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // TODO: navigate to registration page when made
 
+                String userName = editTextName.getText().toString().trim();
                 //hold the user's email and password as a String
                 String userEmail = editTextEmail.getText().toString().trim();
                 String userPass = editTextPassword.getText().toString().trim();
 
+                String userAge = editTextAge.getText().toString().trim();
+
+                //ensure user enters their name
+                if(userName.isEmpty()) {
+                    editTextEmail.setError("Name field is required");
+                    return;
+                }
                 //ensure that the user enters an email since it is required, if a user tries to sign up
                 //without entering, it will not work
                 if(userEmail.isEmpty()) {
@@ -81,6 +91,20 @@ public class SignUpActivity extends AppCompatActivity {
                     editTextPassword.setError("Password field is required");
                     return;
                 }
+
+                //ensure user enters an age
+                if(userAge.isEmpty()) {
+                    editTextEmail.setError("Age field is required");
+                    return;
+                }
+
+                //validate if user password is at least 8 characters
+                if(userPass.length() < 8) {
+                    editTextPassword.setError("Password must be at least 8 characters");
+                    return;
+                }
+
+
                 //for now, come up with a random id for the user that will be assigned upon sign in
                 int userID = (int) (Math.random() * 100);
                 JSONObject request = new JSONObject();
@@ -99,7 +123,7 @@ public class SignUpActivity extends AppCompatActivity {
                 //POSTMAN mock server connection plus endpoint (POST)
                 String postUrl = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users";
                 //We will be using volley for roundtrips, so set this request up early
-                RequestQueue queue = Volley.newRequestQueue(SignUpActivity.this);
+
 
                 //request to post info as json
                 JsonObjectRequest post = new JsonObjectRequest(Request.Method.POST, postUrl, request,
@@ -107,14 +131,10 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         //get the email and password from json in mock server
-                        try {
-                            String postedEmail = response.getString("email");
-                            String postedPass = response.getString("password");
 
                             //if POST was sucessful , display message on screen that the user was created.
                             //For now will be dummy info since this is a mock server and we have not connected backend
-                            Toast.makeText(SignUpActivity.this, "New user with email:" + postedEmail + "Password is: " + postedPass,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "New user created successfully", Toast.LENGTH_LONG).show();
 
                             //Use intent to go to the next page, in this case the home page
                             Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
@@ -123,10 +143,6 @@ public class SignUpActivity extends AppCompatActivity {
                             intent.putExtra("userEmail", userEmail);
                             intent.putExtra("userID", userID);
                             startActivity(intent);
-
-                        } catch(JSONException e) {
-                            e.printStackTrace();
-                        }
                     }
                 },
                         //Ensure that the postman and app communicate and send/retreive info properly, if not display error message
@@ -135,9 +151,18 @@ public class SignUpActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError err) {
                                 Toast.makeText(SignUpActivity.this, "Error request: " + err.getMessage(), Toast.LENGTH_LONG).show();
                             }
-                        });
+                        }
+                ) {
+                    @Override
+                    public java.util.Map<String, String> getHeaders() {
+                        java.util.HashMap<String, String> headers = new java.util.HashMap<>();
+                        headers.put("Content-Type", "application/json");
+                        return headers;
+                    }
+
+                };
                 //finally, add the post to queue
-                queue.add(post);
+                VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(post);
 
             }
         });
