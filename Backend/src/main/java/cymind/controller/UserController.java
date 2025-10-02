@@ -43,16 +43,10 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUser> getUserById(@PathVariable long id) {
-    	AbstractUser user =  userRepository.findById(id);
-    	
-    	// If no such user with the given id: HTTP 404 and empty body is sent.
-    	if (user == null) {
-    		return ResponseEntity.notFound().build();
-    	}
-    	
-    	// HTTP 200 + user JSON is sent.
-    	return ResponseEntity.ok(user);
+    ResponseEntity<AbstractUserDTO> getUserById(@PathVariable long id) throws AccountNotFoundException, AuthorizationDeniedException {
+        AbstractUserDTO userDTO = abstractUserService.getUser(id);
+
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
     
     /**

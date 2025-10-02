@@ -7,6 +7,7 @@ import cymind.repository.AbstractUserRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -43,6 +44,24 @@ public class AbstractUserService {
         abstractUser.setPasswordHash(hash);
 
         return new AbstractUserDTO(abstractUserRepository.save(abstractUser));
+    }
+
+    @Transactional
+    public AbstractUserDTO getUser(long id) throws AccountNotFoundException, AuthorizationDeniedException {
+        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authedUser.getId() != id) {
+            throw new AuthorizationDeniedException("Attempting to GET a different user");
+        }
+
+        AbstractUser user =  abstractUserRepository.findById(id);
+
+        // If no such user with the given id: HTTP 404 and empty body is sent.
+        if (user == null) {
+            throw new AccountNotFoundException("Could not find user with that id");
+        }
+
+        // HTTP 200 + UserDTO is sent.
+        return new AbstractUserDTO(user);
     }
 
     @Transactional
