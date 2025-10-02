@@ -23,6 +23,9 @@ public class HomeFragment extends Fragment {
     private Button moodButtonNeutral;
     private Button moodButtonSad;
 
+
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -44,8 +47,18 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        String user_email = getArguments().getString("userEmail");
+        int user_id = getArguments().getInt("userID");
+
+        welcomeMessage.setText("Welcome to Cymind\n");
+        welcomeMessage.append(user_email);
+
         buttonProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
+            //String usr_email = getActivity().getIntent().getStringExtra("userEmail");
+            intent.putExtra("userEmail", user_email);
+            intent.putExtra("userID", user_id);
             startActivity(intent);
         });
     }
