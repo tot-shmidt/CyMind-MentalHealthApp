@@ -205,4 +205,73 @@ public class ProfileActivity extends AppCompatActivity {
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
+    private void userUpdate() {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            if (!nameEditText.getText().toString().isEmpty()) {
+                requestBody.put("name", nameEditText.getText().toString());
+            }
+            if (!emailEditText.getText().toString().isEmpty()) {
+                requestBody.put("email", emailEditText.getText().toString());
+            }
+            if (!ageEditText.getText().toString().isEmpty()) {
+                requestBody.put("age", ageEditText.getText().toString());
+            }
+            if (!passwordEditText.getText().toString().isEmpty()) {
+                requestBody.put("password", passwordEditText.getText().toString());
+            }
+
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.PUT, // HTTP method
+                URL_JSON_OBJECT, // API URL
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+
+                        // Display an error message
+                        makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Example headers (uncomment if needed)
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameters (uncomment if needed)
+                // params.put("param1", "value1");
+                // params.put("param2", "value2");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
 }
