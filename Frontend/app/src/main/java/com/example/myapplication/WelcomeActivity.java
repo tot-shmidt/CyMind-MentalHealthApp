@@ -39,9 +39,9 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: navigate to registration page when made
-                /*
-                Intent intent = new Intent(WelcomeActivity.this, INSERT REGISTRATION PAGE ACTIVITY);
-                startActivity(intent); */
+
+                Intent intent = new Intent(WelcomeActivity.this, SignUpActivity.class);
+                startActivity(intent);
             }
         });
 
