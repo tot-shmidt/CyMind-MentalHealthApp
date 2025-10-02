@@ -9,11 +9,16 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+
+import javax.security.auth.login.AccountNotFoundException;
 
 @Service
 public class AbstractUserService {
@@ -41,7 +46,16 @@ public class AbstractUserService {
     }
 
     @Transactional
-    public void deleteUser(long id) {
+    public void deleteUser(long id) throws AccountNotFoundException, AuthorizationDeniedException {
+        AbstractUser abstractUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (abstractUser.getId() != id) {
+            throw new AuthorizationDeniedException("Attempting to delete a different user");
+        }
+
+        if  (abstractUserRepository.findById(id) == null) {
+            throw new AccountNotFoundException("Could not find user with that id");
+        }
+
         abstractUserRepository.deleteById(id);
     }
 }

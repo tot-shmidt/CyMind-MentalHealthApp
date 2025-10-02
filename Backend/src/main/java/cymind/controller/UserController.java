@@ -1,30 +1,20 @@
 package cymind.controller;
 
-import java.util.List;
-
 import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
+import cymind.model.AbstractUser;
+import cymind.repository.AbstractUserRepository;
 import cymind.service.AbstractUserService;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.*;
 
-import cymind.repository.AbstractUserRepository;
-import cymind.model.*;
+import javax.security.auth.login.AccountNotFoundException;
+import java.util.List;
 
 @RestController
 public class UserController {
@@ -95,8 +85,7 @@ public class UserController {
      * @return HTTP 200
      */
     @DeleteMapping("/users/{id}")
-    ResponseEntity<?> deleteUser(@PathVariable long id) {
-        // No auth currently, will be added later
+    ResponseEntity<?> deleteUser(@PathVariable long id) throws AccountNotFoundException, AuthorizationDeniedException {
         abstractUserService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
