@@ -2,42 +2,47 @@ package cymind.controller;
 
 import java.util.List;
 
+import cymind.dto.AbstractUserDTO;
+import cymind.dto.CreateAbstractUserDTO;
+import cymind.service.AbstractUserService;
+import jakarta.persistence.NonUniqueResultException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import cymind.repository.AbstractUserRepository;
 import cymind.model.*;
 
 @RestController
-@RequestMapping("/users")  // This top level annotation says "Every endpoint inside this controller will start with /users"
 public class UserController {
-	/**
-	 * This let's us an instance of userRepository. RestController does not know about database itself.
-	 */
+    /**
+     * This lets us an instance of userRepository. RestController does not know about database itself.
+     */
+    @Autowired
+    AbstractUserRepository userRepository;
+
+    // Use Service Middleware to interact with User table
 	@Autowired
-	AbstractUserRepository userRepository;
-	
-	// TO-DO: Do I need it?
-    private String success = "{\"message\":\"success\"}";
-    private String failure = "{\"message\":\"failure\"}";
-    
+    AbstractUserService abstractUserService;
+
     /**
      * Returns List of all users. It responds on "GET /users", as in RequestMapping annotation.
      * @return
      */
-    @GetMapping
+    @GetMapping("/users")
     List<AbstractUser> getAllUsers() {
     	return userRepository.findAll();
     }
@@ -47,7 +52,7 @@ public class UserController {
      * @param id
      * @return
      */
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/users/{id}")
     ResponseEntity<AbstractUser> getUserById(@PathVariable long id) {
     	AbstractUser user =  userRepository.findById(id);
     	
@@ -66,7 +71,7 @@ public class UserController {
      * @param request
      * @return
      */
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/users/{id}")
     ResponseEntity<AbstractUser> updateUser(@PathVariable long id, @RequestBody AbstractUser request) {
     	AbstractUser user = userRepository.findById(id);
     	
@@ -83,6 +88,28 @@ public class UserController {
     	userRepository.save(request);
     	return ResponseEntity.ok(user);  	
     }
-    
-    
+
+    /**
+     * Deletes the user with {id}, currently does not check if the user requesting that deletion is that user
+     * @param id
+     * @return HTTP 200
+     */
+    @DeleteMapping("/users/{id}")
+    ResponseEntity<?> deleteUser(@PathVariable long id) {
+        // No auth currently, will be added later
+        abstractUserService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Create a new user under /signup. Will be validated for a correct email and password
+     * @param request
+     * @return The created user
+     */
+    @PostMapping("/signup")
+    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid CreateAbstractUserDTO request) throws NonUniqueResultException {
+        AbstractUserDTO newUser = abstractUserService.createUser(request);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
+
 }
