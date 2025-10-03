@@ -2,10 +2,12 @@ package cymind.service;
 
 import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
+import cymind.dto.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
 import cymind.repository.AbstractUserRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,5 +78,12 @@ public class AbstractUserService {
         }
 
         abstractUserRepository.deleteById(id);
+    }
+
+    @Transactional
+    public AbstractUserDTO loginUser(@Valid LoginAbstractUserDTO request) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+        return new AbstractUserDTO(abstractUserRepository.findByEmail(request.email()));
     }
 }
