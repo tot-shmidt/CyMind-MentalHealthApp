@@ -73,7 +73,7 @@ public class AbstractUserService {
 
     @Transactional
     public AbstractUser updateUser(long id, AbstractUserDTO request)
-            throws AccountNotFoundException, AuthorizationDeniedException {
+            throws AccountNotFoundException, AuthorizationDeniedException, NonUniqueResultException {
 
         // Check if the currently logged-in user is the one they are trying to update.
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

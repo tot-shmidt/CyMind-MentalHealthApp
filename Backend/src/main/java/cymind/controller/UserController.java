@@ -37,7 +37,7 @@ public class UserController {
     List<AbstractUser> getAllUsers() {
     	return userRepository.findAll();
     }
-    
+
     /**
      * Returns user by its id.
      * @param id
@@ -49,7 +49,7 @@ public class UserController {
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
-    
+
     /**
      * Updates user`s data with specified id.
      * @param id
@@ -58,7 +58,7 @@ public class UserController {
      */
     @PutMapping(path = "/users/{id}")
     ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUserDTO request)
-            throws AccountNotFoundException, AuthorizationDeniedException {
+            throws AccountNotFoundException, AuthorizationDeniedException, NonUniqueResultException {
 
         // Send all the work to the service class.
         AbstractUser updatedUser = abstractUserService.updateUser(id, request);
