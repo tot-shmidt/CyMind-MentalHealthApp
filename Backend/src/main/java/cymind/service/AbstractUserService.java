@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.security.auth.login.AccountNotFoundException;
 
@@ -30,6 +32,9 @@ public class AbstractUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AbstractUserRepository userRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -64,6 +69,36 @@ public class AbstractUserService {
 
         // HTTP 200 + UserDTO is sent.
         return new AbstractUserDTO(user);
+    }
+
+    @Transactional
+    public AbstractUser updateUser(long id, AbstractUser request)
+            throws AccountNotFoundException, AuthorizationDeniedException {
+
+        // Check if the currently logged-in user is the one they are trying to update.
+        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!authedUser.getId().equals(id)) {
+            throw new AuthorizationDeniedException("You are not authorized to update this user's profile.");
+        }
+
+        // Fetch the existing user from the database
+        AbstractUser userToUpdate = userRepository.findById(id);
+
+        // If no such user with the given id: HTTP 404 and empty body is sent.
+        if (userToUpdate == null) {
+            throw new AccountNotFoundException("User not found with id: " + id);
+        }
+
+        // Modify the fetched user with data from the request
+        userToUpdate.setFirstName(request.getFirstName());
+        userToUpdate.setLastName(request.getLastName());
+        userToUpdate.setAge(request.getAge());
+        userToUpdate.setEmail(request.getEmail());
+
+        // Save the modified user object
+        userRepository.save(userToUpdate);
+
+        return userToUpdate;
     }
 
     @Transactional

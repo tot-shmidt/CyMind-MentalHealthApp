@@ -57,30 +57,14 @@ public class UserController {
      * @return
      */
     @PutMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUser> updateUser(@PathVariable long id, @RequestBody AbstractUser request) {
-        // Fetch the existing user from the database
-        AbstractUser userToUpdate = userRepository.findById(id);
+    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUser request)
+            throws AccountNotFoundException, AuthorizationDeniedException {
 
-        // If no such user with the given id: HTTP 404 and empty body is sent.
-        if (userToUpdate == null) {
-            return ResponseEntity.notFound().build();
-        }
+        // Send all the work to the service class.
+        AbstractUser updatedUser = abstractUserService.updateUser(id, request);
 
-        // Security check - this is fine
-        if (request.getId() != null && !request.getId().equals(id)) {
-            throw new RuntimeException("Path variable id is different from request body id");
-        }
-
-        // Modify the fetched user with data from the request
-        userToUpdate.setFirstName(request.getFirstName());
-        userToUpdate.setLastName(request.getLastName());
-        userToUpdate.setAge(request.getAge());
-        userToUpdate.setEmail(request.getEmail());
-
-        // Save the MODIFIED user object
-        userRepository.save(userToUpdate);
-
-        return ResponseEntity.ok(userToUpdate);
+        // Convert the updated user entity to a DTO and return it.
+        return ResponseEntity.ok(new AbstractUserDTO(updatedUser));
     }
 
     /**
