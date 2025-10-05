@@ -9,19 +9,12 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.security.auth.login.AccountNotFoundException;
 
@@ -32,9 +25,6 @@ public class AbstractUserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    AbstractUserRepository userRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -82,7 +72,7 @@ public class AbstractUserService {
         }
 
         // Fetch the existing user from the database
-        AbstractUser userToUpdate = userRepository.findById(id);
+        AbstractUser userToUpdate = abstractUserRepository.findById(id);
 
         // If no such user with the given id: HTTP 400 and empty body is sent.
         if (userToUpdate == null) {
@@ -90,7 +80,7 @@ public class AbstractUserService {
         }
 
         // Throw an error if another user is already using that email
-        if (userRepository.findByEmail(request.email()) != null) {
+        if (abstractUserRepository.findByEmail(request.email()) != null) {
             throw new NonUniqueResultException("Email already in use");
         }
 
@@ -98,7 +88,7 @@ public class AbstractUserService {
         userToUpdate.updateFromDTO(request);
 
         // Save the modified user object
-        userRepository.save(userToUpdate);
+        abstractUserRepository.save(userToUpdate);
 
         return userToUpdate;
     }
