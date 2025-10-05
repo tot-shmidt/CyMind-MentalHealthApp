@@ -72,7 +72,7 @@ public class AbstractUserService {
     }
 
     @Transactional
-    public AbstractUser updateUser(long id, AbstractUser request)
+    public AbstractUser updateUser(long id, AbstractUserDTO request)
             throws AccountNotFoundException, AuthorizationDeniedException {
 
         // Check if the currently logged-in user is the one they are trying to update.
@@ -84,16 +84,18 @@ public class AbstractUserService {
         // Fetch the existing user from the database
         AbstractUser userToUpdate = userRepository.findById(id);
 
-        // If no such user with the given id: HTTP 404 and empty body is sent.
+        // If no such user with the given id: HTTP 400 and empty body is sent.
         if (userToUpdate == null) {
             throw new AccountNotFoundException("User not found with id: " + id);
         }
 
+        // Throw an error if another user is already using that email
+        if (userRepository.findByEmail(request.email()) != null) {
+            throw new NonUniqueResultException("Email already in use");
+        }
+
         // Modify the fetched user with data from the request
-        userToUpdate.setFirstName(request.getFirstName());
-        userToUpdate.setLastName(request.getLastName());
-        userToUpdate.setAge(request.getAge());
-        userToUpdate.setEmail(request.getEmail());
+        userToUpdate.updateFromDTO(request);
 
         // Save the modified user object
         userRepository.save(userToUpdate);

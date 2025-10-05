@@ -57,7 +57,7 @@ public class UserController {
      * @return
      */
     @PutMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUser request)
+    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUserDTO request)
             throws AccountNotFoundException, AuthorizationDeniedException {
 
         // Send all the work to the service class.
@@ -84,13 +84,13 @@ public class UserController {
      * @return The created user
      */
     @PostMapping("/signup")
-    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid CreateAbstractUserDTO request) throws NonUniqueResultException {
+    ResponseEntity<AbstractUserDTO> register(@RequestBody @Valid CreateAbstractUserDTO request) throws NonUniqueResultException {
         AbstractUserDTO newUser = abstractUserService.createUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid LoginAbstractUserDTO request) {
+    ResponseEntity<AbstractUserDTO> login(@RequestBody @Valid LoginAbstractUserDTO request) {
         AbstractUserDTO newUser = abstractUserService.loginUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
