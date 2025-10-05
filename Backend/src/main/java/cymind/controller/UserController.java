@@ -2,6 +2,7 @@ package cymind.controller;
 
 import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
+import cymind.dto.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
 import cymind.repository.AbstractUserRepository;
 import cymind.service.AbstractUserService;
@@ -43,16 +44,10 @@ public class UserController {
      * @return
      */
     @GetMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUser> getUserById(@PathVariable long id) {
-    	AbstractUser user =  userRepository.findById(id);
-    	
-    	// If no such user with the given id: HTTP 404 and empty body is sent.
-    	if (user == null) {
-    		return ResponseEntity.notFound().build();
-    	}
-    	
-    	// HTTP 200 + user JSON is sent.
-    	return ResponseEntity.ok(user);
+    ResponseEntity<AbstractUserDTO> getUserById(@PathVariable long id) throws AccountNotFoundException, AuthorizationDeniedException {
+        AbstractUserDTO userDTO = abstractUserService.getUser(id);
+
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
     
     /**
@@ -62,21 +57,14 @@ public class UserController {
      * @return
      */
     @PutMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUser> updateUser(@PathVariable long id, @RequestBody AbstractUser request) {
-    	AbstractUser user = userRepository.findById(id);
-    	
-    	// If no such user with the given id: HTTP 404 and empty body is sent.
-    	if (user == null) {
-    		return ResponseEntity.notFound().build();
-    	}
-    	
-    	// Check if id from http body is the same with one of the current user.
-    	if (request.getId() != null && !request.getId().equals(id)) {
-    		throw new RuntimeException("Path variable id is different from request body id");
-    	}
-    	
-    	userRepository.save(request);
-    	return ResponseEntity.ok(user);  	
+    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUser request)
+            throws AccountNotFoundException, AuthorizationDeniedException {
+
+        // Send all the work to the service class.
+        AbstractUser updatedUser = abstractUserService.updateUser(id, request);
+
+        // Convert the updated user entity to a DTO and return it.
+        return ResponseEntity.ok(new AbstractUserDTO(updatedUser));
     }
 
     /**
@@ -101,4 +89,9 @@ public class UserController {
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
+    @PostMapping("/login")
+    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid LoginAbstractUserDTO request) {
+        AbstractUserDTO newUser = abstractUserService.loginUser(request);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
 }
