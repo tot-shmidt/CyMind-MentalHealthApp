@@ -37,7 +37,7 @@ public class UserController {
     List<AbstractUser> getAllUsers() {
     	return userRepository.findAll();
     }
-    
+
     /**
      * Returns user by its id.
      * @param id
@@ -49,7 +49,7 @@ public class UserController {
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
-    
+
     /**
      * Updates user`s data with specified id.
      * @param id
@@ -57,8 +57,8 @@ public class UserController {
      * @return
      */
     @PutMapping(path = "/users/{id}")
-    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUser request)
-            throws AccountNotFoundException, AuthorizationDeniedException {
+    ResponseEntity<AbstractUserDTO> updateUser(@PathVariable long id, @RequestBody AbstractUserDTO request)
+            throws AccountNotFoundException, AuthorizationDeniedException, NonUniqueResultException {
 
         // Send all the work to the service class.
         AbstractUser updatedUser = abstractUserService.updateUser(id, request);
@@ -84,13 +84,13 @@ public class UserController {
      * @return The created user
      */
     @PostMapping("/signup")
-    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid CreateAbstractUserDTO request) throws NonUniqueResultException {
+    ResponseEntity<AbstractUserDTO> register(@RequestBody @Valid CreateAbstractUserDTO request) throws NonUniqueResultException {
         AbstractUserDTO newUser = abstractUserService.createUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    ResponseEntity<AbstractUserDTO> createUser(@RequestBody @Valid LoginAbstractUserDTO request) {
+    ResponseEntity<AbstractUserDTO> login(@RequestBody @Valid LoginAbstractUserDTO request) {
         AbstractUserDTO newUser = abstractUserService.loginUser(request);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }

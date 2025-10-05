@@ -1,6 +1,7 @@
 package cymind.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import cymind.dto.AbstractUserDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -86,6 +87,13 @@ public class AbstractUser implements UserDetails {
      * Default constuctor is required by JPA/Spring to recreate objects from the data base.
      */
     public AbstractUser() {}
+
+    public void updateFromDTO(AbstractUserDTO dto) {
+        this.email = dto.email();
+        this.firstName = dto.firstName();
+        this.lastName = dto.lastName();
+        this.age = dto.age();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
