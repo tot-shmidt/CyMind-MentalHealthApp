@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".WelcomeActivity"
-    android:orientation="vertical"
+    tools:context=".ProfileActivity"
     android:background="@color/colorAccent">
 
     <Button
@@ -15,7 +14,7 @@
         android:text="X"
         android:textSize="18pt"
         android:layout_marginTop="15dip"
-        android:layout_marginLeft="-25dip"
+        android:layout_marginStart="16dp"
         android:paddingRight="7dp"
         android:paddingTop="0dp"
         app:cornerRadius="0dp"
@@ -92,7 +91,7 @@
             android:layout_gravity="center_horizontal"
             android:ems="10"
             android:layout_margin="15dip"
-            android:hint="New password"
+            android:hint="Confirm password"
             android:inputType="textPassword" />
 
         <Button
@@ -104,7 +103,7 @@
             android:text="Update Information" />
 
         <Button
-            android:id="@+id/deleteProfilebutton"
+            android:id="@+id/deleteProfileButton"
             android:layout_width="200dip"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
