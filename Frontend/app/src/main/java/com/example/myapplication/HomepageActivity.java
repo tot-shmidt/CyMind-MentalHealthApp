@@ -11,8 +11,9 @@ public class HomepageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
-        String userEmail = getIntent().getStringExtra("userEmail");
-        int userID = getIntent().getIntExtra("userID", -1);
+        String email = getIntent().getStringExtra("email");
+        String password = getIntent().getStringExtra("password");
+        int id = getIntent().getIntExtra("id", -1);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
@@ -21,9 +22,11 @@ public class HomepageActivity extends AppCompatActivity {
         Fragment chatFragment = new ChatFragment();
         Fragment appointmentFragment = new AppointmentFragment();
 
+        //create bundle of values as arguments
         Bundle bund = new Bundle();
-        bund.putString("userEmail", userEmail);
-        bund.putInt("userID", userID);
+        bund.putString("email", email);
+        bund.putString("password", password);
+        bund.putInt("id", id);
         homeFragment.setArguments(bund);
 
         setCurrentFragment(homeFragment);

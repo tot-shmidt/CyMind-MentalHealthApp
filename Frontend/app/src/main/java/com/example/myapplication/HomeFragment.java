@@ -47,18 +47,22 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //get string and int arguments from homepage
+        String email = getArguments().getString("email");
+        String password = getArguments().getString("password");
+        int id = getArguments().getInt("id");
 
-        String user_email = getArguments().getString("userEmail");
-        int user_id = getArguments().getInt("userID");
-
+        //display welcome with the user's email
         welcomeMessage.setText("Welcome to Cymind\n");
-        welcomeMessage.append(user_email);
+        welcomeMessage.append(email);
 
         buttonProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
             //String usr_email = getActivity().getIntent().getStringExtra("userEmail");
-            intent.putExtra("userEmail", user_email);
-            intent.putExtra("userID", user_id);
+            //pass email, password, and id to home fragment
+            intent.putExtra("email", email);
+            intent.putExtra("password", password);
+            intent.putExtra("id", id);
             startActivity(intent);
         });
     }
