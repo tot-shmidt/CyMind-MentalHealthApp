@@ -22,7 +22,11 @@ public class HomeFragment extends Fragment {
     private Button moodButtonHappy;
     private Button moodButtonNeutral;
     private Button moodButtonSad;
-
+    private int userID;
+    private String userFirstName;
+    private String userLastName;
+    private String userEmail;
+    private int userAge;
 
 
 
@@ -40,6 +44,8 @@ public class HomeFragment extends Fragment {
         moodButtonNeutral = rootView.findViewById(R.id.moodButtonNeutral);
         moodButtonSad = rootView.findViewById(R.id.moodButtonSad);
 
+
+
         return rootView;
     }
 
@@ -47,18 +53,25 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //get the passed email and id from previous pages
+        userEmail = getActivity().getIntent().getStringExtra("userEmail");
+        userID = getActivity().getIntent().getIntExtra("userID", 0);
+        userAge = getActivity().getIntent().getIntExtra("userAge", 0);
+        userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
+        userLastName = getActivity().getIntent().getStringExtra("userLastName");
 
-        String user_email = getArguments().getString("userEmail");
-        int user_id = getArguments().getInt("userID");
-
-        welcomeMessage.setText("Welcome to Cymind\n");
-        welcomeMessage.append(user_email);
+        welcomeMessage.setText("Welcome to Cymind");
+        if (!(userID == 0)) {
+            welcomeMessage.append(", " + userFirstName + "!");
+        }
 
         buttonProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
-            //String usr_email = getActivity().getIntent().getStringExtra("userEmail");
-            intent.putExtra("userEmail", user_email);
-            intent.putExtra("userID", user_id);
+            intent.putExtra( "userFirstName", userFirstName);
+            intent.putExtra( "userLastName", userLastName);
+            intent.putExtra("userEmail", userEmail);
+            intent.putExtra("userID", userID);
+            intent.putExtra("userAge", userAge);
             startActivity(intent);
         });
     }

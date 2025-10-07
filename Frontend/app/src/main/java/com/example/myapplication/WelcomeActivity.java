@@ -29,7 +29,7 @@ import org.json.JSONObject;
 
 public class WelcomeActivity extends AppCompatActivity {
 
-    private static final String URL_JSON_OBJECT = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/users/login";
+    private static final String URL_LOGIN = "http://coms-3090-066.class.las.iastate.edu:8080/login";
     private EditText editTextEmail;
     private EditText editTextPassword;
     private Button buttonRegister;
@@ -38,6 +38,11 @@ public class WelcomeActivity extends AppCompatActivity {
     private Button buttonProfessionalSignin;
     private TextView textViewWelcome;
     private ImageView imageViewLogo;
+    private int userID;
+    private String userFirstName;
+    private String userLastName;
+    private String userEmail;
+    private int userAge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +62,6 @@ public class WelcomeActivity extends AppCompatActivity {
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: navigate to registration page when made
-
                 Intent intent = new Intent(WelcomeActivity.this, SignUpActivity.class);
                 startActivity(intent);
             }
@@ -75,8 +78,9 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Takes guest users to homepage on guest user button click.
-                Intent intent = new Intent(WelcomeActivity.this, HomepageActivity.class);
-                startActivity(intent);
+                Intent intent1 = new Intent(WelcomeActivity.this, HomepageActivity.class);
+                startActivity(intent1);
+                // pass info so system knows it is a guest user
             }
         });
 
@@ -85,8 +89,8 @@ public class WelcomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // TODO: navigate to professionals sign in page when made
                 /*
-                Intent intent = new Intent(WelcomeActivity.this, INSERT PRO PAGE ACTIVITY);
-                startActivity(intent); */
+                Intent intent3 = new Intent(WelcomeActivity.this, INSERT PRO PAGE ACTIVITY);
+                startActivity(intent3); */
             }
         });
     }
@@ -95,8 +99,8 @@ public class WelcomeActivity extends AppCompatActivity {
         JSONObject requestBody;
         try {
             requestBody = new JSONObject()
-                    .put("user", editTextEmail.getText().toString())
-                    .put("pass", editTextPassword.getText().toString());
+                    .put("email", editTextEmail.getText().toString())
+                    .put("password", editTextPassword.getText().toString());
         } catch (JSONException e) {
             Log.e("JSONError", "Failed to create JSON request body", e);
             makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
@@ -105,25 +109,25 @@ public class WelcomeActivity extends AppCompatActivity {
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
                 Request.Method.POST, // HTTP method
-                URL_JSON_OBJECT, // API URL
+                URL_LOGIN, // API URL
                 requestBody, // Request body (null for GET request)
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         // Log response for debugging
                         Log.d("Volley Response", response.toString());
-                        try {
-                            if (response.getString("success").equals("true")) {
-                                Intent intent = new Intent(WelcomeActivity.this, HomepageActivity.class);
-                                startActivity(intent);
-                            } else {
-                                makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            Log.e("JSONError", "Failed to read JSON response", e);
-                            makeText(getApplicationContext(), "Error reading response", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                        userID = response.optInt("id");
+                        userFirstName = response.optString("firstName");
+                        userLastName = response.optString("lastName");
+                        userEmail = response.optString("email");
+                        userAge = response.optInt("age");
+                        Intent intent2 = new Intent(WelcomeActivity.this, HomepageActivity.class);
+                        intent2.putExtra( "userFirstName", userFirstName);
+                        intent2.putExtra( "userLastName", userLastName);
+                        intent2.putExtra("userEmail", userEmail);
+                        intent2.putExtra("userID", userID);
+                        intent2.putExtra("userAge", userAge);
+                        startActivity(intent2);
                     }
                 },
                 new Response.ErrorListener() {
@@ -132,8 +136,9 @@ public class WelcomeActivity extends AppCompatActivity {
                         // Log error details
                         Log.e("Volley Error", error.toString());
 
-                        // Display an error message
+                        // FOR DEBUG
                         makeText(getApplicationContext(), "Failed to load data. Please try again.", Toast.LENGTH_LONG).show();
+                        // makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {
@@ -143,8 +148,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<>();
                 // Example headers (uncomment if needed)
                 headers.put("Content-Type", "application/json");
-                headers.put("x-mock-match-request-headers", "true");
-                headers.put("x-mock-match-request-body", "true");
                 return headers;
             }
 

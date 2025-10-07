@@ -27,16 +27,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private static final String URL_JSON_OBJECT = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/users/update";
-
-    private String userEmail;
-    private int userID;
+    private static final String URL_JSON_OBJECT = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
     private Button buttonReturn;
     private TextView nameText;
     private TextView emailText;
@@ -47,21 +44,17 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button updateProfileButton;
     private Button deleteProfilebutton;
+    private int userID;
+    private String userFirstName;
+    private String userLastName;
+    private String userEmail;
+    private String originalUserEmail;
+    private int userAge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
-
-        //get the passed email and id from previous pages
-        userEmail = getIntent().getStringExtra("userEmail");
-        userID = getIntent().getIntExtra("userID", -1);
-
-        //if a userID was not created succesfully, display error
-        if (userID == -1) {
-            Toast.makeText(this, "User ID not created properly upon sign up", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         buttonReturn = findViewById(R.id.returnButton);
         nameText = findViewById(R.id.nameText);
@@ -72,18 +65,42 @@ public class ProfileActivity extends AppCompatActivity {
         ageEditText = findViewById(R.id.ageEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         updateProfileButton = findViewById(R.id.updateProfileButton);
-        deleteProfilebutton = findViewById(R.id.deleteProfilebutton);
+        deleteProfilebutton = findViewById(R.id.deleteProfileButton);
 
-        /*
-        Method for deleting the user (DELETE) and sending request to postman
-         */
+        //get the passed email and id from previous pages
+        userEmail = getIntent().getStringExtra("userEmail");
+        originalUserEmail = userEmail;
+        userID = getIntent().getIntExtra("userID", 0);
+        userAge = getIntent().getIntExtra("userAge", 0);
+        userFirstName = getIntent().getStringExtra("userFirstName");
+        userLastName = getIntent().getStringExtra("userLastName");
+
+        //if a userID was not created successfully, display error and send back to homepage
+        if (userID == 0) {
+            Toast.makeText(this, "You are not signed in. Please log in to view your profile", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+            intent.putExtra("userID", userID);
+            startActivity(intent);
+            return;
+        } else {
+            // Set user data to display
+            nameText.setText("Name: " + userFirstName + " " + userLastName);
+            emailText.setText("Email: " + userEmail);
+            ageText.setText(String.valueOf("Age: " + userAge));
+        }
+
+
+
+
+
+        // Method for deleting the user (DELETE) and sending request to postman
         deleteProfilebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 //POSTMAN URL for our DELETE endpoint
-                String deleteUserURL = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users/" + userID;
-                //request conenection from this page
+                String deleteUserURL = "http://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users/" + userID;
+                //request conneection from this page
 
                 //Tells postman this is a DELETE method for deleting a user
                 JsonObjectRequest delete = new JsonObjectRequest(Request.Method.DELETE, deleteUserURL, null,
@@ -95,7 +112,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 //Upon user deletion, go back to the sign up page to create new user
                                 Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
                                 startActivity(intent);
-
                             }
                         },
                         //If there was an error in the connection or delete request, display that it was unsuccessful on the screen
@@ -126,6 +142,7 @@ public class ProfileActivity extends AppCompatActivity {
         buttonReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("ProfileActivity", "Return button clicked!");
                 Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
                 startActivity(intent);
             }
@@ -147,19 +164,40 @@ public class ProfileActivity extends AppCompatActivity {
         JSONObject requestBody;
         try {
             requestBody = new JSONObject();
-            if (!nameEditText.getText().toString().isEmpty()) {
-                requestBody.put("name", nameEditText.getText().toString());
-            }
+            // ALWAYS add user ID to request body
+            requestBody.put("id", userID);
+            // Add email if updated, otherwise keep current
             if (!emailEditText.getText().toString().isEmpty()) {
-                requestBody.put("email", emailEditText.getText().toString());
+                userEmail = emailEditText.getText().toString().trim();
             }
+            requestBody.put("email", userEmail);
+            // Split name, add if updated, otherwise keep current
+            if (!nameEditText.getText().toString().isEmpty()) {
+                String[] nameParts = nameEditText.getText().toString().trim().split(" ");
+                if (nameParts.length == 1) {
+                    userFirstName = nameParts[0];
+                    userLastName = "";
+                } else {
+                    userFirstName = "";
+                    for (int i = 0; i < nameParts.length - 1; i++) {
+                        userFirstName += nameParts[i] + " ";
+                    }
+                    userFirstName = userFirstName.trim();
+                    userLastName = nameParts[nameParts.length-1];
+                }
+            }
+            requestBody.put("firstName", userFirstName);
+            requestBody.put("lastName", userLastName);
             if (!ageEditText.getText().toString().isEmpty()) {
-                requestBody.put("age", ageEditText.getText().toString());
+                userAge = Integer.parseInt(ageEditText.getText().toString());
             }
-            if (!passwordEditText.getText().toString().isEmpty()) {
-                requestBody.put("password", passwordEditText.getText().toString());
+            requestBody.put("age", userAge);
+            if (passwordEditText.getText().toString().isEmpty()) {
+                makeText(getApplicationContext(), "Enter your password to update information", Toast.LENGTH_LONG).show();
+            } else {
+                // Add authorization header
             }
-
+            requestBody.put("password", passwordEditText.getText().toString());
         } catch (JSONException e) {
             Log.e("JSONError", "Failed to create JSON request body", e);
             makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
@@ -168,7 +206,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
                 Request.Method.PUT, // HTTP method
-                URL_JSON_OBJECT, // API URL
+                URL_JSON_OBJECT + userID, // API URL + userID
                 requestBody, // Request body (null for GET request)
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -193,8 +231,13 @@ public class ProfileActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
-                // Example headers (uncomment if needed)
+                // Create Base64 auth token
+                Base64.Encoder encoder = Base64.getEncoder();
+                String authToken = encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
+                // Headers
                 headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + authToken);
+                Log.d("Auth Token", authToken);
                 return headers;
             }
 
@@ -202,9 +245,8 @@ public class ProfileActivity extends AppCompatActivity {
             protected Map<String, String> getParams() {
                 // Define parameters if needed
                 Map<String, String> params = new HashMap<>();
-                // Example parameters (uncomment if needed)
+                // Example parameter
                 // params.put("param1", "value1");
-                // params.put("param2", "value2");
                 return params;
             }
         };
