@@ -20,6 +20,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.AuthFailureError;
 
@@ -35,8 +36,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final String URL_JSON_OBJECT = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/users/update";
 
-    private String userEmail;
-    private int userID;
+    private String email;
+    private String password;
+    private int id;
     private Button buttonReturn;
     private TextView nameText;
     private TextView emailText;
@@ -53,12 +55,13 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
 
-        //get the passed email and id from previous pages
-        userEmail = getIntent().getStringExtra("userEmail");
-        userID = getIntent().getIntExtra("userID", -1);
+        //get the passed email, pass, and id from previous pages
+        email = getIntent().getStringExtra("email");
+        password = getIntent().getStringExtra("password");
+        id = getIntent().getIntExtra("id", -1);
 
-        //if a userID was not created succesfully, display error
-        if (userID == -1) {
+        //if a userID was not created succesfully or passed through at all, display error
+        if (id == -1) {
             Toast.makeText(this, "User ID not created properly upon sign up", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -81,37 +84,35 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                //POSTMAN URL for our DELETE endpoint
-                String deleteUserURL = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users/" + userID;
-                //request conenection from this page
+                //Server URL for our DELETE endpoint
+                String deleteUserURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/" + id;
 
-                //Tells postman this is a DELETE method for deleting a user
-                JsonObjectRequest delete = new JsonObjectRequest(Request.Method.DELETE, deleteUserURL, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            //If the request was sucessful, display that on app so we know that the DELETE request worked and the user is deleted
-                            public void onResponse(JSONObject response) {
-                                Toast.makeText(ProfileActivity.this, "User was sucessfully deleted", Toast.LENGTH_LONG).show();
-                                //Upon user deletion, go back to the sign up page to create new user
-                                Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
-                                startActivity(intent);
+                //Cretes new request defined as a DELETE request
+                //Use StringRequst since there is no json response body, just status code
+                StringRequest delete = new StringRequest(Request.Method.DELETE, deleteUserURL, response -> {
 
-                            }
-                        },
-                        //If there was an error in the connection or delete request, display that it was unsuccessful on the screen
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(ProfileActivity.this, "Error occured while deleting user" + error.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        }
+                    //Display message saying user was deleted by identifying their id
+                    Toast.makeText(ProfileActivity.this, "User with an id: " + id + " was sucessfully deleted", Toast.LENGTH_LONG).show();
+                    //Upon user deletion, go back to the sign up page to create new user
+                    Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
+                    startActivity(intent);
+                    },
+                        error -> {
+                    //display error message if one occurs
+                    Toast.makeText(ProfileActivity.this, "Error deleting user", Toast.LENGTH_LONG).show();
+                    }
                 ) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         // Define headers if needed
                         HashMap<String, String> headers = new HashMap<>();
-                        // Example headers (uncomment if needed)
-                        headers.put("Content-Type", "application/json");
+                        //for basic authentification, get email and password
+                        String password = getIntent().getStringExtra("password");
+                        //layout for basic authentification
+                        String verify = email + ":" + password;
+                        //enter email and pass values in
+                        String authorize = "Basic " + android.util.Base64.encodeToString(verify.getBytes(), android.util.Base64.NO_WRAP);
+                        headers.put("authorization", authorize);
                         return headers;
                     }
                 };
