@@ -57,17 +57,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
 
-        //get the passed email, pass, and id from previous pages
-        email = getIntent().getStringExtra("email");
-        password = getIntent().getStringExtra("password");
-        id = getIntent().getIntExtra("id", -1);
-
-        //if a userID was not created succesfully or passed through at all, display error
-        if (id == -1) {
-            Toast.makeText(this, "User ID not created properly upon sign up", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         buttonReturn = findViewById(R.id.returnButton);
         nameText = findViewById(R.id.nameText);
         emailText = findViewById(R.id.emailText);
@@ -107,14 +96,14 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 //Server URL for our DELETE endpoint
-                String deleteUserURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/" + id;
+                String deleteUserURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/" + userID;
 
-                //Cretes new request defined as a DELETE request
-                //Use StringRequst since there is no json response body, just status code
+                //Creates new request defined as a DELETE request
+                //Use StringRequest since there is no json response body, just status code
                 StringRequest delete = new StringRequest(Request.Method.DELETE, deleteUserURL, response -> {
 
                     //Display message saying user was deleted by identifying their id
-                    Toast.makeText(ProfileActivity.this, "User with an id: " + id + " was sucessfully deleted", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
                     //Upon user deletion, go back to the sign up page to create new user
                     Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
                     startActivity(intent);
@@ -200,8 +189,6 @@ public class ProfileActivity extends AppCompatActivity {
             requestBody.put("age", userAge);
             if (passwordEditText.getText().toString().isEmpty()) {
                 makeText(getApplicationContext(), "Enter your password to update information", Toast.LENGTH_LONG).show();
-            } else {
-                // Add authorization header
             }
             requestBody.put("password", passwordEditText.getText().toString());
         } catch (JSONException e) {
@@ -220,6 +207,10 @@ public class ProfileActivity extends AppCompatActivity {
                         // Log response for debugging
                         Log.d("Volley Response", response.toString());
                         makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                        // Update on screen text
+                        nameText.setText("Name: " + userFirstName + " " + userLastName);
+                        emailText.setText("Email: " + userEmail);
+                        ageText.setText(String.valueOf("Age: " + userAge));
                     }
                 },
                 new Response.ErrorListener() {
