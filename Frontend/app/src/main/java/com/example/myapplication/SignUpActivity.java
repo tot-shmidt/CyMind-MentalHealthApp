@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,7 +25,9 @@ import org.json.JSONObject;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private EditText editTextName;
+    private EditText editTextFirstName;
+
+    private EditText editTextLastName;
     private EditText editTextEmail;
     private EditText editTextAge;
     private EditText editTextPassword;
@@ -42,10 +45,12 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         // View initializations
-        editTextName = findViewById(R.id.editTextName);
         editTextEmail = findViewById(R.id.editTextEmail);
-        editTextAge = findViewById(R.id.editTextAge);
         editTextPassword = findViewById(R.id.editTextPassword);
+        editTextFirstName = findViewById(R.id.editTextFirstName);
+        editTextLastName = findViewById(R.id.editTextLastName);
+        editTextAge = findViewById(R.id.editTextAge);
+
         buttonRegister = findViewById(R.id.register);
         buttonUserSignin = findViewById(R.id.userSignup);
         buttonGuestSignin = findViewById(R.id.guestSignin);
@@ -67,18 +72,22 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // TODO: navigate to registration page when made
 
-                String userName = editTextName.getText().toString().trim();
+
                 //hold the user's email and password as a String
                 String userEmail = editTextEmail.getText().toString().trim();
                 String userPass = editTextPassword.getText().toString().trim();
+                String userFirstName = editTextFirstName.getText().toString().trim();
+                String userLastName = editTextLastName.getText().toString().trim();
 
-                String userAge = editTextAge.getText().toString().trim();
-
-                //ensure user enters their name
-                if(userName.isEmpty()) {
-                    editTextEmail.setError("Name field is required");
+                int userAge;
+                try {
+                    userAge = Integer.parseInt(editTextAge.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    editTextAge.setError("Age needs to be an integer.");
                     return;
                 }
+
+
                 //ensure that the user enters an email since it is required, if a user tries to sign up
                 //without entering, it will not work
                 if(userEmail.isEmpty()) {
@@ -92,37 +101,41 @@ public class SignUpActivity extends AppCompatActivity {
                     return;
                 }
 
-                //ensure user enters an age
-                if(userAge.isEmpty()) {
-                    editTextEmail.setError("Age field is required");
-                    return;
-                }
-
                 //validate if user password is at least 8 characters
                 if(userPass.length() < 8) {
                     editTextPassword.setError("Password must be at least 8 characters");
                     return;
                 }
 
+                //ensure user enters their name
+                if(userFirstName.isEmpty()) {
+                    editTextFirstName.setError("First Name field is required");
+                    return;
+                }
 
-                //for now, come up with a random id for the user that will be assigned upon sign in
-                int userID = (int) (Math.random() * 100);
+                if(userLastName.isEmpty()) {
+                    editTextLastName.setError("Last Name field is required");
+                    return;
+                }
+
+
                 JSONObject request = new JSONObject();
-                //try to send the credentials
+                //try to pass the credentials into designated parameters
                 try {
                     request.put("email", userEmail);
                     request.put("password", userPass);
-                    request.put("id", userID);
+                    request.put("firstName", userFirstName);
+                    request.put("lastName", userLastName);
+                    request.put("age", userAge);
                 }
-                //catch it if errors occur when retreiving info
+                //catch it if errors occur when requesting
                 catch(JSONException e) {
                     e.printStackTrace();
                     return;
                 }
 
-                //POSTMAN mock server connection plus endpoint (POST)
-                String postUrl = "https://f5fb9954-c023-4687-984d-af55d0cd74f2.mock.pstmn.io/users";
-                //We will be using volley for roundtrips, so set this request up early
+                //connect to server with sign up POST endpoint (created from backend)
+                String postUrl = "http://coms-3090-066.class.las.iastate.edu:8080/signup";
 
 
                 //request to post info as json
@@ -130,26 +143,45 @@ public class SignUpActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        //get the email and password from json in mock server
+                        //get response body values from backend
+                        try {
+                            int id = response.getInt("id");
+                            String email = response.getString("email");
+                            String password = userPass;
+                            String firstName = response.getString("firstName");
+                            String lastName = response.getString("lastName");
+                            int age = response.getInt("age");
 
-                            //if POST was sucessful , display message on screen that the user was created.
-                            //For now will be dummy info since this is a mock server and we have not connected backend
-                            Toast.makeText(SignUpActivity.this, "New user created successfully", Toast.LENGTH_LONG).show();
+                            Log.d("SignUpActivity", "Success ");
+
+                            //display message with credentials to show the new user was created
+                            Toast.makeText(SignUpActivity.this, "New user created:\n Id: " + id + "\nEmail: " + email +
+                                    "\nFirst Name: " + firstName + "\nLast Name: " + lastName + "\nAge: " + age, Toast.LENGTH_LONG).show();
 
                             //Use intent to go to the next page, in this case the home page
                             Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
 
-                            //send user email and pass to homepage
-                            intent.putExtra("userEmail", userEmail);
-                            intent.putExtra("userID", userID);
+                            //send user email and pass and other vals to homepage
+                            intent.putExtra("id", id);
+                            intent.putExtra("email", email);
+                            intent.putExtra("password", password);
+                            intent.putExtra("firstName", firstName);
+                            intent.putExtra("lastName", lastName);
+
                             startActivity(intent);
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+
                     }
                 },
-                        //Ensure that the postman and app communicate and send/retreive info properly, if not display error message
+                        //Ensure that the server and app communicate and send/retreive info properly, if not display error message
                         new Response.ErrorListener() {
                             @Override
-                            public void onErrorResponse(VolleyError err) {
-                                Toast.makeText(SignUpActivity.this, "Error request: " + err.getMessage(), Toast.LENGTH_LONG).show();
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(SignUpActivity.this, "Request failed" , Toast.LENGTH_LONG).show();
                             }
                         }
                 ) {
