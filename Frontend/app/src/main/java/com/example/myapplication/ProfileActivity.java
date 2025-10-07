@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private static final String URL_JSON_OBJECT = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
     private Button buttonReturn;
     private TextView nameText;
     private TextView emailText;
@@ -94,13 +94,9 @@ public class ProfileActivity extends AppCompatActivity {
         deleteProfilebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //Server URL for our DELETE endpoint
-                String deleteUserURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/" + userID;
-
                 //Creates new request defined as a DELETE request
                 //Use StringRequest since there is no json response body, just status code
-                StringRequest delete = new StringRequest(Request.Method.DELETE, deleteUserURL, response -> {
+                StringRequest delete = new StringRequest(Request.Method.DELETE, APP_API_URL + userID, response -> {
 
                     //Display message saying user was deleted by identifying their id
                     Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
@@ -117,13 +113,7 @@ public class ProfileActivity extends AppCompatActivity {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         // Define headers if needed
                         HashMap<String, String> headers = new HashMap<>();
-                        //for basic authentification, get email and password
-                        String password = getIntent().getStringExtra("password");
-                        //layout for basic authentification
-                        String verify = userEmail + ":" + password;
-                        //enter email and pass values in
-                        String authorize = "Basic " + android.util.Base64.encodeToString(verify.getBytes(), android.util.Base64.NO_WRAP);
-                        headers.put("authorization", authorize);
+                        headers.put("Authorization", "Basic " + getAuthToken());
                         return headers;
                     }
                 };
@@ -199,7 +189,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
                 Request.Method.PUT, // HTTP method
-                URL_JSON_OBJECT + userID, // API URL + userID
+                APP_API_URL + userID, // API URL + userID
                 requestBody, // Request body (null for GET request)
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -228,13 +218,9 @@ public class ProfileActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
-                // Create Base64 auth token
-                Base64.Encoder encoder = Base64.getEncoder();
-                String authToken = encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
                 // Headers
                 headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Basic " + authToken);
-                Log.d("Auth Token", authToken);
+                headers.put("Authorization", "Basic " + getAuthToken());
                 return headers;
             }
 
@@ -250,5 +236,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+    private String getAuthToken() {
+        // Create Base64 encoder
+        Base64.Encoder encoder = Base64.getEncoder();
+        // Create auth token
+        return encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
     }
 }
