@@ -1,9 +1,11 @@
 package cymind.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,9 +39,10 @@ public class MoodEntry {
 
     @OneToOne()
     @JoinColumn(name = "journal_id")
+    @Nullable
     private JournalEntry journalEntry;
 
-    public MoodEntry(int moodRating, Student student, JournalEntry journalEntry) {
+    public MoodEntry(int moodRating, Student student, @Nullable JournalEntry journalEntry) {
         this.date = new Date();
         this.moodRating = moodRating;
         this.student = student;
@@ -50,10 +53,5 @@ public class MoodEntry {
         this.date = new Date();
         this.moodRating = moodRating;
         this.student = student;
-    }
-
-    public void updateMoodRating(MoodEntry moodEntry) {
-        this.moodRating = moodEntry.getMoodRating();
-        this.journalEntry = moodEntry.getJournalEntry();
     }
 }

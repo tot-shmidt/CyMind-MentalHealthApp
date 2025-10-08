@@ -48,8 +48,8 @@ public class MoodEntryController {
     }
 
     @PutMapping("/entries/mood/{id}")
-    ResponseEntity<MoodEntryDTO> updateMoodEntry(@PathVariable long id, @Valid @RequestBody MoodEntry moodEntry) {
-        MoodEntryDTO updatedUser = moodEntryService.updateMoodEntry(id, moodEntry);
+    ResponseEntity<MoodEntryDTO> updateMoodEntry(@PathVariable long id, @Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
+        MoodEntryDTO updatedUser = moodEntryService.updateMoodEntry(id, createMoodEntryDTO);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 

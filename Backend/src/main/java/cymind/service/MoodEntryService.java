@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MoodEntryService {
@@ -66,13 +67,19 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
         }
 
-        MoodEntry moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
+        MoodEntry moodEntry;
+        if (createMoodEntryDTO.journalId() != null) {
+            Optional<JournalEntry> journalEntry = journalEntryRepository.findById(createMoodEntryDTO.journalId());
+            moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student, journalEntry.orElse(null));
+        } else {
+            moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
+        }
 
         return new MoodEntryDTO(moodEntryRepository.save(moodEntry));
     }
 
     @Transactional
-    public MoodEntryDTO updateMoodEntry(long id, MoodEntry request) throws AuthorizationDeniedException, ResponseStatusException {
+    public MoodEntryDTO updateMoodEntry(long id, CreateMoodEntryDTO request) throws AuthorizationDeniedException, ResponseStatusException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if (moodEntry == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
@@ -80,10 +87,14 @@ public class MoodEntryService {
 
         checkAuth(moodEntry);
 
-        MoodEntry moodEntryToUpdate = moodEntryRepository.findById(id);
-        moodEntryToUpdate.updateMoodRating(request);
+        if (request.journalId() != null) {
+            Optional<JournalEntry> journalEntry = journalEntryRepository.findById(request.journalId());
+            moodEntry.setJournalEntry(journalEntry.orElse(null));
+        }
 
-        return new MoodEntryDTO(moodEntryRepository.save(moodEntryToUpdate));
+        moodEntry.setMoodRating(request.moodRating());
+
+        return new MoodEntryDTO(moodEntryRepository.save(moodEntry));
     }
 
     @Transactional
