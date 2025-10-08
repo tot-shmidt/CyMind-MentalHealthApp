@@ -8,13 +8,9 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.ArrayList;
@@ -74,7 +70,7 @@ public class GlobalExceptionHandler {
         node.put("message", e.getMessage());
         errors.add(node);
 
-        return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(mapper.writeValueAsString(errors), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)

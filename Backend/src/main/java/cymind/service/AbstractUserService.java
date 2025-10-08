@@ -67,7 +67,7 @@ public class AbstractUserService {
 
         // Check if the currently logged-in user is the one they are trying to update.
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!authedUser.getId().equals(id)) {
+        if (authedUser.getId() != id) {
             throw new AuthorizationDeniedException("You are not authorized to update this user's profile.");
         }
 

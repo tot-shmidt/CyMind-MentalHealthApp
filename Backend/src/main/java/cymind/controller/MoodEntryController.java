@@ -1,67 +1,68 @@
 package cymind.controller;
 
-import cymind.model.JournalEntry;
+import cymind.dto.mood.CreateMoodEntryDTO;
+import cymind.dto.mood.MoodEntryDTO;
 import cymind.model.MoodEntry;
-import cymind.repository.JournalEntryRepository;
-import cymind.repository.MoodEntryRepository;
+import cymind.service.MoodEntryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class MoodEntryController {
     @Autowired
-    private MoodEntryRepository moodEntryRepository;
-
-    @Autowired
-    private JournalEntryRepository journalEntryRepository;
+    private MoodEntryService moodEntryService;
 
     @GetMapping(path = "/entries/mood")
-    List<MoodEntry> getAllMoodEntries() {
-        return moodEntryRepository.findAll();
+    ResponseEntity<List<MoodEntryDTO>> getAllMoodEntries() {
+        List<MoodEntryDTO> entries = moodEntryService.findAllByStudent();
+        return new ResponseEntity<>(entries, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/entries/mood", params = "num")
+    ResponseEntity<List<MoodEntryDTO>> getAllMoodEntries(@RequestParam(required = false, defaultValue = "1") Optional<Integer> num) {
+        List<MoodEntryDTO> entries;
+        if (num.isPresent()) {
+            entries = moodEntryService.findAllByStudent(num.get());
+        } else {
+            entries = moodEntryService.findAllByStudent(1);
+        }
+
+        return new ResponseEntity<>(entries, HttpStatus.OK);
     }
 
     @GetMapping(path = "/entries/mood/{id}")
-    MoodEntry getMoodEntryById(@PathVariable long id) {
-        return moodEntryRepository.findById(id);
+    ResponseEntity<MoodEntryDTO> getMoodEntryById(@PathVariable long id) {
+        return new ResponseEntity<>(moodEntryService.getMoodEntryById(id), HttpStatus.OK);
     }
 
     @PostMapping(path = "/entries/mood")
-    @ResponseStatus(HttpStatus.CREATED)
-    MoodEntry createMoodEntry(@RequestBody MoodEntry moodEntry) {
-        if (moodEntry == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mood entry is invalid");
-        moodEntryRepository.save(moodEntry);
-        return moodEntry;
+    ResponseEntity<MoodEntryDTO> createMoodEntry(@Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
+        MoodEntryDTO newUser = moodEntryService.createMoodEntry(createMoodEntryDTO);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/entries/mood/{id}")
-    MoodEntry updateMoodEntry(@PathVariable long id, @RequestBody MoodEntry moodEntry) {
-        MoodEntry entry = moodEntryRepository.findById(id);
-        if (entry == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mood entry does not exist");
-        moodEntryRepository.save(moodEntry);
-        return moodEntryRepository.findById(id);
+    ResponseEntity<MoodEntryDTO> updateMoodEntry(@PathVariable long id, @Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
+        MoodEntryDTO updatedUser = moodEntryService.updateMoodEntry(id, createMoodEntryDTO);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @PutMapping("/entries/mood/{moodId}/journal/{journalId}")
-    MoodEntry assignJournalEntryToMoodEntry(@PathVariable long moodId, @PathVariable long journalId) {
-        MoodEntry moodEntry = moodEntryRepository.findById(moodId);
-        JournalEntry journalEntry = journalEntryRepository.findById(journalId);
-        if (moodEntry == null || journalEntry == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entry does not exist");
-        journalEntry.setMoodEntry(moodEntry);
-        moodEntry.addJournalEntry(journalEntry);
-        moodEntryRepository.save(moodEntry);
-        return moodEntryRepository.findById(moodId);
+    ResponseEntity<MoodEntryDTO> assignJournalEntryToMoodEntry(@PathVariable long moodId, @PathVariable long journalId) {
+        MoodEntryDTO updatedUser = moodEntryService.setJournalEntry(moodId, journalId);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/entries/mood/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteMoodEntry(@PathVariable long id) {
-        moodEntryRepository.deleteById(id);
+    ResponseEntity<?> deleteMoodEntry(@PathVariable long id) {
+        moodEntryService.deleteMoodEntry(id);
+        return ResponseEntity.ok().build();
     }
 }

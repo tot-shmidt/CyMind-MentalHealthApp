@@ -27,7 +27,7 @@ public class AbstractUser implements UserDetails {
 	 */
     @Id  // Field below will be a primary key for the table.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 	/**
 	 * First name of the user.
 	 */
