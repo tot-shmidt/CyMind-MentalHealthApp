@@ -29,8 +29,9 @@ public class JournalEntry {
     @NotNull
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne()
     @JoinColumn(name = "mood_id")
+    @NotNull(message = "Student cannot be empty")
     @JsonIgnore
     private MoodEntry moodEntry;
 }
