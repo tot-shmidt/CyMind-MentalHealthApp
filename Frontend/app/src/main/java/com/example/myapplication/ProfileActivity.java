@@ -51,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String userEmail;
     private String originalUserEmail;
     private int userAge;
+    private String userPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,7 @@ public class ProfileActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
+        userPassword = getIntent().getStringExtra("userPassword");
 
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
@@ -241,6 +243,6 @@ public class ProfileActivity extends AppCompatActivity {
         // Create Base64 encoder
         Base64.Encoder encoder = Base64.getEncoder();
         // Create auth token
-        return encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
+        return encoder.encodeToString((originalUserEmail + ":" + userPassword).getBytes());
     }
 }

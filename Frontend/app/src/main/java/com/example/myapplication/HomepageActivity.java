@@ -11,9 +11,12 @@ public class HomepageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
-        String email = getIntent().getStringExtra("email");
-        String password = getIntent().getStringExtra("password");
-        int id = getIntent().getIntExtra("id", -1);
+        String userEmail = getIntent().getStringExtra("userEmail");
+        String userPassword = getIntent().getStringExtra("userPassword");
+        String userFirstName = getIntent().getStringExtra("userFirstName");
+        String userLastName = getIntent().getStringExtra("userLastName");
+        int userID = getIntent().getIntExtra("userID", -1);
+        int userAge = getIntent().getIntExtra("userAge", -1);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
@@ -24,9 +27,12 @@ public class HomepageActivity extends AppCompatActivity {
 
         //create bundle of values as arguments
         Bundle bund = new Bundle();
-        bund.putString("email", email);
-        bund.putString("password", password);
-        bund.putInt("id", id);
+        bund.putString("userEmail", userEmail);
+        bund.putString("userPassword", userPassword);
+        bund.putString("userFirstName", userFirstName);
+        bund.putString("userLastName", userLastName);
+        bund.putInt("userAge", userAge);
+        bund.putInt("userID", userID);
         homeFragment.setArguments(bund);
 
         setCurrentFragment(homeFragment);

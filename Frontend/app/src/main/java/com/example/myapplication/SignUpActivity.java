@@ -162,11 +162,12 @@ public class SignUpActivity extends AppCompatActivity {
                             Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
 
                             //send user email and pass and other vals to homepage
-                            intent.putExtra("id", id);
-                            intent.putExtra("email", email);
-                            intent.putExtra("password", password);
-                            intent.putExtra("firstName", firstName);
-                            intent.putExtra("lastName", lastName);
+                            intent.putExtra("userID", id);
+                            intent.putExtra("userEmail", email);
+                            intent.putExtra("userPassword", password);
+                            intent.putExtra("userFirstName", firstName);
+                            intent.putExtra("userLastName", lastName);
+                            intent.putExtra("userAge", age);
 
                             startActivity(intent);
 

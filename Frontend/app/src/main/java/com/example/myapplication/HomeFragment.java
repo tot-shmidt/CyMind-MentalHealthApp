@@ -26,6 +26,7 @@ public class HomeFragment extends Fragment {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
+    private String userPassword;
     private int userAge;
 
 
@@ -57,6 +58,7 @@ public class HomeFragment extends Fragment {
         userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
+        userPassword = getActivity().getIntent().getStringExtra("userPassword");
 
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
@@ -68,6 +70,7 @@ public class HomeFragment extends Fragment {
             intent.putExtra( "userFirstName", userFirstName);
             intent.putExtra( "userLastName", userLastName);
             intent.putExtra("userEmail", userEmail);
+            intent.putExtra("userPassword", userPassword);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
             startActivity(intent);
