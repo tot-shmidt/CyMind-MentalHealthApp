@@ -129,15 +129,15 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+                intent.putExtra( "userFirstName", userFirstName);
+                intent.putExtra( "userLastName", userLastName);
+                intent.putExtra("userEmail", userEmail);
+                intent.putExtra("userID", userID);
+                intent.putExtra("userAge", userAge);
                 startActivity(intent);
             }
         });
 
-        // TODO: On load, set nameText to user's name
-        // TODO: On load, set emailText to user's email
-        // TODO: On load, set ageText to user's age
-        // TODO: On click of updateProfileButton, update Name, Email, Age, and PW if applicable
-        // If a field is blank, assume it does not need to be updated
         updateProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

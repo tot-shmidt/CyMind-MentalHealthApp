@@ -137,8 +137,8 @@ public class WelcomeActivity extends AppCompatActivity {
                         Log.e("Volley Error", error.toString());
 
                         // FOR DEBUG
-                        makeText(getApplicationContext(), "Failed to load data. Please try again.", Toast.LENGTH_LONG).show();
-                        // makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
+                        // makeText(getApplicationContext(), "Failed to load data. Please try again.", Toast.LENGTH_LONG).show();
+                        makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {

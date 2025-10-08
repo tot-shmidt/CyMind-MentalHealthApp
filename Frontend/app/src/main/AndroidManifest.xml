@@ -30,7 +30,10 @@
             android:name=".ProfileActivity"
             android:exported="false">
         </activity>
-
+        <activity
+            android:name=".MoodActivity"
+            android:exported="false">
+        </activity>
         <activity
             android:name=".SignUpActivity"
             android:exported="false" />
