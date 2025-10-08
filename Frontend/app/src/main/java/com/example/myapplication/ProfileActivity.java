@@ -2,6 +2,8 @@ package com.example.myapplication;
 
 import static android.widget.Toast.makeText;
 
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,7 +53,6 @@ public class ProfileActivity extends AppCompatActivity {
     private String userEmail;
     private String originalUserEmail;
     private int userAge;
-    private String userPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,6 @@ public class ProfileActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
-        userPassword = getIntent().getStringExtra("userPassword");
 
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
@@ -115,7 +115,7 @@ public class ProfileActivity extends AppCompatActivity {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         // Define headers if needed
                         HashMap<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Basic " + getAuthToken());
+                        headers.put("Authorization", "Basic " + generateAuthToken());
                         return headers;
                     }
                 };
@@ -190,31 +190,31 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.PUT, // HTTP method
-                APP_API_URL + userID, // API URL + userID
-                requestBody, // Request body (null for GET request)
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                        // Update on screen text
-                        nameText.setText("Name: " + userFirstName + " " + userLastName);
-                        emailText.setText("Email: " + userEmail);
-                        ageText.setText(String.valueOf("Age: " + userAge));
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error", error.toString());
-
-                        // Display an error message
-                        makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+            Request.Method.PUT, // HTTP method
+            APP_API_URL + userID, // API URL + userID
+            requestBody, // Request body (null for GET request)
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    // Update on screen text
+                    nameText.setText("Name: " + userFirstName + " " + userLastName);
+                    emailText.setText("Email: " + userEmail);
+                    ageText.setText(String.valueOf("Age: " + userAge));
                 }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
+
+                    // Display an error message
+                    makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -222,7 +222,7 @@ public class ProfileActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
                 headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Basic " + getAuthToken());
+                headers.put("Authorization", "Basic " + generateAuthToken());
                 return headers;
             }
 
@@ -239,10 +239,10 @@ public class ProfileActivity extends AppCompatActivity {
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
-    private String getAuthToken() {
-        // Create Base64 encoder
-        Base64.Encoder encoder = Base64.getEncoder();
-        // Create auth token
-        return encoder.encodeToString((originalUserEmail + ":" + userPassword).getBytes());
-    }
+//    private String generateAuthToken() {
+//        // Create Base64 encoder
+//        Base64.Encoder encoder = Base64.getEncoder();
+//        // Create auth token
+//        return encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
+//    }
 }

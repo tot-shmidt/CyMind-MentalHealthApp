@@ -1,14 +1,15 @@
 package com.example.myapplication;
 
+import static android.widget.Toast.makeText;
+
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +34,7 @@ import java.util.Map;
 public class MoodActivity extends AppCompatActivity {
 
     // TODO: DECLARE PRIVATE VARIABLES
-
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
     private int userID;
     private String userFirstName;
     private String userLastName;
@@ -72,8 +73,11 @@ public class MoodActivity extends AppCompatActivity {
 
         // TODO: OPERATIONAL CODE
         //      TODO: Send newMoodEntry to backend
+        //      userUpdate();
         //      TODO: Query recent mood history
+        //      getUserEntryData();
         //      TODO: Display recent mood history
+        //      update page elements based on entry data
 
         // Return to homepage
         buttonReturn.setOnClickListener(new View.OnClickListener() {
@@ -91,4 +95,123 @@ public class MoodActivity extends AppCompatActivity {
     }
 
     // TODO: ADDITIONAL METHODS IF NEEDED
+    private void userUpdate() {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("id", userID);
+            // Send new mood entry (Integer)
+            // Send journal entry (String)
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.PUT, // HTTP method
+                APP_API_URL + userID, // API URL + userID
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+
+                        // Display an error message
+                        makeText(getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
+    private void getUserEntryData() {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("id", userID);
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+            Request.Method.GET, // HTTP method
+            APP_API_URL + userID, // API URL + userID
+            requestBody, // Request body (null for GET request)
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    makeText(getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
+
+                    // Display an error message
+                    makeText(getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
 }
