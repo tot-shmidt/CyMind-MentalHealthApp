@@ -29,7 +29,7 @@ public class MoodEntry {
     @NotNull
     private int moodRating;
 
-    @OneToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     @NotNull(message = "Student cannot be empty")
     @JsonIgnore
