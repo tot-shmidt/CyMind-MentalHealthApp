@@ -1,56 +1,51 @@
 package cymind.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.boot.context.properties.bind.Name;
 
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class MoodEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Temporal(TemporalType.DATE)
-    @NotNull
     private Date date;
 
     @NotNull
     private int moodRating;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<JournalEntry> journalEntries;
+    @OneToOne()
+    @JoinColumn(name = "student_id")
+    @NotBlank
+    @JsonIgnore
+    private Student student;
 
-    public MoodEntry(int moodRating, List<JournalEntry> entries) {
-        this.date = new Date();
-        this.moodRating = moodRating;
-        this.journalEntries = entries;
-    }
-
-    public MoodEntry(int moodRating, JournalEntry entry) {
-        this.date = new Date();
-        this.moodRating = moodRating;
-        this.journalEntries = List.of(entry);
-    }
+    @OneToOne()
+    @JoinColumn(name = "journal_id")
+    private JournalEntry journalEntry;
 
     public MoodEntry(int moodRating) {
         this.date = new Date();
         this.moodRating = moodRating;
     }
 
-    public MoodEntry() {
-        this.date = new Date();
-        this.moodRating = 0;
-    }
-
-
-    public void addJournalEntry(JournalEntry entry) {
-        this.journalEntries.add(entry);
+    public void updateMoodRating(MoodEntry moodEntry) {
+        this.moodRating = moodEntry.getMoodRating();
+        this.journalEntry = moodEntry.getJournalEntry();
     }
 }
