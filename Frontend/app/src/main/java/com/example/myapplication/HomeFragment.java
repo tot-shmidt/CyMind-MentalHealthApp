@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,9 +20,7 @@ public class HomeFragment extends Fragment {
     private TextView welcomeMessage;
     private ImageButton buttonProfile;
     private TextView moodMessage;
-    private Button moodButtonHappy;
-    private Button moodButtonNeutral;
-    private Button moodButtonSad;
+    private SeekBar moodSeekBar;
     private int userID;
     private String userFirstName;
     private String userLastName;
@@ -41,9 +40,7 @@ public class HomeFragment extends Fragment {
         welcomeMessage = rootView.findViewById(R.id.welcomeMessage);
         buttonProfile = rootView.findViewById(R.id.buttonProfile);
         moodMessage = rootView.findViewById(R.id.moodMessage);
-        moodButtonHappy = rootView.findViewById(R.id.moodButtonHappy);
-        moodButtonNeutral = rootView.findViewById(R.id.moodButtonNeutral);
-        moodButtonSad = rootView.findViewById(R.id.moodButtonSad);
+        moodSeekBar = rootView.findViewById(R.id.moodSeekBar);
 
         return rootView;
     }
@@ -52,7 +49,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //get the passed email and id from previous pages
+        //get the passed user info from previous page
         userEmail = getActivity().getIntent().getStringExtra("userEmail");
         userID = getActivity().getIntent().getIntExtra("userID", 0);
         userAge = getActivity().getIntent().getIntExtra("userAge", 0);
@@ -75,5 +72,33 @@ public class HomeFragment extends Fragment {
             intent.putExtra("userAge", userAge);
             startActivity(intent);
         });
+
+        // Set a listener to handle changes and enforce discrete positions
+        moodSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // Called anytime progress bar changes
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Called when the user starts touching the seek bar, required method
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Called when the user stops touching the seek bar
+                // Send user data to the next page as well as the mood input
+                Intent intent = new Intent(getActivity(), MoodActivity.class);
+                intent.putExtra( "userFirstName", userFirstName);
+                intent.putExtra( "userLastName", userLastName);
+                intent.putExtra("userEmail", userEmail);
+                intent.putExtra("userID", userID);
+                intent.putExtra("userAge", userAge);
+                intent.putExtra("mood", moodSeekBar.getProgress());
+                startActivity(intent);
+            }
+        });
+
     }
 }
