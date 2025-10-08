@@ -6,6 +6,7 @@ import cymind.model.MoodEntry;
 import cymind.model.Student;
 import cymind.repository.JournalEntryRepository;
 import cymind.repository.MoodEntryRepository;
+import cymind.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,11 +26,18 @@ public class MoodEntryService {
     @Autowired
     private JournalEntryRepository journalEntryRepository;
 
+    @Autowired
+    private StudentRepository studentRepository;
+
     @Transactional
     public List<MoodEntry> findAllByStudent(int num) {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Student authedStudent = studentRepository.findByAbstractUser(authedUser);
+        if (authedStudent == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No entries found");
+        }
 
-        List<MoodEntry> entries = moodEntryRepository.findAllByStudentOrderByIdDesc((Student) authedUser);
+        List<MoodEntry> entries = moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent);
         return entries.subList(0, Math.min(num, entries.size()));
     }
 

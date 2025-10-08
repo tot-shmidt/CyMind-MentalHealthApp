@@ -31,7 +31,7 @@ public class MoodEntry {
 
     @OneToOne()
     @JoinColumn(name = "student_id")
-    @NotBlank
+    @NotNull(message = "Student cannot be empty")
     @JsonIgnore
     private Student student;
 
