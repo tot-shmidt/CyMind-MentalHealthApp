@@ -10,7 +10,6 @@ import cymind.repository.StudentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,20 +47,14 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
         }
 
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != moodEntry.getStudent().getId()) {
-            throw new AuthorizationDeniedException("Attempting to get a mood entry for a different user");
-        }
+        checkAuth(moodEntry);
 
         return moodEntry;
     }
 
     @Transactional
     public MoodEntry createMoodEntry(MoodEntry moodEntry) throws AuthorizationDeniedException {
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != moodEntry.getStudent().getId()) {
-            throw new AuthorizationDeniedException("Attempting to add a mood entry for a different user");
-        }
+        checkAuth(moodEntry);
 
         return moodEntryRepository.save(moodEntry);
     }
@@ -73,10 +66,7 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
         }
 
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != moodEntry.getStudent().getId()) {
-            throw new AuthorizationDeniedException("Attempting to update a mood entry for a different user");
-        }
+        checkAuth(moodEntry);
 
         MoodEntry moodEntryToUpdate = moodEntryRepository.findById(id);
         moodEntryToUpdate.updateMoodRating(request);
@@ -92,10 +82,7 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
         }
 
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != moodEntry.getStudent().getId()) {
-            throw new AuthorizationDeniedException("Attempting to update a mood entry for a different user");
-        }
+        checkAuth(moodEntry);
 
         journalEntry.setMoodEntry(moodEntry);
         journalEntryRepository.save(journalEntry);
@@ -111,11 +98,15 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
         }
 
-        AbstractUser abstractUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (abstractUser.getId() != moodEntry.getStudent().getId()) {
-            throw new AuthorizationDeniedException("Attempting to delete a mood entry for different user");
-        }
+        checkAuth(moodEntry);
 
         moodEntryRepository.deleteById(id);
+    }
+
+    private void checkAuth(MoodEntry moodEntry) {
+        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authedUser.getId() != moodEntry.getStudent().getAbstractUser().getId()) {
+            throw new AuthorizationDeniedException("Attempting to access a mood entry for different user");
+        }
     }
 }

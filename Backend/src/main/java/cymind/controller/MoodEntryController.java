@@ -16,7 +16,7 @@ public class MoodEntryController {
     private MoodEntryService moodEntryService;
 
     @GetMapping(path = "/entries/mood", params = "{num}")
-    ResponseEntity<List<MoodEntry>> getAllMoodEntries(@RequestParam int num) {
+    ResponseEntity<List<MoodEntry>> getAllMoodEntries(@RequestParam(defaultValue = "1") int num) {
         List<MoodEntry> entries;
         if (num <= 0) {
              entries = moodEntryService.findAllByStudent(1);
