@@ -51,6 +51,8 @@ public class ProfileActivity extends AppCompatActivity {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
+
+    private String userPassword;
     private String originalUserEmail;
     private int userAge;
 
@@ -77,6 +79,10 @@ public class ProfileActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
+        userPassword = getIntent().getStringExtra("userPassword");
+
+        Authorization.globalUserEmail = userEmail;
+        Authorization.globalPassword = userPassword;
 
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
@@ -98,7 +104,8 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //Creates new request defined as a DELETE request
                 //Use StringRequest since there is no json response body, just status code
-                StringRequest delete = new StringRequest(Request.Method.DELETE, APP_API_URL + userID, response -> {
+                String deleteURL = APP_API_URL + userID;
+                StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL, response -> {
 
                     //Display message saying user was deleted by identifying their id
                     Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
@@ -113,11 +120,12 @@ public class ProfileActivity extends AppCompatActivity {
                 ) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
-                        // Define headers if needed
                         HashMap<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Basic " + generateAuthToken());
+                        headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                        headers.put("Content-Type", "application/json");
                         return headers;
                     }
+
                 };
 
                 //finally, if no issues, add the deleted user to queue
