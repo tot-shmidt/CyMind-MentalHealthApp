@@ -39,9 +39,17 @@ public class MoodEntry {
     @JoinColumn(name = "journal_id")
     private JournalEntry journalEntry;
 
-    public MoodEntry(int moodRating) {
+    public MoodEntry(int moodRating, Student student, JournalEntry journalEntry) {
         this.date = new Date();
         this.moodRating = moodRating;
+        this.student = student;
+        this.journalEntry = journalEntry;
+    }
+
+    public MoodEntry(int moodRating, Student student) {
+        this.date = new Date();
+        this.moodRating = moodRating;
+        this.student = student;
     }
 
     public void updateMoodRating(MoodEntry moodEntry) {

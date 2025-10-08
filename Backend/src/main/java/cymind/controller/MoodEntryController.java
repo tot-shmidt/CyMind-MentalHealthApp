@@ -1,5 +1,6 @@
 package cymind.controller;
 
+import cymind.dto.CreateMoodEntryDTO;
 import cymind.model.MoodEntry;
 import cymind.service.MoodEntryService;
 import jakarta.validation.Valid;
@@ -9,19 +10,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class MoodEntryController {
     @Autowired
     private MoodEntryService moodEntryService;
 
-    @GetMapping(path = "/entries/mood", params = "{num}")
-    ResponseEntity<List<MoodEntry>> getAllMoodEntries(@RequestParam(defaultValue = "1") int num) {
+    @GetMapping(path = "/entries/mood")
+    ResponseEntity<List<MoodEntry>> getAllMoodEntries() {
+        List<MoodEntry> entries = moodEntryService.findAllByStudent();
+        return new ResponseEntity<>(entries, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/entries/mood", params = "num")
+    ResponseEntity<List<MoodEntry>> getAllMoodEntries(@RequestParam(required = false, defaultValue = "1") Optional<Integer> num) {
         List<MoodEntry> entries;
-        if (num <= 0) {
-             entries = moodEntryService.findAllByStudent(1);
+        if (num.isPresent()) {
+            entries = moodEntryService.findAllByStudent(num.get());
         } else {
-            entries = moodEntryService.findAllByStudent(num);
+            entries = moodEntryService.findAllByStudent(1);
         }
 
         return new ResponseEntity<>(entries, HttpStatus.OK);
@@ -33,8 +41,8 @@ public class MoodEntryController {
     }
 
     @PostMapping(path = "/entries/mood")
-    ResponseEntity<MoodEntry> createMoodEntry(@Valid @RequestBody MoodEntry moodEntry) {
-        MoodEntry newUser = moodEntryService.createMoodEntry(moodEntry);
+    ResponseEntity<MoodEntry> createMoodEntry(@Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
+        MoodEntry newUser = moodEntryService.createMoodEntry(createMoodEntryDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 

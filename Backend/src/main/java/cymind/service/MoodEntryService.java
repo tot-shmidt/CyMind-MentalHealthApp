@@ -1,5 +1,6 @@
 package cymind.service;
 
+import cymind.dto.CreateMoodEntryDTO;
 import cymind.model.AbstractUser;
 import cymind.model.JournalEntry;
 import cymind.model.MoodEntry;
@@ -29,14 +30,19 @@ public class MoodEntryService {
     private StudentRepository studentRepository;
 
     @Transactional
-    public List<MoodEntry> findAllByStudent(int num) {
+    public List<MoodEntry> findAllByStudent() throws ResponseStatusException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Student authedStudent = studentRepository.findByAbstractUser(authedUser);
+        Student authedStudent = studentRepository.findByAbstractUserId(authedUser.getId());
         if (authedStudent == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No entries found");
         }
 
-        List<MoodEntry> entries = moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent);
+        return moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent);
+    }
+
+    @Transactional
+    public List<MoodEntry> findAllByStudent(int num) throws ResponseStatusException {
+        List<MoodEntry> entries = findAllByStudent();
         return entries.subList(0, Math.min(num, entries.size()));
     }
 
@@ -53,8 +59,13 @@ public class MoodEntryService {
     }
 
     @Transactional
-    public MoodEntry createMoodEntry(MoodEntry moodEntry) throws AuthorizationDeniedException {
-        checkAuth(moodEntry);
+    public MoodEntry createMoodEntry(CreateMoodEntryDTO createMoodEntryDTO) throws AuthorizationDeniedException {
+        Student student = studentRepository.findByAbstractUserId(createMoodEntryDTO.userId());
+        if (student == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+        }
+
+        MoodEntry moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
 
         return moodEntryRepository.save(moodEntry);
     }
