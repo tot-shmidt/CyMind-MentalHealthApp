@@ -1,6 +1,7 @@
 package cymind.controller;
 
-import cymind.dto.CreateMoodEntryDTO;
+import cymind.dto.mood.CreateMoodEntryDTO;
+import cymind.dto.mood.MoodEntryDTO;
 import cymind.model.MoodEntry;
 import cymind.service.MoodEntryService;
 import jakarta.validation.Valid;
@@ -18,14 +19,14 @@ public class MoodEntryController {
     private MoodEntryService moodEntryService;
 
     @GetMapping(path = "/entries/mood")
-    ResponseEntity<List<MoodEntry>> getAllMoodEntries() {
-        List<MoodEntry> entries = moodEntryService.findAllByStudent();
+    ResponseEntity<List<MoodEntryDTO>> getAllMoodEntries() {
+        List<MoodEntryDTO> entries = moodEntryService.findAllByStudent();
         return new ResponseEntity<>(entries, HttpStatus.OK);
     }
 
     @GetMapping(path = "/entries/mood", params = "num")
-    ResponseEntity<List<MoodEntry>> getAllMoodEntries(@RequestParam(required = false, defaultValue = "1") Optional<Integer> num) {
-        List<MoodEntry> entries;
+    ResponseEntity<List<MoodEntryDTO>> getAllMoodEntries(@RequestParam(required = false, defaultValue = "1") Optional<Integer> num) {
+        List<MoodEntryDTO> entries;
         if (num.isPresent()) {
             entries = moodEntryService.findAllByStudent(num.get());
         } else {
@@ -36,25 +37,25 @@ public class MoodEntryController {
     }
 
     @GetMapping(path = "/entries/mood/{id}")
-    MoodEntry getMoodEntryById(@PathVariable long id) {
-        return moodEntryService.getMoodEntryById(id);
+    ResponseEntity<MoodEntryDTO> getMoodEntryById(@PathVariable long id) {
+        return new ResponseEntity<>(moodEntryService.getMoodEntryById(id), HttpStatus.OK);
     }
 
     @PostMapping(path = "/entries/mood")
-    ResponseEntity<MoodEntry> createMoodEntry(@Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
-        MoodEntry newUser = moodEntryService.createMoodEntry(createMoodEntryDTO);
+    ResponseEntity<MoodEntryDTO> createMoodEntry(@Valid @RequestBody CreateMoodEntryDTO createMoodEntryDTO) {
+        MoodEntryDTO newUser = moodEntryService.createMoodEntry(createMoodEntryDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/entries/mood/{id}")
-    ResponseEntity<MoodEntry> updateMoodEntry(@PathVariable long id, @Valid @RequestBody MoodEntry moodEntry) {
-        MoodEntry updatedUser = moodEntryService.updateMoodEntry(id, moodEntry);
+    ResponseEntity<MoodEntryDTO> updateMoodEntry(@PathVariable long id, @Valid @RequestBody MoodEntry moodEntry) {
+        MoodEntryDTO updatedUser = moodEntryService.updateMoodEntry(id, moodEntry);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @PutMapping("/entries/mood/{moodId}/journal/{journalId}")
-    ResponseEntity<MoodEntry> assignJournalEntryToMoodEntry(@PathVariable long moodId, @PathVariable long journalId) {
-        MoodEntry updatedUser = moodEntryService.setJournalEntry(moodId, journalId);
+    ResponseEntity<MoodEntryDTO> assignJournalEntryToMoodEntry(@PathVariable long moodId, @PathVariable long journalId) {
+        MoodEntryDTO updatedUser = moodEntryService.setJournalEntry(moodId, journalId);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 

@@ -1,6 +1,7 @@
 package cymind.service;
 
-import cymind.dto.CreateMoodEntryDTO;
+import cymind.dto.mood.CreateMoodEntryDTO;
+import cymind.dto.mood.MoodEntryDTO;
 import cymind.model.AbstractUser;
 import cymind.model.JournalEntry;
 import cymind.model.MoodEntry;
@@ -30,24 +31,24 @@ public class MoodEntryService {
     private StudentRepository studentRepository;
 
     @Transactional
-    public List<MoodEntry> findAllByStudent() throws ResponseStatusException {
+    public List<MoodEntryDTO> findAllByStudent() throws ResponseStatusException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Student authedStudent = studentRepository.findByAbstractUserId(authedUser.getId());
         if (authedStudent == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No entries found");
         }
 
-        return moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent);
+        return moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent).stream().map(MoodEntryDTO::new).toList();
     }
 
     @Transactional
-    public List<MoodEntry> findAllByStudent(int num) throws ResponseStatusException {
-        List<MoodEntry> entries = findAllByStudent();
+    public List<MoodEntryDTO> findAllByStudent(int num) throws ResponseStatusException {
+        List<MoodEntryDTO> entries = findAllByStudent();
         return entries.subList(0, Math.min(num, entries.size()));
     }
 
     @Transactional
-    public MoodEntry getMoodEntryById(long id) throws AuthorizationDeniedException, ResponseStatusException {
+    public MoodEntryDTO getMoodEntryById(long id) throws AuthorizationDeniedException, ResponseStatusException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if (moodEntry == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
@@ -55,11 +56,11 @@ public class MoodEntryService {
 
         checkAuth(moodEntry);
 
-        return moodEntry;
+        return new MoodEntryDTO(moodEntry);
     }
 
     @Transactional
-    public MoodEntry createMoodEntry(CreateMoodEntryDTO createMoodEntryDTO) throws AuthorizationDeniedException {
+    public MoodEntryDTO createMoodEntry(CreateMoodEntryDTO createMoodEntryDTO) throws AuthorizationDeniedException {
         Student student = studentRepository.findByAbstractUserId(createMoodEntryDTO.userId());
         if (student == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
@@ -67,11 +68,11 @@ public class MoodEntryService {
 
         MoodEntry moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
 
-        return moodEntryRepository.save(moodEntry);
+        return new MoodEntryDTO(moodEntryRepository.save(moodEntry));
     }
 
     @Transactional
-    public MoodEntry updateMoodEntry(long id, MoodEntry request) throws AuthorizationDeniedException, ResponseStatusException {
+    public MoodEntryDTO updateMoodEntry(long id, MoodEntry request) throws AuthorizationDeniedException, ResponseStatusException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if (moodEntry == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
@@ -82,11 +83,11 @@ public class MoodEntryService {
         MoodEntry moodEntryToUpdate = moodEntryRepository.findById(id);
         moodEntryToUpdate.updateMoodRating(request);
 
-        return moodEntryRepository.save(moodEntryToUpdate);
+        return new MoodEntryDTO(moodEntryRepository.save(moodEntryToUpdate));
     }
 
     @Transactional
-    public MoodEntry setJournalEntry(long moodId, long journalId) throws AuthorizationDeniedException {
+    public MoodEntryDTO setJournalEntry(long moodId, long journalId) throws AuthorizationDeniedException {
         MoodEntry moodEntry = moodEntryRepository.findById(moodId);
         JournalEntry journalEntry = journalEntryRepository.findById(journalId);
         if (moodEntry == null || journalEntry == null) {
@@ -99,7 +100,7 @@ public class MoodEntryService {
         journalEntryRepository.save(journalEntry);
 
         moodEntry.setJournalEntry(journalEntry);
-        return moodEntryRepository.save(moodEntry);
+        return new MoodEntryDTO(moodEntryRepository.save(moodEntry));
     }
 
     @Transactional
