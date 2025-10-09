@@ -38,6 +38,8 @@
                 android:layout_marginRight="10dip"
                 android:layout_marginTop="10dip"
                 android:text="Profile"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
                 app:layout_constraintTop_toTopOf="parent" />
         </LinearLayout>
 
@@ -58,40 +60,41 @@
             android:textSize="12pt"
             android:text="How are you feeling today?"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/moodMessage2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="50dip"
+            android:text="😭                                             😃"
+            android:textAlignment="center"
+            android:textSize="12pt" />
 
-            <Button
-                android:id="@+id/moodButtonHappy"
-                android:layout_width="137dip"
-                android:layout_height="wrap_content"
-                android:text="Happy"
-                app:layout_constraintBaseline_toBaselineOf="@+id/moodButtonNeutral"
-                app:layout_constraintEnd_toStartOf="@+id/moodButtonNeutral"
-                app:layout_constraintTop_toBottomOf="@id/space2" />
+        <SeekBar
+            android:id="@+id/moodSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="5"
+            android:min="1"
+            android:progress="3" />
 
-            <Button
-                android:id="@+id/moodButtonNeutral"
-                android:layout_width="137dip"
-                android:layout_height="wrap_content"
-                android:text="Neutral"
-                app:layout_constraintEnd_toStartOf="@+id/moodButtonSad"
-                app:layout_constraintStart_toEndOf="@+id/moodButtonHappy"
-                app:layout_constraintTop_toTopOf="@+id/moodButtonSad" />
 
-            <Button
-                android:id="@+id/moodButtonSad"
-                android:layout_width="137dip"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="172dp"
-                android:text="Sad"
-                app:layout_constraintBottom_toTopOf="@+id/buttonAppointments"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/moodButtonNeutral"
-                app:layout_constraintTop_toBottomOf="@+id/buttonProfile" />
-        </LinearLayout>
+        <EditText
+            android:id="@+id/editTextJournal"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="20dp"
+            android:hint="Give a brief explanation on why you feel that way today. "
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp"/>
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"/>
 
         <Space
             android:id="@+id/space2"
@@ -101,7 +104,11 @@
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+
+
     </LinearLayout>
+
+
 
 
     <!-- TODO: generic app information -->

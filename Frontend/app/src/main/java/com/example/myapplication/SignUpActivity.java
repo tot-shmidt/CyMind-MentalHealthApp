@@ -22,6 +22,9 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -78,6 +81,9 @@ public class SignUpActivity extends AppCompatActivity {
                 String userPass = editTextPassword.getText().toString().trim();
                 String userFirstName = editTextFirstName.getText().toString().trim();
                 String userLastName = editTextLastName.getText().toString().trim();
+
+                Authorization.globalUserEmail = userEmail;
+                Authorization.globalPassword = editTextPassword.getText().toString();
 
                 int userAge;
                 try {
@@ -140,44 +146,51 @@ public class SignUpActivity extends AppCompatActivity {
 
                 //request to post info as json
                 JsonObjectRequest post = new JsonObjectRequest(Request.Method.POST, postUrl, request,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //get response body values from backend
-                        try {
-                            int id = response.getInt("id");
-                            String email = response.getString("email");
-                            String password = userPass;
-                            String firstName = response.getString("firstName");
-                            String lastName = response.getString("lastName");
-                            int age = response.getInt("age");
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                //get response body values from backend
+                                try {
+                                    int id = response.getInt("id");
+                                    String email = response.getString("email");
+                                    String password = userPass;
+                                    String firstName = response.getString("firstName");
+                                    String lastName = response.getString("lastName");
+                                    int age = response.getInt("age");
 
-                            Log.d("SignUpActivity", "Success ");
-
-                            //display message with credentials to show the new user was created
-                            Toast.makeText(SignUpActivity.this, "New user created:\n Id: " + id + "\nEmail: " + email +
-                                    "\nFirst Name: " + firstName + "\nLast Name: " + lastName + "\nAge: " + age, Toast.LENGTH_LONG).show();
-
-                            //Use intent to go to the next page, in this case the home page
-                            Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
-
-                            //send user email and pass and other vals to homepage
-                            intent.putExtra("userID", id);
-                            intent.putExtra("userEmail", email);
-                            intent.putExtra("userPassword", password);
-                            intent.putExtra("userFirstName", firstName);
-                            intent.putExtra("userLastName", lastName);
-                            intent.putExtra("userAge", age);
-
-                            startActivity(intent);
-
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
+                                    Log.d("SignUpActivity", "Success ");
 
 
-                    }
-                },
+                                    Authorization.globalUserEmail = email;
+                                    Authorization.globalPassword = password;
+
+                                    submitStudentInfo(id, email, password);
+
+
+                                    //display message with credentials to show the new user was created
+                                    Toast.makeText(SignUpActivity.this, "New user created:\n Id: " + id + "\nEmail: " + email +
+                                            "\nFirst Name: " + firstName + "\nLast Name: " + lastName + "\nAge: " + age, Toast.LENGTH_LONG).show();
+
+                                    //Use intent to go to the next page, in this case the home page
+                                    Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
+
+                                    //send user email and pass and other vals to homepage
+                                    intent.putExtra("userID", id);
+                                    intent.putExtra("userEmail", email);
+                                    intent.putExtra("userPassword", password);
+                                    intent.putExtra("userFirstName", firstName);
+                                    intent.putExtra("userLastName", lastName);
+                                    intent.putExtra("userAge", age);
+
+                                    startActivity(intent);
+
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+
+                            }
+                        },
                         //Ensure that the server and app communicate and send/retreive info properly, if not display error message
                         new Response.ErrorListener() {
                             @Override
@@ -213,5 +226,53 @@ public class SignUpActivity extends AppCompatActivity {
                 // TODO: navigate to professionals sign in page when made
             }
         });
+
+    }
+
+    private void submitStudentInfo(int userId, String email, String password) {
+        String major = "Software Engineering";
+        int yearOfStudy = 3;
+
+
+        JSONObject requestStudent = new JSONObject();
+        //try to pass the credentials into designated parameters
+        try {
+            requestStudent.put("major", major);
+            requestStudent.put("yearOfStudy", yearOfStudy);
+            requestStudent.put("userId", userId);
+        }
+        //catch it if errors occur when requesting
+        catch(JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        //connect to server with sign up POST endpoint (created from backend)
+        String postStudentURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/student";
+
+        JsonObjectRequest postStudent = new JsonObjectRequest(Request.Method.POST, postStudentURL, requestStudent,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        Log.d("POSTStudent", "Student info sent.");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Log.e("POSTStudent", "Error occured sending user info.");
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                return headers;
+            }
+        };
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(postStudent);
+
     }
 }

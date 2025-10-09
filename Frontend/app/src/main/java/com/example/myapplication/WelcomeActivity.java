@@ -121,6 +121,8 @@ public class WelcomeActivity extends AppCompatActivity {
                         userLastName = response.optString("lastName");
                         userEmail = response.optString("email");
                         userAge = response.optInt("age");
+                        Authorization.globalUserEmail = userEmail;
+                        Authorization.globalPassword = editTextPassword.getText().toString();
                         Intent intent2 = new Intent(WelcomeActivity.this, HomepageActivity.class);
                         intent2.putExtra( "userFirstName", userFirstName);
                         intent2.putExtra( "userLastName", userLastName);
@@ -137,8 +139,8 @@ public class WelcomeActivity extends AppCompatActivity {
                         Log.e("Volley Error", error.toString());
 
                         // FOR DEBUG
-                        makeText(getApplicationContext(), "Failed to load data. Please try again.", Toast.LENGTH_LONG).show();
-                        // makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
+                        // makeText(getApplicationContext(), "Failed to load data. Please try again.", Toast.LENGTH_LONG).show();
+                        makeText(getApplicationContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
                     }
                 }
         ) {

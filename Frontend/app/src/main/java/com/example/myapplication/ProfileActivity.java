@@ -2,6 +2,8 @@ package com.example.myapplication;
 
 import static android.widget.Toast.makeText;
 
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,9 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
-    private String originalUserEmail;
     private int userAge;
-    private String userPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +71,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         //get the passed email and id from previous pages
         userEmail = getIntent().getStringExtra("userEmail");
-        originalUserEmail = userEmail;
         userID = getIntent().getIntExtra("userID", 0);
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
-        userPassword = getIntent().getStringExtra("userPassword");
+
+
 
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
@@ -96,9 +96,15 @@ public class ProfileActivity extends AppCompatActivity {
         deleteProfilebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Authorization.globalUserEmail = userEmail;
+                Authorization.globalPassword = passwordEditText.getText().toString();
+
+
                 //Creates new request defined as a DELETE request
                 //Use StringRequest since there is no json response body, just status code
-                StringRequest delete = new StringRequest(Request.Method.DELETE, APP_API_URL + userID, response -> {
+                String deleteURL = APP_API_URL + userID;
+                StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL, response -> {
 
                     //Display message saying user was deleted by identifying their id
                     Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
@@ -113,11 +119,12 @@ public class ProfileActivity extends AppCompatActivity {
                 ) {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
-                        // Define headers if needed
                         HashMap<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Basic " + getAuthToken());
+                        headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                        headers.put("Content-Type", "application/json");
                         return headers;
                     }
+
                 };
 
                 //finally, if no issues, add the deleted user to queue
@@ -131,15 +138,15 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+                intent.putExtra( "userFirstName", userFirstName);
+                intent.putExtra( "userLastName", userLastName);
+                intent.putExtra("userEmail", userEmail);
+                intent.putExtra("userID", userID);
+                intent.putExtra("userAge", userAge);
                 startActivity(intent);
             }
         });
 
-        // TODO: On load, set nameText to user's name
-        // TODO: On load, set emailText to user's email
-        // TODO: On load, set ageText to user's age
-        // TODO: On click of updateProfileButton, update Name, Email, Age, and PW if applicable
-        // If a field is blank, assume it does not need to be updated
         updateProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -190,31 +197,31 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.PUT, // HTTP method
-                APP_API_URL + userID, // API URL + userID
-                requestBody, // Request body (null for GET request)
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                        // Update on screen text
-                        nameText.setText("Name: " + userFirstName + " " + userLastName);
-                        emailText.setText("Email: " + userEmail);
-                        ageText.setText(String.valueOf("Age: " + userAge));
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error", error.toString());
-
-                        // Display an error message
-                        makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+            Request.Method.PUT, // HTTP method
+            APP_API_URL + userID, // API URL + userID
+            requestBody, // Request body (null for GET request)
+            new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    // Update on screen text
+                    nameText.setText("Name: " + userFirstName + " " + userLastName);
+                    emailText.setText("Email: " + userEmail);
+                    ageText.setText(String.valueOf("Age: " + userAge));
                 }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
+
+                    // Display an error message
+                    makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -222,7 +229,7 @@ public class ProfileActivity extends AppCompatActivity {
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
                 headers.put("Content-Type", "application/json");
-                headers.put("Authorization", "Basic " + getAuthToken());
+                headers.put("Authorization", "Basic " + generateAuthToken());
                 return headers;
             }
 
@@ -238,11 +245,5 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
-    }
-    private String getAuthToken() {
-        // Create Base64 encoder
-        Base64.Encoder encoder = Base64.getEncoder();
-        // Create auth token
-        return encoder.encodeToString((originalUserEmail + ":" + userPassword).getBytes());
     }
 }
