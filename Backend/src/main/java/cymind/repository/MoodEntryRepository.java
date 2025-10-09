@@ -10,4 +10,5 @@ public interface MoodEntryRepository extends JpaRepository<MoodEntry, Long> {
     MoodEntry findById(long id);
     void deleteById(long id);
     List<MoodEntry> findAllByStudentOrderByIdDesc(Student student);
+    void deleteAllByStudent(Student stent);
 }

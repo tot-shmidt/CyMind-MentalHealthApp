@@ -4,7 +4,10 @@ import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
 import cymind.dto.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
+import cymind.model.Student;
 import cymind.repository.AbstractUserRepository;
+import cymind.repository.MoodEntryRepository;
+import cymind.repository.StudentRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -28,6 +31,11 @@ public class AbstractUserService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private MoodEntryRepository moodEntryRepository;
 
     @Transactional
     public AbstractUserDTO createUser(CreateAbstractUserDTO createAbstractUserDTO) throws NonUniqueResultException {
@@ -80,7 +88,7 @@ public class AbstractUserService {
         }
 
         // Throw an error if another user is already using that email
-        if (abstractUserRepository.findByEmail(request.email()) != null) {
+        if (!request.email().equals(userToUpdate.getEmail()) && abstractUserRepository.findByEmail(request.email()) != null) {
             throw new NonUniqueResultException("Email already in use");
         }
 
@@ -102,6 +110,12 @@ public class AbstractUserService {
 
         if  (abstractUserRepository.findById(id) == null) {
             throw new AccountNotFoundException("Could not find user with that id");
+        }
+
+        Student student = studentRepository.findByAbstractUserId(id);
+        if (student != null) {
+            moodEntryRepository.deleteAllByStudent(student);
+            studentRepository.deleteById(student.getId());
         }
 
         abstractUserRepository.deleteById(id);

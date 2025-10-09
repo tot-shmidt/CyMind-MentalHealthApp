@@ -31,13 +31,13 @@ public class MoodEntry {
     @NotNull
     private int moodRating;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     @NotNull(message = "Student cannot be empty")
     @JsonIgnore
     private Student student;
 
-    @OneToOne()
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "journal_id")
     @Nullable
     private JournalEntry journalEntry;
