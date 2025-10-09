@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.AuthFailureError;
@@ -86,11 +87,8 @@ public class MoodActivity extends AppCompatActivity {
             return;
         }
 
-        // TODO: OPERATIONAL CODE
-        //      TODO: Query recent mood history
+        // Queries recent mood entries and displays them to the screen
         getMoodEntries();
-        //      TODO: Display recent mood history
-
 
         // Return to homepage
         buttonReturn.setOnClickListener(new View.OnClickListener() {
@@ -234,6 +232,64 @@ public class MoodActivity extends AppCompatActivity {
             return;
         }
         // For ratings from 1-5
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("userId", userID);
+            requestBody.put("moodRating", newRating);
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.PUT, // HTTP method
+                APP_API_URL + "entries/mood/" + moodId, // API URL + userID
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getApplicationContext(), "Mood entry updated successfully", Toast.LENGTH_SHORT).show();
+                        getMoodEntries();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+
+                        // Display an error message
+                        makeText(getApplicationContext(), "Mood entry update failed. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
 }
