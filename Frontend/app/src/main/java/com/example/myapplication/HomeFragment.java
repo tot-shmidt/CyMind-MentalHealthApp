@@ -46,6 +46,8 @@ public class HomeFragment extends Fragment {
     private String userLastName;
     private String userEmail;
     private int userAge;
+
+    private int moodId = -1;
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
 
@@ -111,27 +113,28 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        submitEntries.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //post requests for journal and mood entries
-                sendMoodEntry();
-
-                //new page to display mood and journal entries
-                Intent intent = new Intent(getActivity(), MoodActivity.class);
-                intent.putExtra( "userFirstName", userFirstName);
-                intent.putExtra( "userLastName", userLastName);
-                intent.putExtra("userEmail", userEmail);
-                intent.putExtra("userID", userID);
-                intent.putExtra("userAge", userAge);
-                intent.putExtra("moodEntry", moodSeekBar.getProgress());
-                intent.putExtra("journalEntry", journalEntry.getText().toString());
-                startActivity(intent);
-            }
-        });
-
-    }
+//        submitEntries.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                //post requests for journal and mood entries
+//                sendMoodEntry();
+//
+//                //new page to display mood and journal entries
+//                Intent intent = new Intent(getActivity(), MoodActivity.class);
+//                intent.putExtra( "userFirstName", userFirstName);
+//                intent.putExtra( "userLastName", userLastName);
+//                intent.putExtra("userEmail", userEmail);
+//                intent.putExtra("userID", userID);
+//                intent.putExtra("userAge", userAge);
+//                intent.putExtra("moodEntry", moodSeekBar.getProgress());
+//                intent.putExtra("journalEntry", journalEntry.getText().toString());
+//                startActivity(intent);
+//            }
+//        });
+//
+        submitEntries.setOnClickListener(view1 -> sendMoodEntry());
+   }
 
     private void sendMoodEntry() {
         JSONObject requestBody;
@@ -155,9 +158,18 @@ public class HomeFragment extends Fragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        try {
+                            moodId = response.getInt("id");
+                            Log.d("Volley Response", response.toString());
+                            makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+
+                            submitJournalEntry();
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
                         // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+
                     }
                 },
                 new Response.ErrorListener() {
@@ -188,6 +200,81 @@ public class HomeFragment extends Fragment {
                 // Example parameter
                 // params.put("param1", "value1");
                 return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
+
+    private void submitJournalEntry() {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("entryName", "Journal Entry");
+            requestBody.put("content", journalEntry.getText().toString());
+            requestBody.put("moodId", moodId != -1 ? moodId : JSONObject.NULL);
+            // requestBody.put("journalId", unknown); OPTIONAL, ASSUMED NULL IF DISCLUDED
+            // Send new mood entry (Integer)
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getActivity().getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST, // HTTP method
+                APP_API_URL + "entries/journal",
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getActivity(), MoodActivity.class);
+                        intent.putExtra( "userFirstName", userFirstName);
+                        intent.putExtra( "userLastName", userLastName);
+                        intent.putExtra("userEmail", userEmail);
+                        intent.putExtra("userID", userID);
+                        intent.putExtra("userAge", userAge);
+                        intent.putExtra("moodEntry", moodSeekBar.getProgress());
+                        intent.putExtra("moodId", moodId);
+                        intent.putExtra("journalEntry", journalEntry.getText().toString());
+                        startActivity(intent);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+                        // Display an error message
+                        makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
+
+
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> parameters = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return parameters;
             }
         };
 
