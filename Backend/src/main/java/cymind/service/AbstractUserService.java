@@ -88,7 +88,7 @@ public class AbstractUserService {
         }
 
         // Throw an error if another user is already using that email
-        if (abstractUserRepository.findByEmail(request.email()) != null) {
+        if (!request.email().equals(userToUpdate.getEmail()) && abstractUserRepository.findByEmail(request.email()) != null) {
             throw new NonUniqueResultException("Email already in use");
         }
 
