@@ -22,8 +22,6 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
@@ -37,7 +35,6 @@ public class HomeFragment extends Fragment {
     // Declare your views here
     private TextView welcomeMessage;
     private ImageButton buttonProfile;
-    private TextView moodMessage;
     private SeekBar moodSeekBar;
     private EditText journalEntry;
     private Button submitEntries;
@@ -61,7 +58,6 @@ public class HomeFragment extends Fragment {
         // init views
         welcomeMessage = rootView.findViewById(R.id.welcomeMessage);
         buttonProfile = rootView.findViewById(R.id.buttonProfile);
-        moodMessage = rootView.findViewById(R.id.moodMessage);
         moodSeekBar = rootView.findViewById(R.id.moodSeekBar);
         journalEntry = rootView.findViewById(R.id.editTextJournal);
         submitEntries = rootView.findViewById(R.id.submit);
@@ -113,30 +109,14 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        submitEntries.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                //post requests for journal and mood entries
-//                sendMoodEntry();
-//
-//                //new page to display mood and journal entries
-//                Intent intent = new Intent(getActivity(), MoodActivity.class);
-//                intent.putExtra( "userFirstName", userFirstName);
-//                intent.putExtra( "userLastName", userLastName);
-//                intent.putExtra("userEmail", userEmail);
-//                intent.putExtra("userID", userID);
-//                intent.putExtra("userAge", userAge);
-//                intent.putExtra("moodEntry", moodSeekBar.getProgress());
-//                intent.putExtra("journalEntry", journalEntry.getText().toString());
-//                startActivity(intent);
-//            }
-//        });
-//
         submitEntries.setOnClickListener(view1 -> sendMoodEntry());
    }
 
     private void sendMoodEntry() {
+        if (userID == 0) {
+            makeText(getActivity().getApplicationContext(), "Please log in to submit mood and journal entries.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         JSONObject requestBody;
         try {
             requestBody = new JSONObject();
@@ -144,7 +124,6 @@ public class HomeFragment extends Fragment {
             requestBody.put("userId", userID);
             requestBody.put("moodRating", moodSeekBar.getProgress());
             // requestBody.put("journalId", unknown); OPTIONAL, ASSUMED NULL IF DISCLUDED
-            // Send new mood entry (Integer)
         } catch (JSONException e) {
             Log.e("JSONError", "Failed to create JSON request body", e);
             makeText(getActivity().getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
@@ -155,32 +134,26 @@ public class HomeFragment extends Fragment {
                 Request.Method.POST, // HTTP method
                 APP_API_URL + "entries/mood",
                 requestBody, // Request body (null for GET request)
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            moodId = response.getInt("id");
-                            Log.d("Volley Response", response.toString());
-                            makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                response -> {
+                    try {
+                        moodId = response.getInt("id");
+                        Log.d("Volley Response", response.toString());
+                        makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
 
-                            submitJournalEntry();
+                        submitJournalEntry();
 
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
-                        // Log response for debugging
-
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
+                    // Log response for debugging
+
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error", error.toString());
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
 
-                        // Display an error message
-                        makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+                    // Display an error message
+                    makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override
@@ -196,10 +169,9 @@ public class HomeFragment extends Fragment {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> params = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return params;
+                return new HashMap<>();
             }
         };
 
@@ -210,6 +182,18 @@ public class HomeFragment extends Fragment {
 
     private void submitJournalEntry() {
         JSONObject requestBody;
+        if (journalEntry.getText().toString().isEmpty()) {
+            Intent intent = new Intent(getActivity(), MoodActivity.class);
+            intent.putExtra( "userFirstName", userFirstName);
+            intent.putExtra( "userLastName", userLastName);
+            intent.putExtra("userEmail", userEmail);
+            intent.putExtra("userID", userID);
+            intent.putExtra("userAge", userAge);
+            intent.putExtra("moodEntry", moodSeekBar.getProgress());
+            intent.putExtra("moodId", moodId);
+            startActivity(intent);
+            return;
+        }
         try {
             requestBody = new JSONObject();
             // ALWAYS add user ID to request body
@@ -228,38 +212,32 @@ public class HomeFragment extends Fragment {
                 Request.Method.POST, // HTTP method
                 APP_API_URL + "entries/journal",
                 requestBody, // Request body (null for GET request)
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getActivity(), MoodActivity.class);
-                        intent.putExtra( "userFirstName", userFirstName);
-                        intent.putExtra( "userLastName", userLastName);
-                        intent.putExtra("userEmail", userEmail);
-                        intent.putExtra("userID", userID);
-                        intent.putExtra("userAge", userAge);
-                        intent.putExtra("moodEntry", moodSeekBar.getProgress());
-                        intent.putExtra("moodId", moodId);
-                        intent.putExtra("journalEntry", journalEntry.getText().toString());
-                        startActivity(intent);
-                    }
+                response -> {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), MoodActivity.class);
+                    intent.putExtra( "userFirstName", userFirstName);
+                    intent.putExtra( "userLastName", userLastName);
+                    intent.putExtra("userEmail", userEmail);
+                    intent.putExtra("userID", userID);
+                    intent.putExtra("userAge", userAge);
+                    intent.putExtra("moodEntry", moodSeekBar.getProgress());
+                    intent.putExtra("moodId", moodId);
+                    intent.putExtra("journalEntry", journalEntry.getText().toString());
+                    startActivity(intent);
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error", error.toString());
-                        // Display an error message
-                        makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
+                    // Display an error message
+                    makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
 
 
-                    }
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -271,10 +249,9 @@ public class HomeFragment extends Fragment {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> parameters = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return parameters;
+                return new HashMap<>();
             }
         };
 

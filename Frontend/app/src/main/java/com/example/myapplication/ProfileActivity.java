@@ -7,37 +7,25 @@ import static com.example.myapplication.Authorization.generateAuthToken;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.android.volley.AuthFailureError;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
-    private Button buttonReturn;
     private TextView nameText;
     private TextView emailText;
     private TextView ageText;
@@ -45,8 +33,6 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText ageEditText;
     private EditText passwordEditText;
-    private Button updateProfileButton;
-    private Button deleteProfilebutton;
     private int userID;
     private String userFirstName;
     private String userLastName;
@@ -58,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
 
-        buttonReturn = findViewById(R.id.returnButton);
+        Button buttonReturn = findViewById(R.id.returnButton);
         nameText = findViewById(R.id.nameText);
         emailText = findViewById(R.id.emailText);
         ageText = findViewById(R.id.ageText);
@@ -66,8 +52,8 @@ public class ProfileActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         ageEditText = findViewById(R.id.ageEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
-        updateProfileButton = findViewById(R.id.updateProfileButton);
-        deleteProfilebutton = findViewById(R.id.deleteProfileButton);
+        Button updateProfileButton = findViewById(R.id.updateProfileButton);
+        Button deleteProfilebutton = findViewById(R.id.deleteProfileButton);
 
         //get the passed email and id from previous pages
         userEmail = getIntent().getStringExtra("userEmail");
@@ -89,70 +75,57 @@ public class ProfileActivity extends AppCompatActivity {
             // Set user data to display
             nameText.setText("Name: " + userFirstName + " " + userLastName);
             emailText.setText("Email: " + userEmail);
-            ageText.setText(String.valueOf("Age: " + userAge));
+            ageText.setText("Age: " + userAge);
         }
 
         // Method for deleting the user (DELETE) and sending request to postman
-        deleteProfilebutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        deleteProfilebutton.setOnClickListener(view -> {
 
-                Authorization.globalUserEmail = userEmail;
-                Authorization.globalPassword = passwordEditText.getText().toString();
+            Authorization.globalUserEmail = userEmail;
+            Authorization.globalPassword = passwordEditText.getText().toString();
 
 
-                //Creates new request defined as a DELETE request
-                //Use StringRequest since there is no json response body, just status code
-                String deleteURL = APP_API_URL + userID;
-                StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL, response -> {
+            //Creates new request defined as a DELETE request
+            //Use StringRequest since there is no json response body, just status code
+            String deleteURL = APP_API_URL + userID;
+            StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL, response -> {
 
-                    //Display message saying user was deleted by identifying their id
-                    Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
-                    //Upon user deletion, go back to the sign up page to create new user
-                    Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
-                    startActivity(intent);
-                    },
-                        error -> {
-                    //display error message if one occurs
-                    Toast.makeText(ProfileActivity.this, "Error deleting user", Toast.LENGTH_LONG).show();
-                    }
-                ) {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        HashMap<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
-                        headers.put("Content-Type", "application/json");
-                        return headers;
-                    }
-
-                };
-
-                //finally, if no issues, add the deleted user to queue
-                VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delete);
-            }
-
-
-        });
-
-        buttonReturn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
-                intent.putExtra( "userFirstName", userFirstName);
-                intent.putExtra( "userLastName", userLastName);
-                intent.putExtra("userEmail", userEmail);
-                intent.putExtra("userID", userID);
-                intent.putExtra("userAge", userAge);
+                //Display message saying user was deleted by identifying their id
+                Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
+                //Upon user deletion, go back to the sign up page to create new user
+                Intent intent = new Intent(ProfileActivity.this, WelcomeActivity.class);
                 startActivity(intent);
-            }
+                },
+                    error -> {
+                //display error message if one occurs
+                Toast.makeText(ProfileActivity.this, "Error deleting user", Toast.LENGTH_LONG).show();
+                }
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
+
+            };
+
+            //finally, if no issues, add the deleted user to queue
+            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delete);
         });
 
-        updateProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                userUpdate();
-            }
+        buttonReturn.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+            intent.putExtra( "userFirstName", userFirstName);
+            intent.putExtra( "userLastName", userLastName);
+            intent.putExtra("userEmail", userEmail);
+            intent.putExtra("userID", userID);
+            intent.putExtra("userAge", userAge);
+            startActivity(intent);
         });
+
+        updateProfileButton.setOnClickListener(view -> userUpdate());
     }
     private void userUpdate() {
         JSONObject requestBody;
@@ -200,31 +173,25 @@ public class ProfileActivity extends AppCompatActivity {
             Request.Method.PUT, // HTTP method
             APP_API_URL + userID, // API URL + userID
             requestBody, // Request body (null for GET request)
-            new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
+                response -> {
                     // Log response for debugging
                     Log.d("Volley Response", response.toString());
                     makeText(getApplicationContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
                     // Update on screen text
                     nameText.setText("Name: " + userFirstName + " " + userLastName);
                     emailText.setText("Email: " + userEmail);
-                    ageText.setText(String.valueOf("Age: " + userAge));
-                }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
+                    ageText.setText("Age: " + userAge);
+                },
+                error -> {
                     // Log error details
                     Log.e("Volley Error", error.toString());
 
                     // Display an error message
                     makeText(getApplicationContext(), "Profile update failed. Please try again.", Toast.LENGTH_LONG).show();
                 }
-            }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -236,10 +203,9 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> params = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return params;
+                return new HashMap<>();
             }
         };
 

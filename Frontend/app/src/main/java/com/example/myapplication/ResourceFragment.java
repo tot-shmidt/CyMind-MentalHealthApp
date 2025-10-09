@@ -8,10 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
-
-import android.view.ViewGroup;
-
 public class ResourceFragment extends Fragment {
     @Nullable
     @Override

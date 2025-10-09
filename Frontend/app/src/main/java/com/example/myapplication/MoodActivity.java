@@ -8,34 +8,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.android.volley.AuthFailureError;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +37,7 @@ public class MoodActivity extends AppCompatActivity {
     private String userLastName;
     private String userEmail;
     private int userAge;
-    private int newMoodEntry;
     private int moodId;
-    private Button buttonReturn;
     private TextView moodDataText;
     private TextView journalDataText;
     private RadioButton updateMoodSubmitButton;
@@ -60,13 +47,10 @@ public class MoodActivity extends AppCompatActivity {
     private EditText updateMoodRatingEditText;
     private EditText updateJournalEntryEditText;
 
-    // TODO: BUILD ONCREATE()
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mood); // Make sure this layout exists and is correct
-
-        // TODO: ASSIGN PRIVATE VARIABLES
 
         //get the passed user info from previous page
         userEmail = getIntent().getStringExtra("userEmail");
@@ -74,11 +58,10 @@ public class MoodActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
-        newMoodEntry = getIntent().getIntExtra("mood", 3);
 
         moodId = getIntent().getIntExtra("moodId", -1);
 
-        buttonReturn = findViewById(R.id.returnButton);
+        Button buttonReturn = findViewById(R.id.returnButton);
         moodDataText = findViewById(R.id.moodData);
         updateMoodSubmitButton = findViewById(R.id.updateMoodSubmitButton);
         updateMoodIdEditText = findViewById(R.id.updateMoodIdEditText);
@@ -104,109 +87,101 @@ public class MoodActivity extends AppCompatActivity {
         getJournalEntries();
 
         // Return to homepage
-        buttonReturn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MoodActivity.this, HomepageActivity.class);
-                intent.putExtra( "userFirstName", userFirstName);
-                intent.putExtra( "userLastName", userLastName);
-                intent.putExtra("userEmail", userEmail);
-                intent.putExtra("userID", userID);
-                intent.putExtra("userAge", userAge);
-                startActivity(intent);
-            }
+        buttonReturn.setOnClickListener(view -> {
+            Intent intent = new Intent(MoodActivity.this, HomepageActivity.class);
+            intent.putExtra( "userFirstName", userFirstName);
+            intent.putExtra( "userLastName", userLastName);
+            intent.putExtra("userEmail", userEmail);
+            intent.putExtra("userID", userID);
+            intent.putExtra("userAge", userAge);
+            startActivity(intent);
         });
 
-        updateMoodSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // check value of updateMoodRatingEditText, 0: delete mood entry, 1: update mood entry
-                if (updateMoodRatingEditText.getText().toString().equals("0")) {
-                    deleteMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()));
-                } else {
-                    updateMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()), Integer.parseInt(updateMoodRatingEditText.getText().toString()));
-                }
+        updateMoodSubmitButton.setOnClickListener(view -> {
+            // check value of updateMoodRatingEditText, 0: delete mood entry, 1: update mood entry
+            if (updateMoodRatingEditText.getText().toString().isEmpty() || updateMoodRatingEditText.getText().toString().isEmpty()) {
+                makeText(getApplicationContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show();
                 updateMoodSubmitButton.setChecked(false);
-                updateMoodIdEditText.setText("");
-                updateMoodRatingEditText.setText("");
+                return;
             }
+            if (updateMoodRatingEditText.getText().toString().equals("0")) {
+                deleteMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()));
+            } else if (Integer.parseInt(updateMoodRatingEditText.getText().toString()) > 0 && Integer.parseInt(updateMoodRatingEditText.getText().toString()) < 6){
+                updateMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()), Integer.parseInt(updateMoodRatingEditText.getText().toString()));
+            } else {
+                makeText(getApplicationContext(), "Mood rating must be between 0 and 5", Toast.LENGTH_SHORT).show();
+                updateMoodSubmitButton.setChecked(false);
+                return;
+            }
+            updateMoodSubmitButton.setChecked(false);
+            updateMoodIdEditText.setText("");
+            updateMoodRatingEditText.setText("");
         });
 
-        updateJournalSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // check value of updateMoodRatingEditText, 0: delete mood entry, 1: update mood entry
-                if (updateJournalEntryEditText.getText().toString().equals("0")) {
-                    deleteJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()));
-                } else {
-                    updateJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()), updateJournalEntryEditText.getText().toString(), moodId);
-                }
+        updateJournalSubmitButton.setOnClickListener(view -> {
+            // check value of updateJournalEditText, 0: delete mood entry, 1: update mood entry
+            if (updateJournalIdEditText.getText().toString().isEmpty() || updateJournalEntryEditText.getText().toString().isEmpty()) {
+                makeText(getApplicationContext(), "Fields cannot be empty", Toast.LENGTH_SHORT).show();
                 updateJournalSubmitButton.setChecked(false);
-                updateJournalIdEditText.setText("");
-                updateJournalEntryEditText.setText("");
+                return;
             }
+            if (updateJournalEntryEditText.getText().toString().equals("0")) {
+                deleteJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()));
+            } else {
+                updateJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()), updateJournalEntryEditText.getText().toString(), moodId);
+            }
+            updateJournalSubmitButton.setChecked(false);
+            updateJournalIdEditText.setText("");
+            updateJournalEntryEditText.setText("");
         });
 
     }
-
-
-
-
-    // TODO: ADDITIONAL METHODS IF NEEDED
-
-
 
     private void getMoodEntries() {
         JsonArrayRequest jsonObjReq = new JsonArrayRequest(
                 Request.Method.GET, // HTTP method
                 APP_API_URL + "entries/mood",
                 null, // Request body (null for GET request)
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        List<MoodEntry> moodList = new ArrayList<>();
-                        // Parse JSONArray by sending it to MoodEntry to become a JSONObject
-                        try {
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject obj = response.getJSONObject(i);
-                                MoodEntry entry = new MoodEntry(
-                                        obj.getInt("id"),
-                                        obj.getString("date"),
-                                        obj.getInt("moodRating"),
-                                        obj.getInt("userId"),
-                                        obj.isNull("journalId") ? null : obj.getString("journalId")
-                                );
-                                moodList.add(entry);
-                            }
-                        } catch (JSONException e) {
-                            Log.e("MoodEntry", "Failed to parse JSON response");
+                response -> {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    List<MoodEntry> moodList = new ArrayList<>();
+                    // Parse JSONArray by sending it to MoodEntry to become a JSONObject
+                    try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject obj = response.getJSONObject(i);
+                            MoodEntry entry = new MoodEntry(
+                                    obj.getInt("id"),
+                                    obj.getString("date"),
+                                    obj.getInt("moodRating"),
+                                    obj.getInt("userId"),
+                                    obj.isNull("journalId") ? null : obj.getString("journalId")
+                            );
+                            moodList.add(entry);
                         }
-
-                        // Display mood entries
-                        StringBuilder displayText = new StringBuilder();
-                        for (MoodEntry m : moodList) {
-                            displayText.append("ID: ").append(m.getId()).append(" -- Date: ").append(m.getDate().substring(5)).append(" -- Mood: ").append(m.getMoodRating()).append("/5\n");
-                        }
-                        moodDataText.setText(displayText.toString());
-
-                        makeText(getApplicationContext(), "Retrieved mood entries successfully.", Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        Log.e("MoodEntry", "Failed to parse JSON response");
                     }
+
+                    // Display mood entries
+                    StringBuilder displayText = new StringBuilder();
+                    for (MoodEntry m : moodList) {
+                        displayText.append("ID: ").append(m.getId()).append(" -- Date: ").append(m.getDate().substring(5)).append(" -- Mood: ").append(m.getMoodRating()).append("/5\n");
+                    }
+                    moodDataText.setText(displayText.toString());
+
+                    makeText(getApplicationContext(), "Retrieved mood entries successfully.", Toast.LENGTH_SHORT).show();
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error (getMoodEntries)", error.toString());
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error (getMoodEntries)", error.toString());
 
-                        // Display an error message
-                        makeText(getApplicationContext(), "Failed to retrieve mood entries. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+                    // Display an error message
+                    makeText(getApplicationContext(), "Failed to retrieve mood entries. Please try again.", Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -218,10 +193,9 @@ public class MoodActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> params = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return params;
+                return new HashMap<>();
             }
         };
 
@@ -237,56 +211,49 @@ public class MoodActivity extends AppCompatActivity {
                 Request.Method.GET, // HTTP method
                 APP_API_URL + "entries/journal",
                 null, // Request body (null for GET request)
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        List<JournalEntry> journalList = new ArrayList<>();
-                        // Parse JSONArray by sending it to MoodEntry to become a JSONObject
-                        try {
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject obj = response.getJSONObject(i);
-                                JournalEntry entry = new JournalEntry(
-                                        obj.getInt("id"),
-                                        obj.getString("date"),
-                                        obj.getString("entryName"),
-                                        obj.getString("content"),
-                                        obj.isNull("moodId") ? null : obj.getInt("moodId")
-                                );
-                                journalList.add(entry);
-                            }
-                        } catch (JSONException e) {
-                            Log.e("JournalEntry", "Failed to parse JSON response");
+                response -> {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    List<JournalEntry> journalList = new ArrayList<>();
+                    // Parse JSONArray by sending it to MoodEntry to become a JSONObject
+                    try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject obj = response.getJSONObject(i);
+                            JournalEntry entry = new JournalEntry(
+                                    obj.getInt("id"),
+                                    obj.getString("date"),
+                                    obj.getString("entryName"),
+                                    obj.getString("content"),
+                                    obj.isNull("moodId") ? null : obj.getInt("moodId")
+                            );
+                            journalList.add(entry);
                         }
-
-                        // Display mood entries
-                        StringBuilder displayText = new StringBuilder();
-                        for (JournalEntry m : journalList) {
-                            displayText.append("ID: ").append(m.getId())
-                                    .append(" -- Date: ").append(m.getDate().substring(5))
-                                    .append(" -- Entry : ").append(m.getEntryName())
-                                    .append(" -- Content : ").append(m.getContent())
-                                    .append("\n");
-                        }
-                        journalDataText.setText(displayText.toString());
-
-                        makeText(getApplicationContext(), "Retrieved journal entries successfully.", Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        Log.e("JournalEntry", "Failed to parse JSON response");
                     }
+
+                    // Display mood entries
+                    StringBuilder displayText = new StringBuilder();
+                    for (JournalEntry m : journalList) {
+                        displayText.append("ID: ").append(m.getId())
+                                .append(" -- Date: ").append(m.getDate().substring(5))
+                                .append(" -- Content : ").append(m.getContent())
+                                .append("\n");
+                    }
+                    journalDataText.setText(displayText.toString());
+
+                    makeText(getApplicationContext(), "Retrieved journal entries successfully.", Toast.LENGTH_SHORT).show();
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error (getJournalEntries)", error.toString());
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error (getJournalEntries)", error.toString());
 
-                        // Display an error message
-                        makeText(getApplicationContext(), "Failed to retrieve journal entries. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+                    // Display an error message
+                    makeText(getApplicationContext(), "Failed to retrieve journal entries. Please try again.", Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -298,10 +265,9 @@ public class MoodActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> params = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return params;
+                return new HashMap<>();
             }
         };
 
@@ -325,7 +291,7 @@ public class MoodActivity extends AppCompatActivity {
             }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
                 headers.put("Content-Type", "application/json");
@@ -357,7 +323,7 @@ public class MoodActivity extends AppCompatActivity {
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
                 headers.put("Content-Type", "application/json");
@@ -392,28 +358,22 @@ public class MoodActivity extends AppCompatActivity {
                 Request.Method.PUT, // HTTP method
                 APP_API_URL + "entries/mood/" + moodId, // API URL + userID
                 requestBody, // Request body (null for GET request)
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        // Log response for debugging
-                        Log.d("Volley Response", response.toString());
-                        makeText(getApplicationContext(), "Mood entry updated successfully", Toast.LENGTH_SHORT).show();
-                        getMoodEntries();
-                    }
+                response -> {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    makeText(getApplicationContext(), "Mood entry updated successfully", Toast.LENGTH_SHORT).show();
+                    getMoodEntries();
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Log error details
-                        Log.e("Volley Error", error.toString());
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error", error.toString());
 
-                        // Display an error message
-                        makeText(getApplicationContext(), "Mood entry update failed. Please try again.", Toast.LENGTH_LONG).show();
-                    }
+                    // Display an error message
+                    makeText(getApplicationContext(), "Mood entry update failed. Please try again.", Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -425,10 +385,9 @@ public class MoodActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 // Define parameters if needed
-                Map<String, String> params = new HashMap<>();
                 // Example parameter
                 // params.put("param1", "value1");
-                return params;
+                return new HashMap<>();
             }
         };
 
@@ -479,7 +438,7 @@ public class MoodActivity extends AppCompatActivity {
                 }
         ) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders(){
                 // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
                 // Headers
@@ -501,5 +460,6 @@ public class MoodActivity extends AppCompatActivity {
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
+
 
 }
