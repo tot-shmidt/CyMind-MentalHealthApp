@@ -29,7 +29,7 @@ public class JournalEntry {
     @NotNull
     private String content;
 
-    @OneToOne()
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "mood_id")
     @NotNull(message = "Student cannot be empty")
     @JsonIgnore
