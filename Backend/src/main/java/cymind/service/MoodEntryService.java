@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,15 +68,31 @@ public class MoodEntryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
         }
 
-        MoodEntry moodEntry;
-        if (createMoodEntryDTO.journalId() != null) {
-            Optional<JournalEntry> journalEntry = journalEntryRepository.findById(createMoodEntryDTO.journalId());
-            moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student, journalEntry.orElse(null));
-        } else {
-            moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
+        // Create and save the MoodEntry first, so we get an ID.
+        MoodEntry moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
+        MoodEntry savedMoodEntry = moodEntryRepository.save(moodEntry);
+
+        // Check if journal content was provided in the request.
+        String journalName = createMoodEntryDTO.journalName();
+        String journalContent = createMoodEntryDTO.journalContent();
+
+        if (journalContent != null && !journalContent.isBlank()) {
+            // If yes, create a new JournalEntry.
+            JournalEntry journalEntry = new JournalEntry();
+            // Use the provided name or a default if it's blank
+            journalEntry.setEntryName(journalName != null && !journalName.isBlank() ? journalName : "Journal Entry");
+            journalEntry.setContent(journalContent);
+            journalEntry.setDate(new Date());
+            journalEntry.setMoodEntry(savedMoodEntry); // Link it to the mood we just saved.
+            JournalEntry savedJournalEntry = journalEntryRepository.save(journalEntry);
+
+            // Link the new journal back to the mood entry and save again.
+            savedMoodEntry.setJournalEntry(savedJournalEntry);
+            moodEntryRepository.save(savedMoodEntry);
         }
 
-        return new MoodEntryDTO(moodEntryRepository.save(moodEntry));
+        // Return the DTO for the mood entry, which will now include the new journalId if it was created.
+        return new MoodEntryDTO(savedMoodEntry);
     }
 
     @Transactional
@@ -86,11 +103,6 @@ public class MoodEntryService {
         }
 
         checkAuth(moodEntry);
-
-        if (request.journalId() != null) {
-            Optional<JournalEntry> journalEntry = journalEntryRepository.findById(request.journalId());
-            moodEntry.setJournalEntry(journalEntry.orElse(null));
-        }
 
         moodEntry.setMoodRating(request.moodRating());
 
