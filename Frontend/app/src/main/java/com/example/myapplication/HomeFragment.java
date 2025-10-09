@@ -32,8 +32,6 @@ public class HomeFragment extends Fragment {
     private String userPassword;
     private int userAge;
 
-    private String userPassword;
-
 
 
     @Nullable
