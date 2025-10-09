@@ -82,6 +82,9 @@ public class SignUpActivity extends AppCompatActivity {
                 String userFirstName = editTextFirstName.getText().toString().trim();
                 String userLastName = editTextLastName.getText().toString().trim();
 
+                Authorization.globalUserEmail = userEmail;
+                Authorization.globalPassword = editTextPassword.getText().toString();
+
                 int userAge;
                 try {
                     userAge = Integer.parseInt(editTextAge.getText().toString().trim());

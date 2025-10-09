@@ -121,6 +121,8 @@ public class WelcomeActivity extends AppCompatActivity {
                         userLastName = response.optString("lastName");
                         userEmail = response.optString("email");
                         userAge = response.optInt("age");
+                        Authorization.globalUserEmail = userEmail;
+                        Authorization.globalPassword = editTextPassword.getText().toString();
                         Intent intent2 = new Intent(WelcomeActivity.this, HomepageActivity.class);
                         intent2.putExtra( "userFirstName", userFirstName);
                         intent2.putExtra( "userLastName", userLastName);

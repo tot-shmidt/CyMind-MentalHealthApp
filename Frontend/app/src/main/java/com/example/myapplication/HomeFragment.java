@@ -1,7 +1,11 @@
 package com.example.myapplication;
 
+import static android.widget.Toast.makeText;
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +14,23 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -24,13 +41,12 @@ public class HomeFragment extends Fragment {
     private SeekBar moodSeekBar;
     private EditText journalEntry;
     private Button submitEntries;
-
     private int userID;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
-    private String userPassword;
     private int userAge;
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
 
 
@@ -61,7 +77,6 @@ public class HomeFragment extends Fragment {
         userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
-        userPassword = getActivity().getIntent().getStringExtra("userPassword");
 
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
@@ -73,11 +88,8 @@ public class HomeFragment extends Fragment {
             intent.putExtra( "userFirstName", userFirstName);
             intent.putExtra( "userLastName", userLastName);
             intent.putExtra("userEmail", userEmail);
-            intent.putExtra("userPassword", userPassword);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
-            intent.putExtra("userPassword", userPassword);
-
             startActivity(intent);
         });
 
@@ -95,26 +107,91 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // Called when the user stops touching the seek bar
-                // Send user data to the next page as well as the mood input
-                Intent intent = new Intent(getActivity(), MoodActivity.class);
-                intent.putExtra( "userFirstName", userFirstName);
-                intent.putExtra( "userLastName", userLastName);
-                intent.putExtra("userEmail", userEmail);
-                intent.putExtra("userID", userID);
-                intent.putExtra("userAge", userAge);
-                intent.putExtra("mood", moodSeekBar.getProgress());
-                startActivity(intent);
+                // Called when done tracking, required method
             }
         });
 
         submitEntries.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //new page to display mood and journal entries
+
                 //post requests for journal and mood entries
+                sendMoodEntry();
+
+                //new page to display mood and journal entries
+                Intent intent = new Intent(getActivity(), MoodActivity.class);
+                intent.putExtra( "userFirstName", userFirstName);
+                intent.putExtra( "userLastName", userLastName);
+                intent.putExtra("userEmail", userEmail);
+                intent.putExtra("userID", userID);
+                intent.putExtra("userAge", userAge);
+                intent.putExtra("moodEntry", moodSeekBar.getProgress());
+                intent.putExtra("journalEntry", journalEntry.getText().toString());
+                startActivity(intent);
             }
         });
 
+    }
+
+    private void sendMoodEntry() {
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("userId", userID);
+            requestBody.put("moodRating", moodSeekBar.getProgress());
+            // requestBody.put("journalId", unknown); OPTIONAL, ASSUMED NULL IF DISCLUDED
+            // Send new mood entry (Integer)
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getActivity().getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST, // HTTP method
+                APP_API_URL + "entries/mood",
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getActivity().getApplicationContext(), "Entries updated successfully", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+
+                        // Display an error message
+                        makeText(getActivity().getApplicationContext(), "Entries failed to update. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 }

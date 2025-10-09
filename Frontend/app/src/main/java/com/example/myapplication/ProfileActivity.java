@@ -51,9 +51,6 @@ public class ProfileActivity extends AppCompatActivity {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
-
-    private String userPassword;
-    private String originalUserEmail;
     private int userAge;
 
     @Override
@@ -74,12 +71,10 @@ public class ProfileActivity extends AppCompatActivity {
 
         //get the passed email and id from previous pages
         userEmail = getIntent().getStringExtra("userEmail");
-        originalUserEmail = userEmail;
         userID = getIntent().getIntExtra("userID", 0);
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
-        userPassword = getIntent().getStringExtra("userPassword");
 
 
 
@@ -103,7 +98,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Authorization.globalUserEmail = userEmail;
-                Authorization.globalPassword = userPassword;
+                Authorization.globalPassword = passwordEditText.getText().toString();
 
 
                 //Creates new request defined as a DELETE request
@@ -251,10 +246,4 @@ public class ProfileActivity extends AppCompatActivity {
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
-//    private String generateAuthToken() {
-//        // Create Base64 encoder
-//        Base64.Encoder encoder = Base64.getEncoder();
-//        // Create auth token
-//        return encoder.encodeToString(((originalUserEmail + ":" + passwordEditText.getText().toString())).getBytes());
-//    }
 }
