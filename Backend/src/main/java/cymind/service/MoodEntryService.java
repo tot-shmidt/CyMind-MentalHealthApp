@@ -91,7 +91,7 @@ public class MoodEntryService {
             moodEntryRepository.save(savedMoodEntry);
         }
 
-        // 5. Return the DTO for the mood entry, which will now include the new journalId if it was created.
+        // Return the DTO for the mood entry, which will now include the new journalId if it was created.
         return new MoodEntryDTO(savedMoodEntry);
     }
 
@@ -103,11 +103,6 @@ public class MoodEntryService {
         }
 
         checkAuth(moodEntry);
-
-        if (request.journalId() != null) {
-            Optional<JournalEntry> journalEntry = journalEntryRepository.findById(request.journalId());
-            moodEntry.setJournalEntry(journalEntry.orElse(null));
-        }
 
         moodEntry.setMoodRating(request.moodRating());
 
