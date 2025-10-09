@@ -81,8 +81,7 @@ public class ProfileActivity extends AppCompatActivity {
         userLastName = getIntent().getStringExtra("userLastName");
         userPassword = getIntent().getStringExtra("userPassword");
 
-        Authorization.globalUserEmail = userEmail;
-        Authorization.globalPassword = userPassword;
+
 
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
@@ -102,6 +101,11 @@ public class ProfileActivity extends AppCompatActivity {
         deleteProfilebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Authorization.globalUserEmail = userEmail;
+                Authorization.globalPassword = userPassword;
+
+
                 //Creates new request defined as a DELETE request
                 //Use StringRequest since there is no json response body, just status code
                 String deleteURL = APP_API_URL + userID;
