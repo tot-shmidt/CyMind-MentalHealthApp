@@ -76,6 +76,26 @@
             android:min="1"
             android:progress="3" />
 
+
+        <EditText
+            android:id="@+id/editTextJournal"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="20dp"
+            android:hint="Give a brief explanation on why you feel that way today. "
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp"/>
+
+        <Button
+            android:id="@+id/submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"/>
+
         <Space
             android:id="@+id/space2"
             android:layout_width="wrap_content"
@@ -87,6 +107,8 @@
 
 
     </LinearLayout>
+
+
 
 
     <!-- TODO: generic app information -->

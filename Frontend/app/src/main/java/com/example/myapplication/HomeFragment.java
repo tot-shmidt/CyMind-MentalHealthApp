@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,12 +22,17 @@ public class HomeFragment extends Fragment {
     private ImageButton buttonProfile;
     private TextView moodMessage;
     private SeekBar moodSeekBar;
+    private EditText journalEntry;
+    private Button submitEntries;
+
     private int userID;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
     private String userPassword;
     private int userAge;
+
+    private String userPassword;
 
 
 
@@ -41,6 +47,8 @@ public class HomeFragment extends Fragment {
         buttonProfile = rootView.findViewById(R.id.buttonProfile);
         moodMessage = rootView.findViewById(R.id.moodMessage);
         moodSeekBar = rootView.findViewById(R.id.moodSeekBar);
+        journalEntry = rootView.findViewById(R.id.editTextJournal);
+        submitEntries = rootView.findViewById(R.id.submit);
 
         return rootView;
     }
@@ -70,6 +78,8 @@ public class HomeFragment extends Fragment {
             intent.putExtra("userPassword", userPassword);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
+            intent.putExtra("userPassword", userPassword);
+
             startActivity(intent);
         });
 
@@ -97,6 +107,14 @@ public class HomeFragment extends Fragment {
                 intent.putExtra("userAge", userAge);
                 intent.putExtra("mood", moodSeekBar.getProgress());
                 startActivity(intent);
+            }
+        });
+
+        submitEntries.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //new page to display mood and journal entries
+                //post requests for journal and mood entries
             }
         });
 
