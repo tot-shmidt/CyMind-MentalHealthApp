@@ -24,12 +24,45 @@
     <TextView
         android:id="@+id/moodData"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="[Mood Data]"
+        android:layout_height="480px"
+        android:text="[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]"
         android:textSize="12pt"
         android:paddingLeft="20dip"
         android:paddingRight="20dip"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/returnButton" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/moodData">
+
+
+        <EditText
+            android:id="@+id/updateMoodIdEditText"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="ID to Update" />
+
+        <EditText
+            android:id="@+id/updateMoodRatingEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="Update to: (0 to delete)" />
+
+        <RadioButton
+            android:id="@+id/updateMoodSubmitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Submit" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

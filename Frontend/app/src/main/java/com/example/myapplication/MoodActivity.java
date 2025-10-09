@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +50,9 @@ public class MoodActivity extends AppCompatActivity {
     private int newMoodEntry;
     private Button buttonReturn;
     private TextView moodDataText;
+    private RadioButton updateMoodSubmitButton;
+    private EditText updateMoodIdEditText;
+    private EditText updateMoodRatingEditText;
 
     // TODO: BUILD ONCREATE()
     @Override
@@ -68,6 +73,9 @@ public class MoodActivity extends AppCompatActivity {
         // XML Elements
         buttonReturn = findViewById(R.id.returnButton);
         moodDataText = findViewById(R.id.moodData);
+        updateMoodSubmitButton = findViewById(R.id.updateMoodSubmitButton);
+        updateMoodIdEditText = findViewById(R.id.updateMoodIdEditText);
+        updateMoodRatingEditText = findViewById(R.id.updateMoodRatingEditText);
 
         // If user is a guest, send them back to the homepage
         if (userID == 0) {
@@ -97,7 +105,24 @@ public class MoodActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        updateMoodSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // check value of updateMoodRatingEditText, 0: delete mood entry, 1: update mood entry
+                if (updateMoodRatingEditText.getText().toString().equals("0")) {
+                    deleteMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()));
+                } else {
+                    updateMoodEntry(Integer.parseInt(updateMoodIdEditText.getText().toString()), Integer.parseInt(updateMoodRatingEditText.getText().toString()));
+                }
+                updateMoodSubmitButton.setChecked(false);
+                updateMoodIdEditText.setText("");
+                updateMoodRatingEditText.setText("");
+            }
+        });
     }
+
+
 
     // TODO: ADDITIONAL METHODS IF NEEDED
 
@@ -132,7 +157,7 @@ public class MoodActivity extends AppCompatActivity {
                         // Display mood entries
                         StringBuilder displayText = new StringBuilder();
                         for (MoodEntry m : moodList) {
-                            displayText.append("Date: ").append(m.getDate()).append(" -- Mood: ").append(m.getMoodRating()).append("/5\n");
+                            displayText.append("ID: ").append(m.getId()).append(" -- Date: ").append(m.getDate().substring(5)).append(" -- Mood: ").append(m.getMoodRating()).append("/5\n");
                         }
                         moodDataText.setText(displayText.toString());
 
@@ -172,6 +197,43 @@ public class MoodActivity extends AppCompatActivity {
 
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
+    private void deleteMoodEntry(int moodId) {
+        //Creates new request defined as a DELETE request
+        //Use StringRequest since there is no json response body, just status code
+        String deleteURL = APP_API_URL + "entries/mood/" + moodId;
+        StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
+            response -> {
+                //Display message saying user was deleted by identifying their id
+                Toast.makeText(MoodActivity.this, "Mood entry with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
+                getMoodEntries();
+            },
+            error -> {
+                //display error message if one occurs
+                Toast.makeText(MoodActivity.this, "Error deleting mood entry", Toast.LENGTH_LONG).show();
+            }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+
+        //finally, if no issues, add the deleted user to queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delete);
+    }
+
+    private void updateMoodEntry(int moodId, int newRating) {
+        if (newRating < 0 || newRating > 5) {
+            makeText(getApplicationContext(), "Mood rating must be between 0 and 5", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // For ratings from 1-5
     }
 
 }
