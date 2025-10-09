@@ -70,6 +70,8 @@ public class MoodEntryService {
 
         // Create and save the MoodEntry first, so we get an ID.
         MoodEntry moodEntry = new MoodEntry(createMoodEntryDTO.moodRating(), student);
+        checkAuth(moodEntry);
+
         MoodEntry savedMoodEntry = moodEntryRepository.save(moodEntry);
 
         // Check if journal content was provided in the request.
