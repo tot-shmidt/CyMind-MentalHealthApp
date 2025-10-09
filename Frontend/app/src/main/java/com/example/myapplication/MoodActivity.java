@@ -49,11 +49,16 @@ public class MoodActivity extends AppCompatActivity {
     private String userEmail;
     private int userAge;
     private int newMoodEntry;
+    private int moodId;
     private Button buttonReturn;
     private TextView moodDataText;
+    private TextView journalDataText;
     private RadioButton updateMoodSubmitButton;
+    private RadioButton updateJournalSubmitButton;
     private EditText updateMoodIdEditText;
+    private EditText updateJournalIdEditText;
     private EditText updateMoodRatingEditText;
+    private EditText updateJournalEntryEditText;
 
     // TODO: BUILD ONCREATE()
     @Override
@@ -71,12 +76,19 @@ public class MoodActivity extends AppCompatActivity {
         userLastName = getIntent().getStringExtra("userLastName");
         newMoodEntry = getIntent().getIntExtra("mood", 3);
 
-        // XML Elements
+        moodId = getIntent().getIntExtra("moodId", -1);
+
         buttonReturn = findViewById(R.id.returnButton);
         moodDataText = findViewById(R.id.moodData);
         updateMoodSubmitButton = findViewById(R.id.updateMoodSubmitButton);
         updateMoodIdEditText = findViewById(R.id.updateMoodIdEditText);
         updateMoodRatingEditText = findViewById(R.id.updateMoodRatingEditText);
+
+
+        journalDataText = findViewById(R.id.journalData);
+        updateJournalSubmitButton = findViewById(R.id.updateJournalSubmitButton);
+        updateJournalIdEditText = findViewById(R.id.updateJournalIdEditText);
+        updateJournalEntryEditText = findViewById(R.id.updateJournalEntryEditText);
 
         // If user is a guest, send them back to the homepage
         if (userID == 0) {
@@ -89,6 +101,7 @@ public class MoodActivity extends AppCompatActivity {
 
         // Queries recent mood entries and displays them to the screen
         getMoodEntries();
+        getJournalEntries();
 
         // Return to homepage
         buttonReturn.setOnClickListener(new View.OnClickListener() {
@@ -118,11 +131,30 @@ public class MoodActivity extends AppCompatActivity {
                 updateMoodRatingEditText.setText("");
             }
         });
+
+        updateJournalSubmitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // check value of updateMoodRatingEditText, 0: delete mood entry, 1: update mood entry
+                if (updateJournalEntryEditText.getText().toString().equals("0")) {
+                    deleteJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()));
+                } else {
+                    updateJournalEntry(Integer.parseInt(updateJournalIdEditText.getText().toString()), updateJournalEntryEditText.getText().toString(), moodId);
+                }
+                updateJournalSubmitButton.setChecked(false);
+                updateJournalIdEditText.setText("");
+                updateJournalEntryEditText.setText("");
+            }
+        });
+
     }
 
 
 
+
     // TODO: ADDITIONAL METHODS IF NEEDED
+
+
 
     private void getMoodEntries() {
         JsonArrayRequest jsonObjReq = new JsonArrayRequest(
@@ -197,6 +229,86 @@ public class MoodActivity extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 
+
+
+
+    private void getJournalEntries() {
+        JsonArrayRequest jsonObjReq = new JsonArrayRequest(
+                Request.Method.GET, // HTTP method
+                APP_API_URL + "entries/journal",
+                null, // Request body (null for GET request)
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        List<JournalEntry> journalList = new ArrayList<>();
+                        // Parse JSONArray by sending it to MoodEntry to become a JSONObject
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject obj = response.getJSONObject(i);
+                                JournalEntry entry = new JournalEntry(
+                                        obj.getInt("id"),
+                                        obj.getString("date"),
+                                        obj.getString("entryName"),
+                                        obj.getString("content"),
+                                        obj.isNull("moodId") ? null : obj.getInt("moodId")
+                                );
+                                journalList.add(entry);
+                            }
+                        } catch (JSONException e) {
+                            Log.e("JournalEntry", "Failed to parse JSON response");
+                        }
+
+                        // Display mood entries
+                        StringBuilder displayText = new StringBuilder();
+                        for (JournalEntry m : journalList) {
+                            displayText.append("ID: ").append(m.getId())
+                                    .append(" -- Date: ").append(m.getDate().substring(5))
+                                    .append(" -- Entry : ").append(m.getEntryName())
+                                    .append(" -- Content : ").append(m.getContent())
+                                    .append("\n");
+                        }
+                        journalDataText.setText(displayText.toString());
+
+                        makeText(getApplicationContext(), "Retrieved journal entries successfully.", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error (getJournalEntries)", error.toString());
+
+                        // Display an error message
+                        makeText(getApplicationContext(), "Failed to retrieve journal entries. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
     private void deleteMoodEntry(int moodId) {
         //Creates new request defined as a DELETE request
         //Use StringRequest since there is no json response body, just status code
@@ -211,6 +323,38 @@ public class MoodActivity extends AppCompatActivity {
                 //display error message if one occurs
                 Toast.makeText(MoodActivity.this, "Error deleting mood entry", Toast.LENGTH_LONG).show();
             }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+
+        //finally, if no issues, add the deleted user to queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(delete);
+    }
+
+
+
+
+    private void deleteJournalEntry(int journalId) {
+        //Creates new request defined as a DELETE request
+        //Use StringRequest since there is no json response body, just status code
+        String deleteURL = APP_API_URL + "entries/journal/" + journalId;
+        StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
+                response -> {
+                    //Display message saying user was deleted by identifying their id
+                    Toast.makeText(MoodActivity.this, "Journal entry with an id: " + journalId + " was successfully deleted", Toast.LENGTH_LONG).show();
+                    getJournalEntries();
+                },
+                error -> {
+                    //display error message if one occurs
+                    Toast.makeText(MoodActivity.this, "Error deleting journal entry", Toast.LENGTH_LONG).show();
+                }
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -265,6 +409,72 @@ public class MoodActivity extends AppCompatActivity {
 
                         // Display an error message
                         makeText(getApplicationContext(), "Mood entry update failed. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                Map<String, String> params = new HashMap<>();
+                // Example parameter
+                // params.put("param1", "value1");
+                return params;
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
+
+
+
+    private void updateJournalEntry(int journalId, String newContent, int moodId) {
+        // For ratings from 1-5
+        JSONObject requestBody;
+        try {
+            requestBody = new JSONObject();
+            // ALWAYS add user ID to request body
+            requestBody.put("entryName", "Journal Entry");
+            requestBody.put("content", newContent);
+            requestBody.put("moodId", moodId);
+        } catch (JSONException e) {
+            Log.e("JSONError", "Failed to create JSON request body", e);
+            makeText(getApplicationContext(), "Error creating request data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.PUT, // HTTP method
+                APP_API_URL + "entries/journal/" + journalId, // API URL + userID
+                requestBody, // Request body (null for GET request)
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Log response for debugging
+                        Log.d("Volley Response", response.toString());
+                        makeText(getApplicationContext(), "Journal entry updated successfully", Toast.LENGTH_SHORT).show();
+                        getJournalEntries();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Log error details
+                        Log.e("Volley Error", error.toString());
+
+                        // Display an error message
+                        makeText(getApplicationContext(), "Journal entry update failed. Please try again.", Toast.LENGTH_LONG).show();
                     }
                 }
         ) {
