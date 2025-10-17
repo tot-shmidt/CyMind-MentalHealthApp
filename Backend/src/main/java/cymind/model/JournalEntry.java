@@ -34,4 +34,10 @@ public class JournalEntry {
     @NotNull(message = "Student cannot be empty")
     @JsonIgnore
     private MoodEntry moodEntry;
+
+    public JournalEntry(String entryName, String content, MoodEntry moodEntry) {
+        this.entryName = entryName;
+        this.content = content;
+        this.moodEntry = moodEntry;
+    }
 }

@@ -4,17 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cymind.dto.ErrorMessageDTO;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.ArrayList;
@@ -54,6 +57,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorMessageDTO> handleAuthorizationDeniedException(HttpServletRequest req, AuthorizationDeniedException e) {
+        return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), e), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(NoResultException.class)
+    public ResponseEntity<ErrorMessageDTO> handleNoResultException(HttpServletRequest req, NoResultException e) {
+        return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), e), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorMessageDTO> handleResponseStatusException(HttpServletRequest req, ResponseStatusException e) {
+        // getMessage contains HTTP_STATUS//"actual message"//, getReason() contains the actual message
+        String message = e.getMessage();
+        if (e.getReason() != null) {
+            message = e.getReason();
+        }
+        return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), List.of(message)), e.getStatusCode());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorMessageDTO> handleAuthenticationException(HttpServletRequest req, AuthenticationException e) {
         return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), e), HttpStatus.UNAUTHORIZED);
     }
 }

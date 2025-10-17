@@ -4,6 +4,7 @@ import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
 import cymind.dto.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
+import cymind.model.MoodEntry;
 import cymind.model.Student;
 import cymind.repository.AbstractUserRepository;
 import cymind.repository.MoodEntryRepository;
@@ -34,6 +35,7 @@ public class AbstractUserService {
 
     @Autowired
     private StudentRepository studentRepository;
+
     @Autowired
     private MoodEntryRepository moodEntryRepository;
 
@@ -53,14 +55,9 @@ public class AbstractUserService {
 
     @Transactional
     public AbstractUserDTO getUser(long id) throws AccountNotFoundException, AuthorizationDeniedException {
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != id) {
-            throw new AuthorizationDeniedException("Attempting to GET a different user");
-        }
+        checkAuth(id);
 
         AbstractUser user =  abstractUserRepository.findById(id);
-
-        // If no such user with the given id: HTTP 404 and empty body is sent.
         if (user == null) {
             throw new AccountNotFoundException("Could not find user with that id");
         }
@@ -74,10 +71,7 @@ public class AbstractUserService {
             throws AccountNotFoundException, AuthorizationDeniedException, NonUniqueResultException {
 
         // Check if the currently logged-in user is the one they are trying to update.
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != id) {
-            throw new AuthorizationDeniedException("You are not authorized to update this user's profile.");
-        }
+        checkAuth(id);
 
         // Fetch the existing user from the database
         AbstractUser userToUpdate = abstractUserRepository.findById(id);
@@ -103,10 +97,7 @@ public class AbstractUserService {
 
     @Transactional
     public void deleteUser(long id) throws AccountNotFoundException, AuthorizationDeniedException {
-        AbstractUser abstractUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (abstractUser.getId() != id) {
-            throw new AuthorizationDeniedException("Attempting to delete a different user");
-        }
+        checkAuth(id);
 
         if  (abstractUserRepository.findById(id) == null) {
             throw new AccountNotFoundException("Could not find user with that id");
@@ -126,5 +117,12 @@ public class AbstractUserService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
         return new AbstractUserDTO(abstractUserRepository.findByEmail(request.email()));
+    }
+
+    private void checkAuth(long id) throws AuthorizationDeniedException {
+        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authedUser.getId() != id) {
+            throw new AuthorizationDeniedException("Attempting to access a different user");
+        }
     }
 }
