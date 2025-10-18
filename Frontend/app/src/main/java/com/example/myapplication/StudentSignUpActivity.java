@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SignUpActivity extends AppCompatActivity {
+public class StudentSignUpActivity extends AppCompatActivity {
 
     private EditText editTextFirstName;
 
@@ -28,14 +28,14 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText editTextAge;
     private EditText editTextPassword;
 
-    public SignUpActivity() {
+    public StudentSignUpActivity() {
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.activity_student_signup);
 
         // View initializations
         editTextEmail = findViewById(R.id.editTextEmail);
@@ -147,11 +147,11 @@ public class SignUpActivity extends AppCompatActivity {
 
 
                             //display message with credentials to show the new user was created
-                            Toast.makeText(SignUpActivity.this, "New user created:\n Id: " + id + "\nEmail: " + email +
+                            Toast.makeText(StudentSignUpActivity.this, "New user created:\n Id: " + id + "\nEmail: " + email +
                                     "\nFirst Name: " + firstName + "\nLast Name: " + lastName + "\nAge: " + age, Toast.LENGTH_LONG).show();
 
                             //Use intent to go to the next page, in this case the home page
-                            Intent intent = new Intent(SignUpActivity.this, HomepageActivity.class);
+                            Intent intent = new Intent(StudentSignUpActivity.this, GeneralFragmentActivity.class);
 
                             //send user email and pass and other vals to homepage
                             intent.putExtra("userID", id);
@@ -170,7 +170,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                     },
                     //Ensure that the server and app communicate and send/retreive info properly, if not display error message
-                    error -> Toast.makeText(SignUpActivity.this, "Request failed" , Toast.LENGTH_LONG).show()
+                    error -> Toast.makeText(StudentSignUpActivity.this, "Request failed" , Toast.LENGTH_LONG).show()
             ) {
                 @Override
                 public Map<String, String> getHeaders() {

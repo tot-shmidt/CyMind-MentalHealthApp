@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HomeFragment extends Fragment {
+public class GeneralHomeFragment extends Fragment {
 
     // Declare your views here
     private TextView welcomeMessage;
@@ -53,7 +53,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate fragment's layout
-        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_general_home, container, false);
 
         // init views
         welcomeMessage = rootView.findViewById(R.id.welcomeMessage);
@@ -82,7 +82,7 @@ public class HomeFragment extends Fragment {
         }
 
         buttonProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ProfileActivity.class);
+            Intent intent = new Intent(getActivity(), StudentProfileActivity.class);
             intent.putExtra( "userFirstName", userFirstName);
             intent.putExtra( "userLastName", userLastName);
             intent.putExtra("userEmail", userEmail);
