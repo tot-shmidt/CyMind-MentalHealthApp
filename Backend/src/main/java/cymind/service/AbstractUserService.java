@@ -4,7 +4,6 @@ import cymind.dto.AbstractUserDTO;
 import cymind.dto.CreateAbstractUserDTO;
 import cymind.dto.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
-import cymind.model.MoodEntry;
 import cymind.model.Student;
 import cymind.repository.AbstractUserRepository;
 import cymind.repository.MoodEntryRepository;
@@ -12,6 +11,7 @@ import cymind.repository.StudentRepository;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.security.auth.login.AccountNotFoundException;
 
 @Service
+@Slf4j
 public class AbstractUserService {
     @Autowired
     private AbstractUserRepository abstractUserRepository;
@@ -50,7 +51,9 @@ public class AbstractUserService {
         String hash = passwordEncoder.encode(createAbstractUserDTO.password());
         abstractUser.setPasswordHash(hash);
 
-        return new AbstractUserDTO(abstractUserRepository.save(abstractUser));
+        abstractUser = abstractUserRepository.save(abstractUser);
+        log.info("Created User with id: {}", abstractUser.getId());
+        return new AbstractUserDTO(abstractUser);
     }
 
     @Transactional
@@ -92,6 +95,7 @@ public class AbstractUserService {
         // Save the modified user object
         abstractUserRepository.save(userToUpdate);
 
+        log.info("Updated User with id: {}", userToUpdate.getId());
         return userToUpdate;
     }
 
@@ -109,6 +113,7 @@ public class AbstractUserService {
             studentRepository.deleteById(student.getId());
         }
 
+        log.info("Deleted User with id: {}", id);
         abstractUserRepository.deleteById(id);
     }
 
@@ -116,12 +121,14 @@ public class AbstractUserService {
     public AbstractUserDTO loginUser(@Valid LoginAbstractUserDTO request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
+        log.debug("Authenticated User with email: {}", request.email());
         return new AbstractUserDTO(abstractUserRepository.findByEmail(request.email()));
     }
 
     private void checkAuth(long id) throws AuthorizationDeniedException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authedUser.getId() != id) {
+            log.warn("User {} attempted to access information for User {}", authedUser.getId(), id);
             throw new AuthorizationDeniedException("Attempting to access a different user");
         }
     }
