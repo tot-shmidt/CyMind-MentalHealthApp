@@ -8,11 +8,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class AppointmentFragment extends Fragment {
+public class StudentAppointmentFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_appointment, container, false);
+        return inflater.inflate(R.layout.fragment_student_appointment, container, false);
     }
 }

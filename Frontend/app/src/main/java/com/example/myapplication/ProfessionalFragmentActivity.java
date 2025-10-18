@@ -1,15 +1,17 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class HomepageActivity extends AppCompatActivity {
+public class ProfessionalFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
+        setContentView(R.layout.activity_general_fragment);
         String userEmail = getIntent().getStringExtra("userEmail");
         String userPassword = getIntent().getStringExtra("userPassword");
         String userFirstName = getIntent().getStringExtra("userFirstName");
@@ -19,12 +21,12 @@ public class HomepageActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        Fragment homeFragment = new HomeFragment();
-        Fragment resourceFragment = new ResourceFragment();
-        Fragment chatFragment = new ChatFragment();
-        Fragment appointmentFragment = new AppointmentFragment();
+        Fragment homeFragment = new GeneralHomeFragment();
+        Fragment resourceFragment = new GeneralResourceFragment();
+        Fragment chatFragment = new StudentChatFragment();
+        Fragment appointmentFragment = new StudentAppointmentFragment();
 
-        //create bundle of values as arguments
+        // create bundle of values as arguments
         Bundle bund = new Bundle();
         bund.putString("userEmail", userEmail);
         bund.putString("userPassword", userPassword);
