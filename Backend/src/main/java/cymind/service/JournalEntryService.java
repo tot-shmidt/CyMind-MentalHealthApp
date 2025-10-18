@@ -9,6 +9,7 @@ import cymind.model.Student;
 import cymind.repository.JournalEntryRepository;
 import cymind.repository.MoodEntryRepository;
 import cymind.repository.StudentRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class JournalEntryService {
@@ -34,10 +33,10 @@ public class JournalEntryService {
     private StudentRepository studentRepository;
 
     @Transactional
-    public JournalEntryDTO createJournalEntry(CreateJournalEntryDTO dto) {
+    public JournalEntryDTO createJournalEntry(CreateJournalEntryDTO dto) throws AuthorizationDeniedException, NoResultException, ResponseStatusException {
         MoodEntry moodEntry = moodEntryRepository.findById(dto.moodId().longValue());
         if (moodEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mood entry not found");
+            throw new NoResultException("Mood entry not found");
         }
 
         checkAuth(moodEntry);
@@ -46,11 +45,7 @@ public class JournalEntryService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This mood entry is already linked with a journal entry.");
         }
 
-        JournalEntry journalEntry = new JournalEntry();
-        journalEntry.setEntryName(dto.entryName());
-        journalEntry.setContent(dto.content());
-        journalEntry.setDate(new Date());
-        journalEntry.setMoodEntry(moodEntry);
+        JournalEntry journalEntry = new JournalEntry(dto.entryName(), dto.content(), moodEntry);
         JournalEntry savedJournalEntry = journalEntryRepository.save(journalEntry);
 
         moodEntry.setJournalEntry(savedJournalEntry);
@@ -60,10 +55,10 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public JournalEntryDTO getJournalEntryById(long id) {
+    public JournalEntryDTO getJournalEntryById(long id) throws AuthorizationDeniedException, NoResultException {
         JournalEntry journalEntry = journalEntryRepository.findById(id);
         if (journalEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry was not found");
+            throw new NoResultException("Journal entry not found");
         }
 
         checkAuth(journalEntry.getMoodEntry());
@@ -72,12 +67,11 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public List<JournalEntryDTO> getAllJournalEntriesForUser() {
+    public List<JournalEntryDTO> getAllJournalEntriesForUser() throws NoResultException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Student authedStudent = studentRepository.findByAbstractUserId(authedUser.getId());
-
         if (authedStudent == null) {
-            return new ArrayList<>();
+            throw new NoResultException("Requested user is not a student");
         }
 
         List<MoodEntry> moodEntries = moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent);
@@ -93,10 +87,10 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public JournalEntryDTO updateJournalEntry(long id, CreateJournalEntryDTO dto) {
+    public JournalEntryDTO updateJournalEntry(long id, CreateJournalEntryDTO dto) throws AuthorizationDeniedException, NoResultException {
         JournalEntry journalEntry = journalEntryRepository.findById(id);
         if (journalEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Journal entry not found");
+            throw new NoResultException("Journal entry not found");
         }
 
         checkAuth(journalEntry.getMoodEntry());
@@ -110,24 +104,25 @@ public class JournalEntryService {
     }
 
     @Transactional
-    public void deleteJournalEntry(long id) {
+    public void deleteJournalEntry(long id) throws AuthorizationDeniedException, NoResultException {
         JournalEntry journalEntry = journalEntryRepository.findById(id);
-
-        if (journalEntry != null) {
-            checkAuth(journalEntry.getMoodEntry());
-
-            MoodEntry moodEntry = journalEntry.getMoodEntry();
-            moodEntry.setJournalEntry(null);
-            moodEntryRepository.save(moodEntry);
-
-            journalEntryRepository.deleteById(id);
+        if (journalEntry == null) {
+            throw new NoResultException("Journal entry not found");
         }
+
+        checkAuth(journalEntry.getMoodEntry());
+
+        MoodEntry moodEntry = journalEntry.getMoodEntry();
+        moodEntry.setJournalEntry(null);
+        moodEntryRepository.save(moodEntry);
+
+        journalEntryRepository.deleteById(id);
     }
 
-    private void checkAuth(MoodEntry moodEntry) {
+    private void checkAuth(MoodEntry moodEntry) throws AuthorizationDeniedException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authedUser.getId() != moodEntry.getStudent().getAbstractUser().getId()) {
-            throw new AuthorizationDeniedException("You are not authorized.");
+            throw new AuthorizationDeniedException("Attempting to access a journal entry for different user");
         }
     }
 }
