@@ -23,11 +23,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomepageActivity"
+            android:name=".GeneralFragmentActivity"
             android:exported="false">
         </activity>
         <activity
-            android:name=".ProfileActivity"
+            android:name=".StudentProfileActivity"
             android:exported="false">
         </activity>
         <activity
@@ -35,7 +35,7 @@
             android:exported="false">
         </activity>
         <activity
-            android:name=".SignUpActivity"
+            android:name=".StudentSignUpActivity"
             android:exported="false" />
     </application>
 

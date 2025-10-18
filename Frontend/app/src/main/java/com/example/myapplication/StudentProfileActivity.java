@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProfileActivity extends AppCompatActivity {
+public class StudentProfileActivity extends AppCompatActivity {
 
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/users/";
     private TextView nameText;
@@ -48,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile); // Make sure this layout exists and is correct
+        setContentView(R.layout.activity_student_profile); // Make sure this layout exists and is correct
 
         Button buttonReturn = findViewById(R.id.returnButton);
         nameText = findViewById(R.id.nameText);
@@ -79,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
         //if a userID was not created successfully, display error and send back to homepage
         if (userID == 0) {
             Toast.makeText(this, "You are not signed in. Please log in to view your profile", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+            Intent intent = new Intent(StudentProfileActivity.this, GeneralFragmentActivity.class);
             intent.putExtra("userID", userID);
             startActivity(intent);
             return;
@@ -103,14 +103,14 @@ public class ProfileActivity extends AppCompatActivity {
             StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL, response -> {
 
                 //Display message saying user was deleted by identifying their id
-                Toast.makeText(ProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
+                Toast.makeText(StudentProfileActivity.this, "User with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
                 //Upon user deletion, go back to the sign up page to create new user
-                Intent intent = new Intent(ProfileActivity.this, WelcomeActivity.class);
+                Intent intent = new Intent(StudentProfileActivity.this, WelcomeActivity.class);
                 startActivity(intent);
                 },
                     error -> {
                 //display error message if one occurs
-                Toast.makeText(ProfileActivity.this, "Error deleting user", Toast.LENGTH_LONG).show();
+                Toast.makeText(StudentProfileActivity.this, "Error deleting user", Toast.LENGTH_LONG).show();
                 }
             ) {
                 @Override
@@ -128,7 +128,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         buttonReturn.setOnClickListener(view -> {
-            Intent intent = new Intent(ProfileActivity.this, HomepageActivity.class);
+            Intent intent = new Intent(StudentProfileActivity.this, GeneralFragmentActivity.class);
             intent.putExtra( "userFirstName", userFirstName);
             intent.putExtra( "userLastName", userLastName);
             intent.putExtra("userEmail", userEmail);
