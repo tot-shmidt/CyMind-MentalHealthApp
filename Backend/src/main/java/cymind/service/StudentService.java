@@ -5,7 +5,9 @@ import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.Student;
 import cymind.repository.AbstractUserRepository;
+import cymind.repository.MoodEntryRepository;
 import cymind.repository.StudentRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 public class StudentService {
@@ -25,6 +25,9 @@ public class StudentService {
 
     @Autowired
     AbstractUserRepository abstractUserRepository;
+
+    @Autowired
+    MoodEntryRepository moodEntryRepository;
 
     @Transactional
     public StudentDTO addStudentToUser(StudentDTO studentDTO) throws AuthorizationDeniedException {
@@ -40,7 +43,55 @@ public class StudentService {
         user.setUserType(UserType.STUDENT);
         abstractUserRepository.save(user);
 
+        log.info("Added student to User {}", user.getId());
         return new StudentDTO(studentRepository.save(student));
+    }
+
+    public StudentDTO get(long id) {
+        checkAuth(id);
+
+        Student student = studentRepository.findByAbstractUserId(id);
+        if (student == null) {
+            throw new NoResultException("Student not found");
+        }
+
+        return new StudentDTO(student);
+    }
+
+    public StudentDTO update(long id, StudentDTO studentDTO) {
+        Student student = studentRepository.findByAbstractUserId(id);
+        if (student == null) {
+            throw new NoResultException("Student not found");
+        }
+
+        checkAuth(studentDTO.userId());
+
+        student.setMajor(studentDTO.major());
+        student.setYearOfStudy(studentDTO.yearOfStudy());
+
+        log.info("Updated student {}", student.getId());
+        return new StudentDTO(studentRepository.save(student));
+    }
+
+    @Transactional
+    public void remove(long id) throws AuthorizationDeniedException {
+        checkAuth(id);
+
+        Student student = studentRepository.findByAbstractUserId(id);
+        if (student == null) {
+            throw new NoResultException("Student not found");
+        }
+
+        AbstractUser abstractUser = abstractUserRepository.findById(id);
+        if (abstractUser == null) {
+            throw new NoResultException("User not found");
+        }
+        abstractUser.setUserType(null);
+        abstractUserRepository.save(abstractUser);
+
+        moodEntryRepository.deleteAllByStudent(student);
+        studentRepository.deleteById(student.getId());
+        log.info("Deleted student {} (user {})", student.getId(), student.getAbstractUser().getId());
     }
 
     private void checkAuth(long id) throws AuthorizationDeniedException {

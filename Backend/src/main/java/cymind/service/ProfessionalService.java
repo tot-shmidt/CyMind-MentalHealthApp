@@ -6,6 +6,7 @@ import cymind.model.AbstractUser;
 import cymind.model.MentalHealthProfessional;
 import cymind.repository.AbstractUserRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,52 @@ public class ProfessionalService {
         abstractUserRepository.save(user);
 
         return new ProfessionalDTO(mentalHealthProfessionalRepository.save(professional));
+    }
+
+    public ProfessionalDTO get(long id) {
+        checkAuth(id);
+
+        MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
+        if (professional == null) {
+            throw new NoResultException("Professional not found");
+        }
+
+        return new ProfessionalDTO(professional);
+    }
+
+    public ProfessionalDTO update(long id, ProfessionalDTO professionalDTO) {
+        MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
+        if (professional == null) {
+            throw new NoResultException("Professional not found");
+        }
+
+        checkAuth(professionalDTO.userId());
+
+        professional.setJobTitle(professionalDTO.jobTitle());
+        professional.setLicenseNumber(professionalDTO.licenseNumber());
+
+        log.info("Updated professional {}", professional.getId());
+        return new ProfessionalDTO(mentalHealthProfessionalRepository.save(professional));
+    }
+
+    @Transactional
+    public void remove(long id) throws AuthorizationDeniedException {
+        checkAuth(id);
+
+        MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
+        if (professional == null) {
+            throw new NoResultException("Professional not found");
+        }
+
+        AbstractUser abstractUser = abstractUserRepository.findById(id);
+        if (abstractUser == null) {
+            throw new NoResultException("User not found");
+        }
+        abstractUser.setUserType(null);
+        abstractUserRepository.save(abstractUser);
+
+        mentalHealthProfessionalRepository.deleteById(professional.getId());
+        log.info("Deleted professional {} (user {})", professional.getId(), professional.getAbstractUser().getId());
     }
 
     private void checkAuth(long id) throws AuthorizationDeniedException {

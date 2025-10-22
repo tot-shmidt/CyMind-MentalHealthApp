@@ -6,9 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProfessionalController {
@@ -18,5 +16,21 @@ public class ProfessionalController {
     @PostMapping("/users/professional")
     ResponseEntity<ProfessionalDTO> registerProfessional(@RequestBody @Valid ProfessionalDTO professionalDTO) {
         return new ResponseEntity<>(professionalService.addProfessionalToUser(professionalDTO), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/users/professional/{id}")
+    ResponseEntity<ProfessionalDTO> getProfessional(@PathVariable long id) {
+        return new ResponseEntity<>(professionalService.get(id), HttpStatus.OK);
+    }
+
+    @PutMapping("/users/professional/{id}")
+    ResponseEntity<ProfessionalDTO> updateProfessional(@PathVariable long id, @RequestBody ProfessionalDTO professionalDTO) {
+        return new ResponseEntity<>(professionalService.update(id, professionalDTO), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/professional/{id}")
+    ResponseEntity<?> deleteProfessional(@PathVariable long id) {
+        professionalService.remove(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
