@@ -43,7 +43,7 @@ public class WelcomeActivity extends AppCompatActivity {
         Button buttonRegister = findViewById(R.id.register);
         Button buttonUserSignin = findViewById(R.id.userSignin);
         Button buttonGuestSignin = findViewById(R.id.guestSignin);
-        Button buttonProfessionalSignin = findViewById(R.id.professionalSignin);
+
 
 
         buttonRegister.setOnClickListener(view -> {
@@ -60,12 +60,6 @@ public class WelcomeActivity extends AppCompatActivity {
             // pass info so system knows it is a guest user
         });
 
-        buttonProfessionalSignin.setOnClickListener(view -> {
-            // TODO: navigate to professionals sign in page when made
-            /*
-            Intent intent3 = new Intent(WelcomeActivity.this, INSERT PRO PAGE ACTIVITY);
-            startActivity(intent3); */
-        });
     }
 
     private void userSignIn() {

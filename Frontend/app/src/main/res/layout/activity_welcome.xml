@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_gravity="center"
-            android:text="Sign-in"
+            android:text="User Sign-in"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -86,12 +86,6 @@
             android:layout_weight="1"
             android:text="Register" />
 
-        <Button
-            android:id="@+id/professionalSignin"
-            android:layout_width="137dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Professional" />
 
         <Button
             android:id="@+id/guestSignin"

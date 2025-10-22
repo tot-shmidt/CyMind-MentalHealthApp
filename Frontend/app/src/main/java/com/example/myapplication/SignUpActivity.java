@@ -171,6 +171,8 @@ public class SignUpActivity extends AppCompatActivity {
                     },
                     //Ensure that the server and app communicate and send/retreive info properly, if not display error message
                     error -> Toast.makeText(SignUpActivity.this, "Request failed" , Toast.LENGTH_LONG).show()
+
+
             ) {
                 @Override
                 public Map<String, String> getHeaders() {

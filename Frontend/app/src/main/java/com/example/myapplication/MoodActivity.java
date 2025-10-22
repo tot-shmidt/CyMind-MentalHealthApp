@@ -60,7 +60,6 @@ public class MoodActivity extends AppCompatActivity {
         userLastName = getIntent().getStringExtra("userLastName");
 
         moodId = getIntent().getIntExtra("moodId", -1);
-
         Button buttonReturn = findViewById(R.id.returnButton);
         moodDataText = findViewById(R.id.moodData);
         updateMoodSubmitButton = findViewById(R.id.updateMoodSubmitButton);
