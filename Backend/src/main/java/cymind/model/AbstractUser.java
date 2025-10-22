@@ -1,8 +1,7 @@
 package cymind.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import cymind.dto.AbstractUserDTO;
+import cymind.dto.user.AbstractUserDTO;
 import cymind.enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

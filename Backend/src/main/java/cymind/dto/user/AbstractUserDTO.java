@@ -1,4 +1,4 @@
-package cymind.dto;
+package cymind.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import cymind.enums.UserType;

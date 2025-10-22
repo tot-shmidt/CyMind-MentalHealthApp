@@ -1,8 +1,8 @@
 package cymind.controller;
 
-import cymind.dto.AbstractUserDTO;
-import cymind.dto.CreateAbstractUserDTO;
-import cymind.dto.LoginAbstractUserDTO;
+import cymind.dto.user.AbstractUserDTO;
+import cymind.dto.user.CreateAbstractUserDTO;
+import cymind.dto.user.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
 import cymind.repository.AbstractUserRepository;
 import cymind.service.AbstractUserService;

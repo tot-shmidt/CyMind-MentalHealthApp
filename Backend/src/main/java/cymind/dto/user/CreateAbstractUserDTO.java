@@ -1,6 +1,5 @@
-package cymind.dto;
+package cymind.dto.user;
 
-import cymind.model.AbstractUser;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
