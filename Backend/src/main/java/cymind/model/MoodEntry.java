@@ -37,8 +37,7 @@ public class MoodEntry {
     @JsonIgnore
     private Student student;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "journal_id")
+    @OneToOne(cascade = CascadeType.REMOVE, mappedBy = "moodEntry")
     @Nullable
     private JournalEntry journalEntry;
 
