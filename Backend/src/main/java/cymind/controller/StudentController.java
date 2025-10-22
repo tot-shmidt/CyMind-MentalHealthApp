@@ -21,8 +21,9 @@ public class StudentController {
     private AbstractUserRepository abstractUserRepository;
 
     @PostMapping("/users/student")
-    ResponseEntity<Student> registerStudent(@RequestBody @Valid StudentDTO studentDTO) {
+    ResponseEntity<StudentDTO> registerStudent(@RequestBody @Valid StudentDTO studentDTO) {
         Student student = new Student(studentDTO.major(), studentDTO.yearOfStudy(), abstractUserRepository.findById(studentDTO.userId()));
-        return new ResponseEntity<>(studentRepository.save(student), HttpStatus.CREATED);
+        studentRepository.save(student);
+        return new ResponseEntity<>(studentDTO, HttpStatus.CREATED);
     }
 }
