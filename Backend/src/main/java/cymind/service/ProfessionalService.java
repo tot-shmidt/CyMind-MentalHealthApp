@@ -25,6 +25,13 @@ public class ProfessionalService {
     @Autowired
     AbstractUserRepository abstractUserRepository;
 
+    /**
+     * Register the User as a Mental Health Professional
+     *
+     * @param professionalDTO
+     * @return
+     * @throws AuthorizationDeniedException
+     */
     @Transactional
     public ProfessionalDTO addProfessionalToUser(ProfessionalDTO professionalDTO) throws AuthorizationDeniedException {
         checkAuth(professionalDTO.userId());
@@ -41,6 +48,7 @@ public class ProfessionalService {
         return new ProfessionalDTO(mentalHealthProfessionalRepository.save(professional));
     }
 
+    @Transactional
     public ProfessionalDTO get(long id) {
         checkAuth(id);
 
@@ -52,6 +60,7 @@ public class ProfessionalService {
         return new ProfessionalDTO(professional);
     }
 
+    @Transactional
     public ProfessionalDTO update(long id, ProfessionalDTO professionalDTO) {
         MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
         if (professional == null) {

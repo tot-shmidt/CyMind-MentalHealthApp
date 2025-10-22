@@ -29,6 +29,13 @@ public class StudentService {
     @Autowired
     MoodEntryRepository moodEntryRepository;
 
+    /**
+     * Register the User as a Student
+     *
+     * @param studentDTO
+     * @return
+     * @throws AuthorizationDeniedException
+     */
     @Transactional
     public StudentDTO addStudentToUser(StudentDTO studentDTO) throws AuthorizationDeniedException {
         checkAuth(studentDTO.userId());
@@ -47,6 +54,7 @@ public class StudentService {
         return new StudentDTO(studentRepository.save(student));
     }
 
+    @Transactional
     public StudentDTO get(long id) {
         checkAuth(id);
 
@@ -58,6 +66,7 @@ public class StudentService {
         return new StudentDTO(student);
     }
 
+    @Transactional
     public StudentDTO update(long id, StudentDTO studentDTO) {
         Student student = studentRepository.findByAbstractUserId(id);
         if (student == null) {
