@@ -1,9 +1,7 @@
 package cymind.controller;
 
 import cymind.dto.StudentDTO;
-import cymind.model.Student;
-import cymind.repository.AbstractUserRepository;
-import cymind.repository.StudentRepository;
+import cymind.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,15 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StudentController {
     @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private AbstractUserRepository abstractUserRepository;
+    StudentService studentService;
 
     @PostMapping("/users/student")
     ResponseEntity<StudentDTO> registerStudent(@RequestBody @Valid StudentDTO studentDTO) {
-        Student student = new Student(studentDTO.major(), studentDTO.yearOfStudy(), abstractUserRepository.findById(studentDTO.userId()));
-        studentRepository.save(student);
-        return new ResponseEntity<>(studentDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>(studentService.addStudentToUser(studentDTO), HttpStatus.CREATED);
     }
 }
