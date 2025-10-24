@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    tools:context=".GeneralHomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -46,55 +46,11 @@
         <Space
             android:id="@+id/space"
             android:layout_width="wrap_content"
-            android:layout_height="100dip"
+            android:layout_height="20dip"
             app:layout_constraintBottom_toTopOf="@+id/moodButtonHappy"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/welcomeMessage" />
-
-        <TextView
-            android:id="@+id/moodMessage"
-            android:layout_width="match_parent"
-            android:layout_height="50dip"
-            android:textAlignment="center"
-            android:textSize="12pt"
-            android:text="How are you feeling today?"/>
-
-        <TextView
-            android:id="@+id/moodMessage2"
-            android:layout_width="match_parent"
-            android:layout_height="50dip"
-            android:text="😭                                             😃"
-            android:textAlignment="center"
-            android:textSize="12pt" />
-
-        <SeekBar
-            android:id="@+id/moodSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="5"
-            android:min="1"
-            android:progress="3" />
-
-
-        <EditText
-            android:id="@+id/editTextJournal"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginTop="20dp"
-            android:hint="Give a brief explanation on why you feel that way today. "
-            android:gravity="top|start"
-            android:inputType="textMultiLine"
-            android:background="@android:drawable/edit_text"
-            android:padding="8dp"/>
-
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Submit"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="15dp"/>
 
         <Space
             android:id="@+id/space2"
@@ -104,19 +60,13 @@
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-
-
+        <TextView
+            android:id="@+id/professionalInstructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dip"
+            android:paddingRight="20dip"
+            android:textSize="12pt"
+            android:text="Welcome to the Professional Homepage!\nYour appointments, student chats, and resource management pages are below!\nRemember to verify your credentials on your profile page!" />
     </LinearLayout>
-
-
-
-
-    <!-- TODO: generic app information -->
-
-    <!-- TODO: mood tracking -->
-
-
-    <!-- TODO: page-to-page navigation menu -->
-
-
 </FrameLayout>
