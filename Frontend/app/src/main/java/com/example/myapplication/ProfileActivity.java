@@ -37,7 +37,13 @@ public class ProfileActivity extends AppCompatActivity {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
+    private String userMajor;
+    private int userYearOfStudy;
     private int userAge;
+    private TextView majorText;
+    private TextView yearOfStudyText;
+    private EditText majorEditText;
+    private EditText yearOfStudyEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +58,9 @@ public class ProfileActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         ageEditText = findViewById(R.id.ageEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
+        majorEditText = findViewById(R.id.majorEditText);
+        yearOfStudyEditText = findViewById(R.id.yearOfStudyEditText);
+
         Button updateProfileButton = findViewById(R.id.updateProfileButton);
         Button deleteProfilebutton = findViewById(R.id.deleteProfileButton);
 
@@ -61,6 +70,9 @@ public class ProfileActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
+        userMajor = getIntent().getStringExtra("userMajor");
+        userYearOfStudy = getIntent().getIntExtra("userYearOfStudy", 0);
+
 
 
 
@@ -122,6 +134,8 @@ public class ProfileActivity extends AppCompatActivity {
             intent.putExtra("userEmail", userEmail);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
+            intent.putExtra("userYearOfStudy", userYearOfStudy);
+            intent.putExtra("userMajor", userMajor);
             startActivity(intent);
         });
 

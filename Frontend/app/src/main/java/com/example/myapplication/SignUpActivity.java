@@ -169,6 +169,8 @@ public class SignUpActivity extends AppCompatActivity {
                             intent.putExtra("userFirstName", firstName);
                             intent.putExtra("userLastName", lastName);
                             intent.putExtra("userAge", age);
+                            intent.putExtra("major", userMajor);
+                            intent.putExtra("yearOfStudy", userYearOfStudy);
 
                             startActivity(intent);
                         } catch (JSONException e) {
