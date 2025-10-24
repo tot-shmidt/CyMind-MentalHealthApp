@@ -9,6 +9,7 @@ import cymind.model.Student;
 import cymind.repository.JournalEntryRepository;
 import cymind.repository.MoodEntryRepository;
 import cymind.repository.StudentRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,27 +34,27 @@ public class MoodEntryService {
     private StudentRepository studentRepository;
 
     @Transactional
-    public List<MoodEntryDTO> findAllByStudent() throws ResponseStatusException {
+    public List<MoodEntryDTO> findAllByStudent() throws NoResultException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Student authedStudent = studentRepository.findByAbstractUserId(authedUser.getId());
         if (authedStudent == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No entries found");
+            throw new NoResultException("Requested user is not a student");
         }
 
         return moodEntryRepository.findAllByStudentOrderByIdDesc(authedStudent).stream().map(MoodEntryDTO::new).toList();
     }
 
     @Transactional
-    public List<MoodEntryDTO> findAllByStudent(int num) throws ResponseStatusException {
+    public List<MoodEntryDTO> findAllByStudent(int num) throws NoResultException {
         List<MoodEntryDTO> entries = findAllByStudent();
         return entries.subList(0, Math.min(num, entries.size()));
     }
 
     @Transactional
-    public MoodEntryDTO getMoodEntryById(long id) throws AuthorizationDeniedException, ResponseStatusException {
+    public MoodEntryDTO getMoodEntryById(long id) throws AuthorizationDeniedException, NoResultException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if (moodEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
+            throw new NoResultException("Mood entry not found");
         }
 
         checkAuth(moodEntry);
@@ -62,10 +63,10 @@ public class MoodEntryService {
     }
 
     @Transactional
-    public MoodEntryDTO createMoodEntry(CreateMoodEntryDTO createMoodEntryDTO) throws AuthorizationDeniedException {
+    public MoodEntryDTO createMoodEntry(CreateMoodEntryDTO createMoodEntryDTO) throws AuthorizationDeniedException, NoResultException {
         Student student = studentRepository.findByAbstractUserId(createMoodEntryDTO.userId());
         if (student == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+            throw new NoResultException("Requested user is not a student");
         }
 
         // Create and save the MoodEntry first, so we get an ID.
@@ -98,10 +99,10 @@ public class MoodEntryService {
     }
 
     @Transactional
-    public MoodEntryDTO updateMoodEntry(long id, CreateMoodEntryDTO request) throws AuthorizationDeniedException, ResponseStatusException {
+    public MoodEntryDTO updateMoodEntry(long id, CreateMoodEntryDTO request) throws AuthorizationDeniedException, NoResultException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if (moodEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
+            throw new NoResultException("Mood entry not found");
         }
 
         checkAuth(moodEntry);
@@ -112,11 +113,15 @@ public class MoodEntryService {
     }
 
     @Transactional
-    public MoodEntryDTO setJournalEntry(long moodId, long journalId) throws AuthorizationDeniedException {
+    public MoodEntryDTO setJournalEntry(long moodId, long journalId) throws AuthorizationDeniedException, NoResultException {
         MoodEntry moodEntry = moodEntryRepository.findById(moodId);
+        if (moodEntry == null) {
+            throw new NoResultException("Mood entry not found");
+        }
+
         JournalEntry journalEntry = journalEntryRepository.findById(journalId);
-        if (moodEntry == null || journalEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
+        if (journalEntry == null) {
+            throw new NoResultException("Journal entry not found");
         }
 
         checkAuth(moodEntry);
@@ -129,10 +134,10 @@ public class MoodEntryService {
     }
 
     @Transactional
-    public void deleteMoodEntry(long id) throws AuthorizationDeniedException {
+    public void deleteMoodEntry(long id) throws AuthorizationDeniedException, NoResultException {
         MoodEntry moodEntry = moodEntryRepository.findById(id);
         if  (moodEntry == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found");
+            throw new NoResultException("Mood entry not found");
         }
 
         checkAuth(moodEntry);
@@ -140,7 +145,7 @@ public class MoodEntryService {
         moodEntryRepository.deleteById(id);
     }
 
-    private void checkAuth(MoodEntry moodEntry) {
+    private void checkAuth(MoodEntry moodEntry) throws AuthorizationDeniedException {
         AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (authedUser.getId() != moodEntry.getStudent().getAbstractUser().getId()) {
             throw new AuthorizationDeniedException("Attempting to access a mood entry for different user");
