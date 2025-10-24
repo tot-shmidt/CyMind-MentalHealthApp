@@ -46,7 +46,7 @@
         <Space
             android:id="@+id/space"
             android:layout_width="wrap_content"
-            android:layout_height="100dip"
+            android:layout_height="20dip"
             app:layout_constraintBottom_toTopOf="@+id/moodButtonHappy"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,8 +64,9 @@
             android:id="@+id/professionalInstructions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:text="Welcome to the Professional Homepage!\nYour appointments, one-on-one chats, and resource management pages are below!" />
+            android:paddingLeft="20dip"
+            android:paddingRight="20dip"
+            android:textSize="12pt"
+            android:text="Welcome to the Professional Homepage!\nYour appointments, student chats, and resource management pages are below!\nRemember to verify your credentials on your profile page!" />
     </LinearLayout>
 </FrameLayout>
