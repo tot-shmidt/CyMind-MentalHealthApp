@@ -43,7 +43,8 @@ public class HomeFragment extends Fragment {
     private String userLastName;
     private String userEmail;
     private int userAge;
-
+    private String userMajor;
+    private int userYearOfStudy;
     private int moodId = -1;
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
@@ -75,6 +76,8 @@ public class HomeFragment extends Fragment {
         userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
+        userMajor = getActivity().getIntent().getStringExtra("userMajor");
+        userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
 
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
@@ -88,6 +91,8 @@ public class HomeFragment extends Fragment {
             intent.putExtra("userEmail", userEmail);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
+            intent.putExtra("userYearOfStudy", userYearOfStudy);
+            intent.putExtra("userMajor", userMajor);
             startActivity(intent);
         });
 
@@ -191,6 +196,8 @@ public class HomeFragment extends Fragment {
             intent.putExtra("userAge", userAge);
             intent.putExtra("moodEntry", moodSeekBar.getProgress());
             intent.putExtra("moodId", moodId);
+            intent.putExtra("userYearOfStudy", userYearOfStudy);
+            intent.putExtra("userMajor", userMajor);
             startActivity(intent);
             return;
         }
@@ -225,6 +232,8 @@ public class HomeFragment extends Fragment {
                     intent.putExtra("moodEntry", moodSeekBar.getProgress());
                     intent.putExtra("moodId", moodId);
                     intent.putExtra("journalEntry", journalEntry.getText().toString());
+                    intent.putExtra("userYearOfStudy", userYearOfStudy);
+                    intent.putExtra("userMajor", userMajor);
                     startActivity(intent);
                 },
                 error -> {

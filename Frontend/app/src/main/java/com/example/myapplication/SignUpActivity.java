@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,11 +23,13 @@ import java.util.Map;
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText editTextFirstName;
-
     private EditText editTextLastName;
     private EditText editTextEmail;
     private EditText editTextAge;
     private EditText editTextPassword;
+    private EditText editTextMajor;
+    private EditText editTextYearOfStudy;
+    private Button buttonUserSignup;
 
     public SignUpActivity() {
     }
@@ -43,31 +46,27 @@ public class SignUpActivity extends AppCompatActivity {
         editTextFirstName = findViewById(R.id.editTextFirstName);
         editTextLastName = findViewById(R.id.editTextLastName);
         editTextAge = findViewById(R.id.editTextAge);
+        editTextMajor = findViewById(R.id.editTextMajor);
+        editTextYearOfStudy = findViewById(R.id.editTextYearOfStudy);
+        buttonUserSignup = findViewById(R.id.userSignup);
 
-        Button buttonRegister = findViewById(R.id.register);
-        Button buttonUserSignin = findViewById(R.id.userSignup);
-        Button buttonGuestSignin = findViewById(R.id.guestSignin);
-        Button buttonProfessionalSignin = findViewById(R.id.professionalSignin);
-
-
-        buttonRegister.setOnClickListener(view -> {
-
-        });
 
         /*
         Implemented logic that upon sign up submission, sends a Post request to the mock Postman server
          */
-        buttonUserSignin.setOnClickListener(view -> {
+        buttonUserSignup.setOnClickListener(view -> {
             //hold the user's email and password as a String
             String userEmail = editTextEmail.getText().toString().trim();
             String userPass = editTextPassword.getText().toString().trim();
             String userFirstName = editTextFirstName.getText().toString().trim();
             String userLastName = editTextLastName.getText().toString().trim();
+            String userMajor = editTextMajor.getText().toString().trim();
+            int userYearOfStudy;
+            int userAge;
 
             Authorization.globalUserEmail = userEmail;
             Authorization.globalPassword = editTextPassword.getText().toString();
 
-            int userAge;
             try {
                 userAge = Integer.parseInt(editTextAge.getText().toString().trim());
             } catch (NumberFormatException e) {
@@ -75,6 +74,12 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
+            try {
+                userYearOfStudy = Integer.parseInt(editTextYearOfStudy.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                editTextYearOfStudy.setError("Age needs to be an integer.");
+                return;
+            }
 
             //ensure that the user enters an email since it is required, if a user tries to sign up
             //without entering, it will not work
@@ -106,6 +111,10 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
+            if(userMajor.isEmpty()) {
+                editTextMajor.setError("Major field is required");
+                return;
+            }
 
             JSONObject request = new JSONObject();
             //try to pass the credentials into designated parameters
@@ -160,14 +169,13 @@ public class SignUpActivity extends AppCompatActivity {
                             intent.putExtra("userFirstName", firstName);
                             intent.putExtra("userLastName", lastName);
                             intent.putExtra("userAge", age);
+                            intent.putExtra("major", userMajor);
+                            intent.putExtra("yearOfStudy", userYearOfStudy);
 
                             startActivity(intent);
-
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
-
-
                     },
                     //Ensure that the server and app communicate and send/retreive info properly, if not display error message
                     error -> Toast.makeText(SignUpActivity.this, "Request failed" , Toast.LENGTH_LONG).show()
@@ -178,33 +186,19 @@ public class SignUpActivity extends AppCompatActivity {
                     headers.put("Content-Type", "application/json");
                     return headers;
                 }
-
             };
             //finally, add the post to queue
             VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(post);
 
         });
-
-        buttonGuestSignin.setOnClickListener(view -> {
-            // TODO: navigate to homepage without user abilities
-        });
-
-        buttonProfessionalSignin.setOnClickListener(view -> {
-            // TODO: navigate to professionals sign in page when made
-        });
-
     }
 
     private void submitStudentInfo(int userId) {
-        String major = "Software Engineering";
-        int yearOfStudy = 3;
-
-
         JSONObject requestStudent = new JSONObject();
         //try to pass the credentials into designated parameters
         try {
-            requestStudent.put("major", major);
-            requestStudent.put("yearOfStudy", yearOfStudy);
+            requestStudent.put("major", editTextMajor.getText().toString().trim());
+            requestStudent.put("yearOfStudy", Integer.parseInt(editTextYearOfStudy.getText().toString().trim()));
             requestStudent.put("userId", userId);
         }
         //catch it if errors occur when requesting
