@@ -1,72 +1,47 @@
 package cymind.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-public class MentalHealthProfessional extends AbstractUser {
-	
-	// ========== Fields ==========
-	
-	/**
-	 * What occupation does the person have.
-	 */
-	private String jobTitle;
-	/**
-	 * TO-DO: Do we need this?
-	 */
-	private String licenseNumber;
-	
-	
-	// ========== Constructors ==========
-	/**
-	 * Creates an object of a MentalHealthProfessional user. First envokes parent AbstractUser class.
-	 * @param firstName
-	 * @param lastName
-	 * @param ageFullYears
-	 * @param emailId
-	 * @param jobTitle
-	 * @param licenseNumber
-	 */
-	public MentalHealthProfessional(String firstName, String lastName, Integer ageFullYears, String emailId, String jobTitle, String licenseNumber) {
-        super(firstName, lastName, ageFullYears, emailId);
+@Data
+@NoArgsConstructor
+public class MentalHealthProfessional {
+
+    // ========== Fields ==========
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * What occupation does the person have.
+     */
+    private String jobTitle;
+
+    /**
+     * The license number of the register professional
+     */
+    private String licenseNumber;
+
+    @OneToOne()
+    @JoinColumn(name = "user_id")
+    @NotNull()
+    private AbstractUser abstractUser;
+
+    // ========== Constructors ==========
+
+    /**
+     * Creates an object of a MentalHealthProfessional user. First envokes parent AbstractUser class.
+     *
+     * @param jobTitle
+     * @param licenseNumber
+     * @param abstractUser
+     */
+    public MentalHealthProfessional(String jobTitle, String licenseNumber, AbstractUser abstractUser) {
         this.jobTitle = jobTitle;
         this.licenseNumber = licenseNumber;
+        this.abstractUser = abstractUser;
     }
-
-	/**
-     * Default constuctor is required by JPA/Spring to recreate objects from the data base.
-     */
-	public MentalHealthProfessional() {}
-	
-	
-	// ========== Getters and Setters ==========
-
-	public String getJobTitle() {
-		return jobTitle;
-	}
-
-	public void setJobTitle(String jobTitle) {
-		this.jobTitle = jobTitle;
-	}
-
-	public String getLicenseNumber() {
-		return licenseNumber;
-	}
-	
-	public void setLicenseNumber(String licenseNumber) {
-		this.licenseNumber = licenseNumber;
-	}
 }

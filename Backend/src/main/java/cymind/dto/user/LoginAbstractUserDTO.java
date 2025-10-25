@@ -1,4 +1,4 @@
-package cymind.dto;
+package cymind.dto.user;
 
 import jakarta.validation.constraints.Email;
 
