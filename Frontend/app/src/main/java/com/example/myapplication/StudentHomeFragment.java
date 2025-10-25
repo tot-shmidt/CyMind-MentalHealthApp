@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GeneralHomeFragment extends Fragment {
+public class StudentHomeFragment extends Fragment {
 
     // Declare your views here
     private TextView welcomeMessage;
@@ -54,7 +54,7 @@ public class GeneralHomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate fragment's layout
-        View rootView = inflater.inflate(R.layout.fragment_general_home, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_student_home, container, false);
 
         // init views
         welcomeMessage = rootView.findViewById(R.id.welcomeMessage);
