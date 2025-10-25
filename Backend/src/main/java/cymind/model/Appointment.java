@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.convert.DurationUnit;
 
+import java.sql.Time;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Entity
@@ -12,26 +15,34 @@ import java.util.Date;
 @NoArgsConstructor
 public class Appointment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.DATE)
     @NotBlank
     private Date date;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Temporal(TemporalType.TIME)
     @NotBlank
-    private MentalHealthProfessional mentalHealthProfessional;
+    private Time time;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @DurationUnit(ChronoUnit.MINUTES)
     @NotBlank
-    private Student student;
+    private long duration;
 
-    private String message;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_group_id")
+    @NotBlank
+    private AppointmentGroup appointmentGroup;
 
-    public Appointment(Date date, MentalHealthProfessional mentalHealthProfessional, Student student) {
+    private String location;
+    private String title;
+    private String description;
+
+    public Appointment(Date date, Time time, long duration, AppointmentGroup appointmentGroup) {
         this.date = date;
-        this.mentalHealthProfessional = mentalHealthProfessional;
-        this.student = student;
+        this.time = time;
+        this.duration = duration;
+        this.appointmentGroup = appointmentGroup;
     }
 }
