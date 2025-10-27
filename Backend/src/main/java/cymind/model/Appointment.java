@@ -6,9 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.convert.DurationUnit;
 
-import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 @Entity
 @Data
@@ -18,13 +17,8 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Temporal(TemporalType.DATE)
     @NotBlank
-    private Date date;
-
-    @Temporal(TemporalType.TIME)
-    @NotBlank
-    private Time time;
+    private LocalDateTime startTime;
 
     @DurationUnit(ChronoUnit.MINUTES)
     @NotBlank
@@ -39,9 +33,8 @@ public class Appointment {
     private String title;
     private String description;
 
-    public Appointment(Date date, Time time, long duration, AppointmentGroup appointmentGroup) {
-        this.date = date;
-        this.time = time;
+    public Appointment(LocalDateTime startTime, long duration, AppointmentGroup appointmentGroup) {
+        this.startTime = startTime;
         this.duration = duration;
         this.appointmentGroup = appointmentGroup;
     }

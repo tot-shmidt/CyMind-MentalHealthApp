@@ -17,6 +17,7 @@ public class AppointmentGroup {
     private long id;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(joinColumns = @JoinColumn(name = "professional_id"))
     @NotBlank
     private List<MentalHealthProfessional> professionalList;
 
