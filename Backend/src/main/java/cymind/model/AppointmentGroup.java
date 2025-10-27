@@ -1,5 +1,6 @@
 package cymind.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -29,6 +30,7 @@ public class AppointmentGroup {
     private String groupName;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
+    @JsonIgnore
     @Nullable
     private List<Appointment> appointments;
 

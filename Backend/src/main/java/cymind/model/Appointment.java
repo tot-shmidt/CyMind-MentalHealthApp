@@ -1,7 +1,8 @@
 package cymind.model;
 
+import cymind.enums.AppointmentStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.convert.DurationUnit;
@@ -17,17 +18,20 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @NotBlank
+    @NotNull
     private LocalDateTime startTime;
 
     @DurationUnit(ChronoUnit.MINUTES)
-    @NotBlank
+    @NotNull
     private long duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_group_id")
-    @NotBlank
+    @NotNull
     private AppointmentGroup appointmentGroup;
+
+    @NotNull
+    private AppointmentStatus status;
 
     private String location;
     private String title;
@@ -37,5 +41,6 @@ public class Appointment {
         this.startTime = startTime;
         this.duration = duration;
         this.appointmentGroup = appointmentGroup;
+        this.status = AppointmentStatus.UPCOMING;
     }
 }
