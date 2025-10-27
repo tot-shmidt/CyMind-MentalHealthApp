@@ -19,7 +19,7 @@ public class AppointmentGroup {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns = @JoinColumn(name = "professional_id"))
     @NotBlank
-    private List<MentalHealthProfessional> professionalList;
+    private List<MentalHealthProfessional> mentalHealthProfessionals;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
@@ -33,12 +33,12 @@ public class AppointmentGroup {
     private List<Appointment> appointment;
 
     public AppointmentGroup(List<MentalHealthProfessional> professionalList, Student student) {
-        this.professionalList = professionalList;
+        this.mentalHealthProfessionals = professionalList;
         this.student = student;
     }
 
     public AppointmentGroup(MentalHealthProfessional professional, Student student) {
-        this.professionalList = List.of(professional);
+        this.mentalHealthProfessionals = List.of(professional);
         this.student = student;
     }
 }
