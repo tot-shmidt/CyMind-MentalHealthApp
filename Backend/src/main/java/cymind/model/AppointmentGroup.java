@@ -2,7 +2,7 @@ package cymind.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,27 +18,23 @@ public class AppointmentGroup {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns = @JoinColumn(name = "professional_id"))
-    @NotBlank
+    @NotNull
     private List<MentalHealthProfessional> mentalHealthProfessionals;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
-    @NotBlank
+    @NotNull
     private Student student;
 
     private String groupName;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
     @Nullable
-    private List<Appointment> appointment;
+    private List<Appointment> appointments;
 
-    public AppointmentGroup(List<MentalHealthProfessional> professionalList, Student student) {
-        this.mentalHealthProfessionals = professionalList;
+    public AppointmentGroup(List<MentalHealthProfessional> professionals, Student student, String groupName) {
+        this.mentalHealthProfessionals = professionals;
         this.student = student;
-    }
-
-    public AppointmentGroup(MentalHealthProfessional professional, Student student) {
-        this.mentalHealthProfessionals = List.of(professional);
-        this.student = student;
+        this.groupName = groupName;
     }
 }
