@@ -1,11 +1,13 @@
 package cymind.service;
 
+import cymind.dto.appointment.AppointmentDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.Appointment;
 import cymind.model.AppointmentGroup;
 import cymind.model.MentalHealthProfessional;
+import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
@@ -21,25 +23,89 @@ public class AppointmentService {
     @Autowired
     private AppointmentRepository appointmentRepository;
 
-    @Transactional
-    public Appointment create(Appointment appointment) {
-        checkAuth(appointment.getAppointmentGroup());
+    @Autowired
+    private AppointmentGroupRepository appointmentGroupRepository;
 
-        return appointmentRepository.save(appointment);
+    @Transactional
+    public AppointmentDTO create(AppointmentDTO appointmentDTO) {
+        AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(appointmentDTO.appointmentGroupId().longValue());
+        if (appointmentGroup == null) {
+            throw new NoResultException("No appointment group found");
+        }
+
+        checkAuth(appointmentGroup);
+
+        Appointment appointment = new Appointment(appointmentDTO.startTime(), appointmentDTO.duration(), appointmentGroup);
+        appointment.setLocation(appointmentDTO.location());
+        appointment.setDescription(appointmentDTO.description());
+        appointment.setTitle(appointmentDTO.title());
+
+        return new AppointmentDTO(appointmentRepository.save(appointment));
     }
 
-    public Appointment checkStatus(long id) {
+    @Transactional
+    public AppointmentDTO get(long id) {
         Appointment appointment = appointmentRepository.findById(id);
         if (appointment == null) {
             throw new NoResultException("No appointment found");
         }
 
+        checkAuth(appointment.getAppointmentGroup());
+        appointment = checkStatus(appointment);
+
+        return new AppointmentDTO(appointment);
+    }
+
+    @Transactional
+    public AppointmentDTO update(long id, AppointmentDTO appointmentDTO) {
+        Appointment appointment = appointmentRepository.findById(id);
+        if (appointment == null) {
+            throw new NoResultException("No appointment found");
+        }
+
+        checkAuth(appointment.getAppointmentGroup());
+
+        AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(id);
+        if (appointmentGroup == null) {
+            throw new NoResultException("No appointment group found");
+        }
+
+        appointment = checkStatus(appointment);
+        appointment.setAppointmentGroup(appointmentGroup);
+        appointment.setStartTime(appointmentDTO.startTime());
+        appointment.setDuration(appointmentDTO.duration());
+        appointment.setLocation(appointmentDTO.location());
+        appointment.setDescription(appointmentDTO.description());
+        appointment.setTitle(appointmentDTO.title());
+
+        return new AppointmentDTO(appointmentRepository.save(appointment));
+    }
+
+    public void delete(long id) {
+        Appointment appointment = appointmentRepository.findById(id);
+        if (appointment == null) {
+            throw new NoResultException("No appointment found");
+        }
+
+        checkAuth(appointment.getAppointmentGroup());
+
+        appointmentRepository.delete(appointment);
+    }
+
+    /**
+     * Checks if the status of the appointment has changed.
+     *
+     * @param appointment
+     * @return
+     */
+    public Appointment checkStatus(Appointment appointment) {
         LocalDateTime endTime = appointment.getStartTime().plusMinutes(appointment.getDuration());
-        if (appointment.getStartTime().isBefore(LocalDateTime.now())) {
-            appointment.setStatus(AppointmentStatus.COMPLETED);
-        } else if (appointment.getStartTime().isBefore(appointment.getStartTime()) &&
+        // start time < current time < start time + duratio
+        if (appointment.getStartTime().isBefore(appointment.getStartTime()) &&
                 appointment.getStartTime().isAfter(endTime)) {
             appointment.setStatus(AppointmentStatus.IN_PROGRESS);
+        } else if (endTime.isBefore(LocalDateTime.now())) {
+                appointment.setStatus(AppointmentStatus.COMPLETED);
         } else {
             appointment.setStatus(AppointmentStatus.UPCOMING);
         }

@@ -25,7 +25,7 @@ public class Appointment {
     @NotNull
     private long duration;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinColumn(name = "appointment_group_id")
     @NotNull
     private AppointmentGroup appointmentGroup;
