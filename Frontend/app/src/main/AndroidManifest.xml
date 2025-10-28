@@ -30,19 +30,11 @@
             android:name=".LogInProfessional"
             android:exported="true">
         </activity>
-<<<<<<< HEAD
-
         <activity
             android:name=".SignUpProfessional"
             android:exported="true">
         </activity>
 
-=======
-<!--        <activity-->
-<!--            android:name=".SignUpProfessional"-->
-<!--            android:exported="true">-->
-<!--        </activity>-->
->>>>>>> f83619a (merge conflicts)
         <activity
             android:name=".GeneralFragmentActivity"
             android:exported="false">
