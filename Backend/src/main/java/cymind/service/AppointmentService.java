@@ -1,6 +1,7 @@
 package cymind.service;
 
 import cymind.dto.appointment.AppointmentDTO;
+import cymind.dto.appointment.AppointmentStatusDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
@@ -11,6 +12,8 @@ import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class AppointmentService {
     @Autowired
     private AppointmentRepository appointmentRepository;
@@ -92,6 +96,31 @@ public class AppointmentService {
         appointmentRepository.delete(appointment);
     }
 
+    public AppointmentDTO setStatus(long id, @Valid AppointmentStatusDTO status) {
+        Appointment appointment = appointmentRepository.findById(id);
+        if (appointment == null) {
+            throw new NoResultException("No appointment found");
+        }
+
+        checkAuth(appointment.getAppointmentGroup());
+
+        appointment.setStatus(status.status());
+        appointment.setStatusManuallyOverridden(true);
+
+        return new AppointmentDTO(appointmentRepository.save(appointment));
+    }
+
+    public AppointmentStatusDTO getStatus(long id) {
+        Appointment appointment = appointmentRepository.findById(id);
+        if (appointment == null) {
+            throw new NoResultException("No appointment found");
+        }
+
+        checkAuth(appointment.getAppointmentGroup());
+
+        return new AppointmentStatusDTO(checkStatus(appointment));
+    }
+
     /**
      * Checks if the status of the appointment has changed.
      *
@@ -99,10 +128,14 @@ public class AppointmentService {
      * @return
      */
     public Appointment checkStatus(Appointment appointment) {
+        if (appointment.isStatusManuallyOverridden()) {
+            return appointment;
+        }
+
         LocalDateTime endTime = appointment.getStartTime().plusMinutes(appointment.getDuration());
-        // start time < current time < start time + duratio
-        if (appointment.getStartTime().isBefore(appointment.getStartTime()) &&
-                appointment.getStartTime().isAfter(endTime)) {
+        // start time < current time < start time + duration
+        if (appointment.getStartTime().isBefore(LocalDateTime.now()) &&
+                endTime.isAfter(LocalDateTime.now())) {
             appointment.setStatus(AppointmentStatus.IN_PROGRESS);
         } else if (endTime.isBefore(LocalDateTime.now())) {
                 appointment.setStatus(AppointmentStatus.COMPLETED);

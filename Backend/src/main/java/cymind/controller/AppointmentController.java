@@ -1,8 +1,11 @@
 package cymind.controller;
 
 import cymind.dto.appointment.AppointmentDTO;
+import cymind.dto.appointment.AppointmentStatusDTO;
+import cymind.enums.AppointmentStatus;
 import cymind.service.AppointmentService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +21,19 @@ public class AppointmentController {
         return new ResponseEntity<>(appointmentService.create(appointmentDTO), HttpStatus.CREATED);
     }
 
+    @PostMapping("/appointments/{id}/status")
+    ResponseEntity<AppointmentDTO> setAppointmentStatus(@PathVariable long id, @RequestBody @Valid AppointmentStatusDTO status) {
+        return new ResponseEntity<>(appointmentService.setStatus(id, status), HttpStatus.OK);
+    }
+
     @GetMapping("/appointments/{id}")
     ResponseEntity<AppointmentDTO> getAppointment(@PathVariable long id) {
         return new ResponseEntity<>(appointmentService.get(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/appointments/{id}/status")
+    ResponseEntity<AppointmentStatusDTO> getAppointmentStatus(@PathVariable long id) {
+        return new ResponseEntity<>(appointmentService.getStatus(id), HttpStatus.OK);
     }
 
     @PutMapping("/appointments/{id}")

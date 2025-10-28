@@ -32,6 +32,7 @@ public class Appointment {
 
     @NotNull
     private AppointmentStatus status;
+    private boolean statusManuallyOverridden;
 
     private String location;
     private String title;
@@ -42,5 +43,6 @@ public class Appointment {
         this.duration = duration;
         this.appointmentGroup = appointmentGroup;
         this.status = AppointmentStatus.UPCOMING;
+        this.statusManuallyOverridden = false;
     }
 }
