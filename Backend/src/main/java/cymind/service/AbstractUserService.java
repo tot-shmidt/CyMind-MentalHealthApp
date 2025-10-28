@@ -1,8 +1,8 @@
 package cymind.service;
 
-import cymind.dto.AbstractUserDTO;
-import cymind.dto.CreateAbstractUserDTO;
-import cymind.dto.LoginAbstractUserDTO;
+import cymind.dto.user.AbstractUserDTO;
+import cymind.dto.user.CreateAbstractUserDTO;
+import cymind.dto.user.LoginAbstractUserDTO;
 import cymind.model.AbstractUser;
 import cymind.model.Student;
 import cymind.repository.AbstractUserRepository;
@@ -39,6 +39,10 @@ public class AbstractUserService {
 
     @Autowired
     private MoodEntryRepository moodEntryRepository;
+    @Autowired
+    private StudentService studentService;
+    @Autowired
+    private ProfessionalService professionalService;
 
     @Transactional
     public AbstractUserDTO createUser(CreateAbstractUserDTO createAbstractUserDTO) throws NonUniqueResultException {
@@ -107,10 +111,18 @@ public class AbstractUserService {
             throw new AccountNotFoundException("Could not find user with that id");
         }
 
-        Student student = studentRepository.findByAbstractUserId(id);
-        if (student != null) {
-            moodEntryRepository.deleteAllByStudent(student);
-            studentRepository.deleteById(student.getId());
+        AbstractUser abstractUser = abstractUserRepository.findById(id);
+        if (abstractUser.getUserType() != null) {
+            switch (abstractUser.getUserType()) {
+                case GUEST:
+                    break;
+                case STUDENT:
+                    studentService.remove(id);
+                    break;
+                case PROFESSIONAL:
+                    professionalService.remove(id);
+                    break;
+            }
         }
 
         log.info("Deleted User with id: {}", id);

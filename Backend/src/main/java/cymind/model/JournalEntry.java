@@ -31,11 +31,12 @@ public class JournalEntry {
 
     @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "mood_id")
-    @NotNull(message = "Student cannot be empty")
+    @NotNull(message = "Mood cannot be empty")
     @JsonIgnore
     private MoodEntry moodEntry;
 
     public JournalEntry(String entryName, String content, MoodEntry moodEntry) {
+        this.date = new Date();
         this.entryName = entryName;
         this.content = content;
         this.moodEntry = moodEntry;

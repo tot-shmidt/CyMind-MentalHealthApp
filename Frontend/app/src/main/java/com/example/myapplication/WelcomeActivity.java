@@ -47,7 +47,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
 
         buttonRegister.setOnClickListener(view -> {
-            Intent intent = new Intent(WelcomeActivity.this, SignUpActivity.class);
+            Intent intent = new Intent(WelcomeActivity.this, StudentSignUpActivity.class);
             startActivity(intent);
         });
 
@@ -55,7 +55,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
         buttonGuestSignin.setOnClickListener(view -> {
             // Takes guest users to homepage on guest user button click.
-            Intent intent1 = new Intent(WelcomeActivity.this, HomepageActivity.class);
+            Intent intent1 = new Intent(WelcomeActivity.this, GeneralFragmentActivity.class);
             startActivity(intent1);
             // pass info so system knows it is a guest user
         });
@@ -88,7 +88,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     userAge = response.optInt("age");
                     Authorization.globalUserEmail = userEmail;
                     Authorization.globalPassword = editTextPassword.getText().toString();
-                    Intent intent2 = new Intent(WelcomeActivity.this, HomepageActivity.class);
+                    Intent intent2 = new Intent(WelcomeActivity.this, GeneralFragmentActivity.class);
                     intent2.putExtra( "userFirstName", userFirstName);
                     intent2.putExtra( "userLastName", userLastName);
                     intent2.putExtra("userEmail", userEmail);

@@ -30,12 +30,13 @@ import java.util.List;
 import java.util.Map;
 public class MoodActivity extends AppCompatActivity {
 
-    // TODO: DECLARE PRIVATE VARIABLES
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
     private int userID;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
+    private String userMajor;
+    private int userYearOfStudy;
     private int userAge;
     private int moodId;
     private TextView moodDataText;
@@ -58,6 +59,8 @@ public class MoodActivity extends AppCompatActivity {
         userAge = getIntent().getIntExtra("userAge", 0);
         userFirstName = getIntent().getStringExtra("userFirstName");
         userLastName = getIntent().getStringExtra("userLastName");
+        userMajor = getIntent().getStringExtra("userMajor");
+        userYearOfStudy = getIntent().getIntExtra("userYearOfStudy", 0);
 
         moodId = getIntent().getIntExtra("moodId", -1);
         Button buttonReturn = findViewById(R.id.returnButton);
@@ -75,7 +78,7 @@ public class MoodActivity extends AppCompatActivity {
         // If user is a guest, send them back to the homepage
         if (userID == 0) {
             Toast.makeText(this, "You are not signed in. Please log in to record your mood.", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(MoodActivity.this, HomepageActivity.class);
+            Intent intent = new Intent(MoodActivity.this, GeneralFragmentActivity.class);
             intent.putExtra("userID", userID);
             startActivity(intent);
             return;
@@ -87,12 +90,14 @@ public class MoodActivity extends AppCompatActivity {
 
         // Return to homepage
         buttonReturn.setOnClickListener(view -> {
-            Intent intent = new Intent(MoodActivity.this, HomepageActivity.class);
+            Intent intent = new Intent(MoodActivity.this, GeneralFragmentActivity.class);
             intent.putExtra( "userFirstName", userFirstName);
             intent.putExtra( "userLastName", userLastName);
             intent.putExtra("userEmail", userEmail);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
+            intent.putExtra("userYearOfStudy", userYearOfStudy);
+            intent.putExtra("userMajor", userMajor);
             startActivity(intent);
         });
 

@@ -1,7 +1,8 @@
 package cymind.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import cymind.dto.AbstractUserDTO;
+import cymind.dto.user.AbstractUserDTO;
+import cymind.enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,7 +28,7 @@ public class AbstractUser implements UserDetails {
 	 */
     @Id  // Field below will be a primary key for the table.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	/**
 	 * First name of the user.
 	 */
@@ -57,6 +58,8 @@ public class AbstractUser implements UserDetails {
     @JsonIgnore
     @NotBlank
     private String passwordHash;
+
+    private UserType userType;
 
     // ========== Constructors ==========
     /**

@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity
+<<<<<<< HEAD
             android:name=".WelcomeActivity"
             android:exported="true">
         </activity>
@@ -36,11 +37,11 @@
         </activity>
 
         <activity
-            android:name=".HomepageActivity"
+            android:name=".GeneralFragmentActivity"
             android:exported="false">
         </activity>
         <activity
-            android:name=".ProfileActivity"
+            android:name=".StudentProfileActivity"
             android:exported="false">
         </activity>
         <activity
@@ -48,7 +49,7 @@
             android:exported="false">
         </activity>
         <activity
-            android:name=".SignUpActivity"
+            android:name=".StudentSignUpActivity"
             android:exported="false" />
     </application>
 
