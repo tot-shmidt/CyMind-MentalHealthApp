@@ -67,7 +67,8 @@ public class ChatServer {
             usernameSessionMap.put(username, session);
 
             // send to the user joining in
-            sendMessageToPArticularUser(username, "Welcome to the chat server, "+username);
+            sendMessageToPArticularUser(username, "Welcome to the chat server, "+username
+                    + "! (\nPress /online for online users or /name to plug in your name.)");
 
             // send to everyone in the chat
             broadcast("User: " + username + " has Joined the Chat");
@@ -89,8 +90,23 @@ public class ChatServer {
         // server side log
         logger.info("[onMessage] " + username + ": " + message);
 
+        // To print online users
+        if (message.equals("/online")) {
+            String usersOnline = String.join("; ", usernameSessionMap.keySet());
+            sendMessageToPArticularUser(username, "Online now: " + usersOnline);
+        }
+
+        // To plug in your nickname instead of "/name"
+        else if (message.startsWith("/name")) {
+            String coreMessage = message.substring("/name".length());
+
+            //New updated message
+            String updatedMessage = username + " " + coreMessage;
+            broadcast(updatedMessage);
+        }
+
         // Direct message to a user using the format "@username <message>"
-        if (message.startsWith("@")) {
+        else if (message.startsWith("@")) {
 
             // split by space
             String[] split_msg =  message.split("\\s+");
