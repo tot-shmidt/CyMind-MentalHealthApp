@@ -197,7 +197,7 @@
             android:layout_width="250dp"
             android:layout_height="50dp"
             android:hint="Enter license number"
-            android:inputType="number" >
+            android:inputType="text" >
         </EditText>
 
     </LinearLayout>

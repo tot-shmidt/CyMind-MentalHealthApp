@@ -195,20 +195,14 @@ public class SignUpProfessional extends AppCompatActivity{
 
     private void submitProfessionalInfo(int userId) {
         String jobTitle = editTextJobTitle.getText().toString().trim();
-        int licenseNumber;
-        try {
-            licenseNumber = Integer.parseInt(editTextLicenseNum.getText().toString().trim());
-        } catch (NumberFormatException e) {
-            editTextAge.setError("Age needs to be an integer.");
-            return;
-        }
+        String licenseNumber = editTextLicenseNum.getText().toString().trim();
 
 
         JSONObject requestStudent = new JSONObject();
         //try to pass the credentials into designated parameters
         try {
             requestStudent.put("jobTitle", jobTitle);
-            requestStudent.put("licenseNumer", licenseNumber);
+            requestStudent.put("licenseNumber", licenseNumber);
             requestStudent.put("userId", userId);
         }
         //catch it if errors occur when requesting
@@ -218,11 +212,11 @@ public class SignUpProfessional extends AppCompatActivity{
         }
 
         //connect to server with sign up POST endpoint (created from backend)
-        String postStudentURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/professional";
+        String postProfURL = "http://coms-3090-066.class.las.iastate.edu:8080/users/professional";
 
-        JsonObjectRequest postStudent = new JsonObjectRequest(Request.Method.POST, postStudentURL, requestStudent,
-                jsonObject -> Log.d("POSTStudent", "Professional info sent."),
-                volleyError -> Log.e("POSTStudent", "Error occured sending user info.")
+        JsonObjectRequest postStudent = new JsonObjectRequest(Request.Method.POST, postProfURL, requestStudent,
+                jsonObject -> Log.d("POSTProf", "Professional info sent."),
+                volleyError -> Log.e("POSTProf", "Error occured sending professional user info.")
         ) {
             @Override
             public Map<String, String> getHeaders() {
