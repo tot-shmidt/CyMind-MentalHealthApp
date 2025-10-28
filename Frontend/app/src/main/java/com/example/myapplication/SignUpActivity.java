@@ -47,7 +47,6 @@ public class SignUpActivity extends AppCompatActivity {
         Button buttonRegister = findViewById(R.id.register);
         Button buttonUserSignin = findViewById(R.id.userSignup);
         Button buttonGuestSignin = findViewById(R.id.guestSignin);
-        Button buttonProfessionalSignin = findViewById(R.id.professionalSignin);
 
 
         buttonRegister.setOnClickListener(view -> {
@@ -191,9 +190,6 @@ public class SignUpActivity extends AppCompatActivity {
             // TODO: navigate to homepage without user abilities
         });
 
-        buttonProfessionalSignin.setOnClickListener(view -> {
-            // TODO: navigate to professionals sign in page when made
-        });
 
     }
 
