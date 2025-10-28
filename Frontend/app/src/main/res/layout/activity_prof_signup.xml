@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:context=".StudentSignUpActivity"
+    tools:context=".SignUpProfessional"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical">
@@ -12,10 +12,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Student Sign up"
+        android:text=" Professional Sign up"
         android:layout_gravity="center"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="40dp"
         android:textSize="30dp"
         android:textColor="#000000">
     </TextView>
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <TextView
@@ -50,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <TextView
@@ -77,7 +77,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <TextView
@@ -102,7 +102,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <TextView
@@ -128,59 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Major: "
-            android:textSize="20dp"
-            android:textColor="#000000">
-        </TextView>
-
-
-        <EditText
-            android:id="@+id/editTextMajor"
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:hint="Enter major"
-            android:inputType="text" >
-        </EditText>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Year of Study: "
-            android:textSize="20dp"
-            android:textColor="#000000">
-        </TextView>
-
-
-        <EditText
-            android:id="@+id/editTextYearOfStudy"
-            android:layout_width="250dp"
-            android:layout_height="50dp"
-            android:hint="Enter year of study (1-4)"
-            android:inputType="number">
-        </EditText>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <TextView
@@ -202,6 +150,58 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Job Title: "
+            android:textSize="20dp"
+            android:textColor="#000000">
+        </TextView>
+
+
+        <EditText
+            android:id="@+id/editTextJobTitle"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:hint="Enter job title"
+            android:inputType="text" >
+        </EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="License Number: "
+            android:textSize="20dp"
+            android:textColor="#000000">
+        </TextView>
+
+
+        <EditText
+            android:id="@+id/editTextLicenseNum"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:hint="Enter license number"
+            android:inputType="text" >
+        </EditText>
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/userSignup"
         android:layout_width="200dp"
@@ -212,6 +212,40 @@
         android:layout_gravity="center"
         android:backgroundTint="#C8102E"
         android:text="Sign Up" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:backgroundTint="#C8102E"
+            android:text="Register" />
+
+        <Button
+            android:id="@+id/guestSignin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:backgroundTint="#C8102E"
+            android:text="Guest" />
+
+        <Button
+            android:id="@+id/professionalSignin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:backgroundTint="#C8102E"
+            android:text="Professional" />
+    </LinearLayout>
+
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

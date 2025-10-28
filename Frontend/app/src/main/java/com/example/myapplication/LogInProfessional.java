@@ -1,5 +1,4 @@
 package com.example.myapplication;
-
 import static android.widget.Toast.makeText;
 
 import android.content.Intent;
@@ -19,9 +18,7 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-public class WelcomeActivity extends AppCompatActivity {
-
+public class LogInProfessional extends AppCompatActivity{
     private static final String URL_LOGIN = "http://coms-3090-066.class.las.iastate.edu:8080/login";
     private EditText editTextEmail;
     private EditText editTextPassword;
@@ -35,7 +32,7 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_prof_login);
 
         // View initializations
         editTextEmail = findViewById(R.id.editTextEmail);
@@ -45,9 +42,8 @@ public class WelcomeActivity extends AppCompatActivity {
         Button buttonGuestSignin = findViewById(R.id.guestSignin);
 
 
-
         buttonRegister.setOnClickListener(view -> {
-            Intent intent = new Intent(WelcomeActivity.this, StudentSignUpActivity.class);
+            Intent intent = new Intent(LogInProfessional.this, SignUpProfessional.class);
             startActivity(intent);
         });
 
@@ -55,7 +51,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
         buttonGuestSignin.setOnClickListener(view -> {
             // Takes guest users to homepage on guest user button click.
-            Intent intent1 = new Intent(WelcomeActivity.this, GeneralFragmentActivity.class);
+            Intent intent1 = new Intent(LogInProfessional.this, HomepageActivity.class);
             startActivity(intent1);
             // pass info so system knows it is a guest user
         });
@@ -88,7 +84,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     userAge = response.optInt("age");
                     Authorization.globalUserEmail = userEmail;
                     Authorization.globalPassword = editTextPassword.getText().toString();
-                    Intent intent2 = new Intent(WelcomeActivity.this, GeneralFragmentActivity.class);
+                    Intent intent2 = new Intent(LogInProfessional.this, HomepageActivity.class);
                     intent2.putExtra( "userFirstName", userFirstName);
                     intent2.putExtra( "userLastName", userLastName);
                     intent2.putExtra("userEmail", userEmail);
@@ -128,3 +124,5 @@ public class WelcomeActivity extends AppCompatActivity {
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
 }
+
+

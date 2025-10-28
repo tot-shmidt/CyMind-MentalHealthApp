@@ -15,13 +15,27 @@
         android:theme="@style/Theme.Demo"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".WelcomeActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+<<<<<<< HEAD
+            android:name=".WelcomeActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".LogInProfessional"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".SignUpProfessional"
+            android:exported="true">
+        </activity>
+
         <activity
             android:name=".GeneralFragmentActivity"
             android:exported="false">
