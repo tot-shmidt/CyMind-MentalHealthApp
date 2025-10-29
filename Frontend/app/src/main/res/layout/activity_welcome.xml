@@ -31,11 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_gravity="center"
-<<<<<<< HEAD
             android:text="Student Sign-in"
-=======
-            android:text="User Sign-in"
->>>>>>> f83619a (merge conflicts)
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
