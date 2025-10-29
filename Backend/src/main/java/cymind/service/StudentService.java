@@ -1,6 +1,6 @@
 package cymind.service;
 
-import cymind.dto.StudentDTO;
+import cymind.dto.user.StudentDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.Student;

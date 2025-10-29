@@ -1,12 +1,15 @@
 package cymind.controller;
 
-import cymind.dto.ProfessionalDTO;
+import cymind.dto.user.ProfessionalDTO;
+import cymind.dto.user.ProfessionalPublicDTO;
 import cymind.service.ProfessionalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class ProfessionalController {
@@ -18,8 +21,13 @@ public class ProfessionalController {
         return new ResponseEntity<>(professionalService.addProfessionalToUser(professionalDTO), HttpStatus.CREATED);
     }
 
+    @GetMapping("/users/professional")
+    ResponseEntity<List<ProfessionalPublicDTO>> getAllProfessionals() {
+        return new ResponseEntity<>(professionalService.getAll(), HttpStatus.OK);
+    }
+
     @GetMapping("/users/professional/{id}")
-    ResponseEntity<ProfessionalDTO> getProfessional(@PathVariable long id) {
+    ResponseEntity<?> getProfessional(@PathVariable long id) {
         return new ResponseEntity<>(professionalService.get(id), HttpStatus.OK);
     }
 

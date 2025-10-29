@@ -1,6 +1,7 @@
 package cymind.service;
 
-import cymind.dto.ProfessionalDTO;
+import cymind.dto.user.ProfessionalDTO;
+import cymind.dto.user.ProfessionalPublicDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.MentalHealthProfessional;
@@ -15,6 +16,9 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -49,15 +53,25 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public ProfessionalDTO get(long id) {
-        checkAuth(id);
+    public List<ProfessionalPublicDTO> getAll() {
+        List<MentalHealthProfessional> professionals = mentalHealthProfessionalRepository.findAll();
 
+        return professionals.stream().map(ProfessionalPublicDTO::new).toList();
+    }
+
+    @Transactional
+    public Record get(long id) {
         MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
         if (professional == null) {
             throw new NoResultException("Professional not found");
         }
 
-        return new ProfessionalDTO(professional);
+        try {
+            checkAuth(id);
+            return new ProfessionalDTO(professional);
+        } catch (AuthorizationDeniedException e) {
+            return new ProfessionalPublicDTO(professional);
+        }
     }
 
     @Transactional

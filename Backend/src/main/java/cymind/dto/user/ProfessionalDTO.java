@@ -1,4 +1,4 @@
-package cymind.dto;
+package cymind.dto.user;
 
 import cymind.model.MentalHealthProfessional;
 import jakarta.validation.constraints.NotNull;

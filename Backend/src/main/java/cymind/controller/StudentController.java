@@ -1,6 +1,6 @@
 package cymind.controller;
 
-import cymind.dto.StudentDTO;
+import cymind.dto.user.StudentDTO;
 import cymind.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
