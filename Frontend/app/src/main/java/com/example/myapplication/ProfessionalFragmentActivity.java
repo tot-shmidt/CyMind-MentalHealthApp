@@ -21,8 +21,8 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
-        Fragment homeFragment = new GeneralHomeFragment();
-        Fragment resourceFragment = new GeneralResourceFragment();
+        Fragment homeFragment = new StudentHomeFragment();
+        Fragment resourceFragment = new StudentResourceFragment();
         Fragment chatFragment = new StudentChatFragment();
         Fragment appointmentFragment = new StudentAppointmentFragment();
 

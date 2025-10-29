@@ -23,7 +23,6 @@
             </intent-filter>
         </activity>
         <activity
-<<<<<<< HEAD
             android:name=".WelcomeActivity"
             android:exported="true">
         </activity>
@@ -31,6 +30,7 @@
             android:name=".LogInProfessional"
             android:exported="true">
         </activity>
+
         <activity
             android:name=".SignUpProfessional"
             android:exported="true">
