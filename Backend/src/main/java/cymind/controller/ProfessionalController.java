@@ -22,8 +22,16 @@ public class ProfessionalController {
     }
 
     @GetMapping("/users/professional")
-    ResponseEntity<List<ProfessionalPublicDTO>> getAllProfessionals() {
-        return new ResponseEntity<>(professionalService.getAll(), HttpStatus.OK);
+    ResponseEntity<List<ProfessionalPublicDTO>> getAllProfessionals(@RequestParam(required = false) String name, @RequestParam(required = false) Integer num) {
+        if (num == null) {
+            num = -1;
+        }
+
+        if (name != null && !name.isBlank()) {
+            return new ResponseEntity<>(professionalService.getAll(name, num), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(professionalService.getAll(num), HttpStatus.OK);
+        }
     }
 
     @GetMapping("/users/professional/{id}")

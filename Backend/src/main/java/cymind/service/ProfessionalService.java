@@ -53,10 +53,38 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public List<ProfessionalPublicDTO> getAll() {
-        List<MentalHealthProfessional> professionals = mentalHealthProfessionalRepository.findAll();
+    public List<ProfessionalPublicDTO> getAll(int num) {
+        List<ProfessionalPublicDTO> professionals = mentalHealthProfessionalRepository.findAll().stream()
+                .map(ProfessionalPublicDTO::new)
+                .toList();
 
-        return professionals.stream().map(ProfessionalPublicDTO::new).toList();
+        if (num > 0) {
+            return professionals.subList(0, Math.min(num, professionals.size()));
+        } else {
+            return professionals;
+        }
+    }
+
+    @Transactional
+    public List<ProfessionalPublicDTO> getAll(String name, int num) {
+        List<MentalHealthProfessional> professionals;
+        String[] nameParts = name.split(" ");
+        if (nameParts.length > 1) {
+            String firstName = nameParts[0];
+            String lastName = nameParts[1];
+            professionals = mentalHealthProfessionalRepository.findByAbstractUser_FirstNameContainingAndAbstractUser_LastNameContainingOrderByAbstractUser(firstName, lastName);
+        } else {
+            professionals = mentalHealthProfessionalRepository.findByName(name);
+        }
+
+        List<ProfessionalPublicDTO> professionalPublicDTOs = professionals.stream()
+                .map(ProfessionalPublicDTO::new)
+                .toList();
+        if (num > 0) {
+            return professionalPublicDTOs.subList(0, Math.min(num, professionals.size()));
+        } else {
+            return professionalPublicDTOs;
+        }
     }
 
     @Transactional
