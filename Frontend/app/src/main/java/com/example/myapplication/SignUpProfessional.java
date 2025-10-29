@@ -150,7 +150,7 @@ public class SignUpProfessional extends AppCompatActivity{
                                     "\nFirst Name: " + firstName + "\nLast Name: " + lastName + "\nAge: " + age, Toast.LENGTH_LONG).show();
 
                             //Use intent to go to the next page, in this case the home page
-                            Intent intent = new Intent(SignUpProfessional.this, HomepageActivity.class);
+                            Intent intent = new Intent(SignUpProfessional.this, GeneralFragmentActivity.class);
 
                             //send user email and pass and other vals to homepage
                             intent.putExtra("userID", id);
