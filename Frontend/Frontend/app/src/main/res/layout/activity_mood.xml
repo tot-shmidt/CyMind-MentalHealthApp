@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".StudentProfileActivity"
+    android:background="@color/colorAccent">
+
+    <Button
+        android:id="@+id/returnButton"
+        android:layout_width="75dip"
+        android:layout_height="75dip"
+        android:text="X"
+        android:textSize="18pt"
+        android:layout_marginTop="10dip"
+        android:layout_marginStart="-10dp"
+        android:paddingRight="7dp"
+        android:paddingTop="0dp"
+        app:cornerRadius="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/moodData"
+        android:layout_width="match_parent"
+        android:layout_height="450px"
+        android:text="[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]"
+        android:textSize="11pt"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/returnButton" />
+
+    <LinearLayout
+        android:id="@+id/moodLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/moodData">
+
+
+        <EditText
+            android:id="@+id/updateMoodIdEditText"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="ID to Update" />
+
+        <EditText
+            android:id="@+id/updateMoodRatingEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="Update to: (0 to delete)" />
+
+        <RadioButton
+            android:id="@+id/updateMoodSubmitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Submit" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/journalData"
+        android:layout_width="match_parent"
+        android:layout_height="450px"
+        android:text="[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]"
+        android:textSize="11pt"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/moodLinearLayout"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/journalData">
+
+
+        <EditText
+            android:id="@+id/updateJournalIdEditText"
+            android:layout_width="300px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="number"
+            android:hint="ID to Update" />
+
+        <EditText
+            android:id="@+id/updateJournalEntryEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:hint="Update to: (or 0 to delete)" />
+
+        <RadioButton
+            android:id="@+id/updateJournalSubmitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Submit" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
