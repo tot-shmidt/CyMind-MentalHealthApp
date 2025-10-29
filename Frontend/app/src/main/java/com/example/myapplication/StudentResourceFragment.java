@@ -145,17 +145,18 @@ public class StudentResourceFragment extends Fragment {
                     try {
                         // Parse the single resource object
                         String title = response.getString("articleName");
-                        int author = response.getInt("authorId");
+                        int authorId = response.getInt("authorId");
+                        String author = response.getString("author");
                         String category1 = response.optString("category1", "");
                         String category2 = response.optString("category2", "");
                         String category3 = response.optString("category3", "");
                         String description = response.getString("content");
 
                         String categories = category1;
-                        if (!category2.equals(null)) categories += ", " + category2;
-                        if (!category3.equals(null)) categories += (category2.equals(null) ? ", " : ", and ") + category3;
+                        if (!category2.equals("null")) categories += ", " + category2;
+                        if (!category3.equals("null")) categories += ", " + category3;
 
-                        Resource resource = new Resource(title, author, categories, description);
+                        Resource resource = new Resource(title, authorId, author, categories, description);
                         resources.add(resource);
                         resourceAdapter.notifyItemInserted(resources.size() - 1); // Updates RecyclerView
 

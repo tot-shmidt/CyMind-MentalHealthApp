@@ -44,7 +44,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         Resource resource = resourceList.get(position);
         holder.title.setText(resource.getTitle());
-        holder.author.setText(resource.getAuthorId());
+        holder.author.setText(resource.getAuthor());
         holder.categories.setText(resource.getCategories());
 
         // Entire card clickable
@@ -62,7 +62,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
         TextView description = dialogView.findViewById(R.id.dialogDescription);
 
         title.setText(resource.getTitle());
-        author.setText("By " + resource.getAuthorId());
+        author.setText("By " + resource.getAuthor());
         categories.setText(resource.getCategories());
         description.setText(resource.getDescription());
 
