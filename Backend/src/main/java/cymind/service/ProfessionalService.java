@@ -1,7 +1,7 @@
 package cymind.service;
 
 import cymind.dto.user.ProfessionalDTO;
-import cymind.dto.user.ProfessionalPublicDTO;
+import cymind.dto.user.PublicUserDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.MentalHealthProfessional;
@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -53,9 +52,9 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public List<ProfessionalPublicDTO> getAll(int num) {
-        List<ProfessionalPublicDTO> professionals = mentalHealthProfessionalRepository.findAll().stream()
-                .map(ProfessionalPublicDTO::new)
+    public List<PublicUserDTO> getAll(int num) {
+        List<PublicUserDTO> professionals = mentalHealthProfessionalRepository.findAll().stream()
+                .map(PublicUserDTO::new)
                 .toList();
 
         if (num > 0) {
@@ -66,7 +65,7 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public List<ProfessionalPublicDTO> getAll(String name, int num) {
+    public List<PublicUserDTO> getAll(String name, int num) {
         List<MentalHealthProfessional> professionals;
         String[] nameParts = name.split(" ");
         if (nameParts.length > 1) {
@@ -77,8 +76,8 @@ public class ProfessionalService {
             professionals = mentalHealthProfessionalRepository.findByName(name);
         }
 
-        List<ProfessionalPublicDTO> professionalPublicDTOs = professionals.stream()
-                .map(ProfessionalPublicDTO::new)
+        List<PublicUserDTO> professionalPublicDTOs = professionals.stream()
+                .map(PublicUserDTO::new)
                 .toList();
         if (num > 0) {
             return professionalPublicDTOs.subList(0, Math.min(num, professionals.size()));
@@ -98,7 +97,7 @@ public class ProfessionalService {
             checkAuth(id);
             return new ProfessionalDTO(professional);
         } catch (AuthorizationDeniedException e) {
-            return new ProfessionalPublicDTO(professional);
+            return new PublicUserDTO(professional);
         }
     }
 

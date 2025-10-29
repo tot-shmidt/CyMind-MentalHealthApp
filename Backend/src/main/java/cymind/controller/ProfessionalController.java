@@ -1,7 +1,7 @@
 package cymind.controller;
 
 import cymind.dto.user.ProfessionalDTO;
-import cymind.dto.user.ProfessionalPublicDTO;
+import cymind.dto.user.PublicUserDTO;
 import cymind.service.ProfessionalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class ProfessionalController {
     }
 
     @GetMapping("/users/professional")
-    ResponseEntity<List<ProfessionalPublicDTO>> getAllProfessionals(@RequestParam(required = false) String name, @RequestParam(required = false) Integer num) {
+    ResponseEntity<List<PublicUserDTO>> getAllProfessionals(@RequestParam(required = false) String name, @RequestParam(required = false) Integer num) {
         if (num == null) {
             num = -1;
         }
