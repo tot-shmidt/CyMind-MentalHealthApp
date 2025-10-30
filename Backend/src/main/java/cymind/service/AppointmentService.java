@@ -4,12 +4,11 @@ import cymind.dto.appointment.AppointmentDTO;
 import cymind.dto.appointment.AppointmentStatusDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
-import cymind.model.AbstractUser;
-import cymind.model.Appointment;
-import cymind.model.AppointmentGroup;
-import cymind.model.MentalHealthProfessional;
+import cymind.model.*;
 import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
+import cymind.repository.MentalHealthProfessionalRepository;
+import cymind.repository.StudentRepository;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -20,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -29,6 +29,10 @@ public class AppointmentService {
 
     @Autowired
     private AppointmentGroupRepository appointmentGroupRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private MentalHealthProfessionalRepository mentalHealthProfessionalRepository;
 
     @Transactional
     public AppointmentDTO create(AppointmentDTO appointmentDTO) {
@@ -58,6 +62,36 @@ public class AppointmentService {
         appointment = checkStatus(appointment);
 
         return new AppointmentDTO(appointment);
+    }
+
+    public List<AppointmentDTO> getByUserPrincipal(int num, List<AppointmentStatus> status) {
+        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Appointment> appointmentList;
+
+        if (authedUser.getUserType() == UserType.STUDENT) {
+            Student student = studentRepository.findByAbstractUserId(authedUser.getId());
+            if (status != null) {
+                appointmentList = appointmentRepository.findAllByAppointmentGroup_StudentAndStatusInOrderByStartTimeAsc(student, status);
+            } else {
+                appointmentList = appointmentRepository.findAllByAppointmentGroup_StudentOrderByStartTimeAsc(student);
+            }
+        } else if (authedUser.getUserType() == UserType.PROFESSIONAL) {
+            MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(authedUser.getId());
+            if (status != null) {
+                appointmentList = appointmentRepository.findAllByAppointmentGroup_MentalHealthProfessionalsContainingAndStatusInOrderByStartTimeAsc(professional, status);
+            } else {
+                appointmentList = appointmentRepository.findAllByAppointmentGroup_MentalHealthProfessionalsContainingOrderByStartTimeAsc(professional);
+            }
+        } else {
+            throw new AuthorizationDeniedException("Not a valid user type");
+        }
+
+        List<AppointmentDTO> appointmentDTOs = appointmentList.stream().map(AppointmentDTO::new).toList();
+        if (num > 0) {
+            return appointmentDTOs.subList(0, Math.min(num, appointmentDTOs.size()));
+        } else {
+            return appointmentDTOs;
+        }
     }
 
     @Transactional
