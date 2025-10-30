@@ -41,6 +41,10 @@
             android:exported="false">
         </activity>
         <activity
+            android:name=".ProfessionalFragmentActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".StudentProfileActivity"
             android:exported="false">
         </activity>

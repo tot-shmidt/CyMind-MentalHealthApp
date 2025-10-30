@@ -12,6 +12,7 @@ import java.util.List;
 public interface MentalHealthProfessionalRepository extends JpaRepository<MentalHealthProfessional, Long> {
     MentalHealthProfessional findById(long id);
     MentalHealthProfessional findByAbstractUserId(long id);
+    List<MentalHealthProfessional> findAllByAbstractUserIdIn(List<Long> ids);
     List<MentalHealthProfessional> findByAbstractUser_FirstNameContainingAndAbstractUser_LastNameContainingOrderByAbstractUser(String firstName, String lastName);
 
     @Query("SELECT u FROM MentalHealthProfessional u WHERE u.abstractUser.firstName LIKE %:name% OR u.abstractUser.lastName LIKE %:name%")

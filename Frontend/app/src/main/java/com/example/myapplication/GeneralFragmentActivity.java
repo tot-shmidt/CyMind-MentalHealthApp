@@ -22,7 +22,8 @@ public class GeneralFragmentActivity extends AppCompatActivity {
         Fragment homeFragment = new StudentHomeFragment();
         Fragment resourceFragment = new StudentResourceFragment();
         Fragment chatFragment = new StudentChatFragment();
-        Fragment appointmentFragment = new StudentAppointmentFragment();
+        //Fragment appointmentFragment = new StudentAppointmentFragment();
+        Fragment appointmentListFragment = new AppointmentListFragment();
 
         //create bundle of values as arguments
         Bundle bund = new Bundle();
@@ -33,6 +34,7 @@ public class GeneralFragmentActivity extends AppCompatActivity {
         bund.putInt("userAge", userAge);
         bund.putInt("userID", userID);
         homeFragment.setArguments(bund);
+        appointmentListFragment.setArguments(bund);
 
         setCurrentFragment(homeFragment);
 
@@ -46,7 +48,7 @@ public class GeneralFragmentActivity extends AppCompatActivity {
             } else if (itemId == R.id.chat) {
                 setCurrentFragment(chatFragment);
             } else if (itemId == R.id.appt) {
-                setCurrentFragment(appointmentFragment);
+                setCurrentFragment(appointmentListFragment);
             }
             return true;
         });

@@ -51,7 +51,7 @@ public class LogInProfessional extends AppCompatActivity{
 
         buttonGuestSignin.setOnClickListener(view -> {
             // Takes guest users to homepage on guest user button click.
-            Intent intent1 = new Intent(LogInProfessional.this, GeneralFragmentActivity.class);
+            Intent intent1 = new Intent(LogInProfessional.this, ProfessionalFragmentActivity.class);
             startActivity(intent1);
             // pass info so system knows it is a guest user
         });
@@ -84,7 +84,7 @@ public class LogInProfessional extends AppCompatActivity{
                     userAge = response.optInt("age");
                     Authorization.globalUserEmail = userEmail;
                     Authorization.globalPassword = editTextPassword.getText().toString();
-                    Intent intent2 = new Intent(LogInProfessional.this, GeneralFragmentActivity.class);
+                    Intent intent2 = new Intent(LogInProfessional.this, ProfessionalFragmentActivity.class);
                     intent2.putExtra( "userFirstName", userFirstName);
                     intent2.putExtra( "userLastName", userLastName);
                     intent2.putExtra("userEmail", userEmail);
