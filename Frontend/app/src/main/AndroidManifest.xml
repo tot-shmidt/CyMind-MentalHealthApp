@@ -55,6 +55,10 @@
             android:exported="false">
         </activity>
         <activity
+            android:name=".UpdateResourceActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".StudentSignUpActivity"
             android:exported="false" />
     </application>

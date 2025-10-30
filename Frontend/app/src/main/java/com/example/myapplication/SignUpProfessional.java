@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-public class SignUpProfessional extends AppCompatActivity{
+public class SignUpProfessional extends AppCompatActivity {
     private EditText editTextFirstName;
 
     private EditText editTextLastName;

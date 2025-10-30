@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import static com.example.myapplication.Authorization.generateAuthToken;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -205,8 +206,18 @@ public class ProfessionalResourceFragment extends Fragment {
             .setMessage("Select an action for this resource.")
             .setPositiveButton("Update", (dialog, which) -> {
                 // TODO implement update resource
-                UpdateResourceActivity dialogFragment = new UpdateResourceActivity();
-                dialogFragment.show(requireActivity().getSupportFragmentManager(), "full_screen_dialog_tag");
+                //Use intent to go to the next page, in this case the home page
+                Intent intent = new Intent(getActivity(), UpdateResourceActivity.class);
+
+                //send user email and pass and other vals to homepage
+                intent.putExtra("resourceId", resource.getId());
+                intent.putExtra("resourceAuthorId", resource.getAuthorId());
+                intent.putExtra("resourceAuthor", resource.getAuthor());
+                intent.putExtra("resourceTitle", resource.getTitle());
+                intent.putExtra("resourceCategories", resource.getCategories());
+                intent.putExtra("resourceContent", resource.getDescription());
+
+                startActivity(intent);
             })
             .setNegativeButton("Delete", (dialog, which) -> {
                 deleteResource(resource, position);

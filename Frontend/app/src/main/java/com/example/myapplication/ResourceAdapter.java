@@ -49,8 +49,12 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Resource resource = resourceList.get(position);
-        holder.title.setText(resource.getTitle());
-        holder.author.setText(resource.getAuthor());
+
+        holder.title.setText(resource.getTitle() != null ? resource.getTitle() : "");
+        holder.author.setText(resource.getAuthor() != null ? resource.getAuthor() : "");
+        holder.categories.setText(resource.getCategories() != null ? resource.getCategories() : "");
+        holder.preview.setText(resource.getDescription() != null ? resource.getDescription() : "");
+
 
         holder.itemView.setOnClickListener(v -> {
             if (isProfessional) {

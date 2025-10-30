@@ -96,7 +96,7 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/majorEditText"
+                android:id="@+id/contentEditText"
                 android:layout_width="380dip"
                 android:layout_height="200dip"
                 android:layout_gravity="center_horizontal"
