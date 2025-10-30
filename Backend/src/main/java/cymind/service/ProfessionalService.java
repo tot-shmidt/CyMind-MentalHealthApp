@@ -1,6 +1,7 @@
 package cymind.service;
 
-import cymind.dto.ProfessionalDTO;
+import cymind.dto.user.ProfessionalDTO;
+import cymind.dto.user.PublicUserDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.MentalHealthProfessional;
@@ -15,6 +16,8 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -49,15 +52,53 @@ public class ProfessionalService {
     }
 
     @Transactional
-    public ProfessionalDTO get(long id) {
-        checkAuth(id);
+    public List<PublicUserDTO> getAll(int num) {
+        List<PublicUserDTO> professionals = mentalHealthProfessionalRepository.findAll().stream()
+                .map(PublicUserDTO::new)
+                .toList();
 
+        if (num > 0) {
+            return professionals.subList(0, Math.min(num, professionals.size()));
+        } else {
+            return professionals;
+        }
+    }
+
+    @Transactional
+    public List<PublicUserDTO> getAll(String name, int num) {
+        List<MentalHealthProfessional> professionals;
+        String[] nameParts = name.split(" ");
+        if (nameParts.length > 1) {
+            String firstName = nameParts[0];
+            String lastName = nameParts[1];
+            professionals = mentalHealthProfessionalRepository.findByAbstractUser_FirstNameContainingAndAbstractUser_LastNameContainingOrderByAbstractUser(firstName, lastName);
+        } else {
+            professionals = mentalHealthProfessionalRepository.findByName(name);
+        }
+
+        List<PublicUserDTO> professionalPublicDTOs = professionals.stream()
+                .map(PublicUserDTO::new)
+                .toList();
+        if (num > 0) {
+            return professionalPublicDTOs.subList(0, Math.min(num, professionals.size()));
+        } else {
+            return professionalPublicDTOs;
+        }
+    }
+
+    @Transactional
+    public Record get(long id) {
         MentalHealthProfessional professional = mentalHealthProfessionalRepository.findByAbstractUserId(id);
         if (professional == null) {
             throw new NoResultException("Professional not found");
         }
 
-        return new ProfessionalDTO(professional);
+        try {
+            checkAuth(id);
+            return new ProfessionalDTO(professional);
+        } catch (AuthorizationDeniedException e) {
+            return new PublicUserDTO(professional);
+        }
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package cymind.service;
 
-import cymind.dto.StudentDTO;
+import cymind.dto.user.PublicUserDTO;
+import cymind.dto.user.StudentDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.Student;
@@ -16,6 +17,8 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -55,15 +58,53 @@ public class StudentService {
     }
 
     @Transactional
-    public StudentDTO get(long id) {
-        checkAuth(id);
+    public List<PublicUserDTO> getAll(int num) {
+        List<PublicUserDTO> students = studentRepository.findAll().stream()
+                .map(PublicUserDTO::new)
+                .toList();
 
+        if (num > 0) {
+            return students.subList(0, Math.min(num, students.size()));
+        } else {
+            return students;
+        }
+    }
+
+    @Transactional
+    public List<PublicUserDTO> getAll(String name, int num) {
+        List<Student> students;
+        String[] nameParts = name.split(" ");
+        if (nameParts.length > 1) {
+            String firstName = nameParts[0];
+            String lastName = nameParts[1];
+            students = studentRepository.findByAbstractUser_FirstNameContainingAndAbstractUser_LastNameContainingOrderByAbstractUser(firstName, lastName);
+        } else {
+            students = studentRepository.findByName(name);
+        }
+
+        List<PublicUserDTO> publicDTOs = students.stream()
+                .map(PublicUserDTO::new)
+                .toList();
+        if (num > 0) {
+            return publicDTOs.subList(0, Math.min(num, publicDTOs.size()));
+        } else {
+            return publicDTOs;
+        }
+    }
+
+    @Transactional
+    public Record get(long id) {
         Student student = studentRepository.findByAbstractUserId(id);
         if (student == null) {
             throw new NoResultException("Student not found");
         }
 
-        return new StudentDTO(student);
+        try {
+            checkAuth(id);
+            return new StudentDTO(student);
+        } catch (AuthorizationDeniedException e) {
+            return new PublicUserDTO(student);
+        }
     }
 
     @Transactional
