@@ -17,19 +17,19 @@ public class AppointmentGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "professional_id"))
     @NotNull
     private List<MentalHealthProfessional> mentalHealthProfessionals;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id")
     @NotNull
     private Student student;
 
     private String groupName;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
     @JsonIgnore
     @Nullable
     private List<Appointment> appointments;

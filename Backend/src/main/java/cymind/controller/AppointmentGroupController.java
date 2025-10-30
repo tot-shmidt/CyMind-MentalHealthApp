@@ -1,5 +1,6 @@
 package cymind.controller;
 
+import cymind.dto.appointment.AppointmentDTO;
 import cymind.dto.appointment.AppointmentGroupDTO;
 import cymind.dto.appointment.CreateAppointmentGroupDTO;
 import cymind.service.AppointmentGroupService;
@@ -29,6 +30,15 @@ public class AppointmentGroupController {
     @GetMapping("/appointments/groups/{id}")
     ResponseEntity<AppointmentGroupDTO> getAppointmentGroup(@PathVariable long id) {
         return new ResponseEntity<>(appointmentGroupService.getByGroupId(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/appointments/groups/{id}/appointments")
+    ResponseEntity<List<AppointmentDTO>> getAppointmentGroupAppointments(@PathVariable long id, @RequestParam(required = false) Integer num) {
+        if (num == null || num < 1) {
+            num = -1;
+        }
+
+        return new ResponseEntity<>(appointmentGroupService.getAppointmentByGroupId(id, num), HttpStatus.OK);
     }
 
     @PutMapping("/appointments/groups/{id}")

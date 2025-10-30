@@ -1,5 +1,6 @@
 package cymind.service;
 
+import cymind.dto.appointment.AppointmentDTO;
 import cymind.dto.appointment.AppointmentGroupDTO;
 import cymind.dto.appointment.CreateAppointmentGroupDTO;
 import cymind.enums.UserType;
@@ -8,6 +9,7 @@ import cymind.model.AppointmentGroup;
 import cymind.model.MentalHealthProfessional;
 import cymind.model.Student;
 import cymind.repository.AppointmentGroupRepository;
+import cymind.repository.AppointmentRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
 import cymind.repository.StudentRepository;
 import jakarta.persistence.NoResultException;
@@ -31,6 +33,9 @@ public class AppointmentGroupService {
 
     @Autowired
     private MentalHealthProfessionalRepository mentalHealthProfessionalRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @Transactional
     public AppointmentGroupDTO create(CreateAppointmentGroupDTO appointmentGroupDTO) {
@@ -76,6 +81,22 @@ public class AppointmentGroupService {
         checkAuth(appointmentGroup);
 
         return new AppointmentGroupDTO(appointmentGroup);
+    }
+
+    @Transactional
+    public List<AppointmentDTO> getAppointmentByGroupId(long id, int num) {
+        AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(id);
+        checkAuth(appointmentGroup);
+
+        List<AppointmentDTO> appointments = appointmentRepository.findByAppointmentGroupOrderByStartTimeDesc(appointmentGroup).stream()
+                .map(AppointmentDTO::new)
+                .toList();
+
+        if (num > 0) {
+            return appointments.subList(0, Math.min(num, appointments.size()));
+        } else {
+            return appointments;
+        }
     }
 
     @Transactional
