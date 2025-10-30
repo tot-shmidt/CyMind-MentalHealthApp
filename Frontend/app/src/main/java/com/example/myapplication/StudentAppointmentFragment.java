@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import static android.widget.Toast.makeText;
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +20,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StudentAppointmentFragment extends Fragment {
@@ -70,7 +76,7 @@ public class StudentAppointmentFragment extends Fragment {
         String[] time = {"8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"};
         Integer[] duration = {15, 30, 60, 90};
         String[] loc = {"120 Ash Ave", "453 Walnut St", "387 Knapp St", "400 Stanton Ave", "1738 Lincoln Way"};
-        String[] prof = {"Dr.Smith", "Dr.Murphy", "Dr.Jackson", "Dr.Washington", "Dr.e"};
+        //String[] prof = {"Dr.Smith", "Dr.Murphy", "Dr.Jackson", "Dr.Washington", "Dr.e"};
 
         ArrayAdapter<String> adapterDate;
         adapterDate = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, date);
@@ -92,12 +98,9 @@ public class StudentAppointmentFragment extends Fragment {
         adapterLoc.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
         locSpinner.setAdapter(adapterLoc);
 
-        ArrayAdapter<String> adapterProf;
-        adapterProf = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, prof);
-        adapterProf.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-        profSpinner.setAdapter(adapterProf);
 
 
+        getAllProfessionals();
 
         /* click listener on signup button pressed */
         submitButton.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +173,62 @@ public class StudentAppointmentFragment extends Fragment {
             }
         });
         return v;
+    }
+
+    private void getAllProfessionals() {
+        String getURL =  "http://coms-3090-066.class.las.iastate.edu:8080/users/professional";
+
+        JsonArrayRequest jsonObjReq = new JsonArrayRequest(
+                Request.Method.GET, // HTTP method
+                getURL,
+                null, // Request body (null for GET request)
+                response -> {
+                    // Log response for debugging
+                    Log.d("Volley Response", response.toString());
+                    List<String> professionalList = new ArrayList<>();
+                    // Parse JSONArray by sending it to MoodEntry to become a JSONObject
+                    try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject obj = response.getJSONObject(i);
+                            String profFullName = obj.getString("firstName") + " " + obj.getString("lastName");
+                            professionalList.add(profFullName);
+                        }
+                    } catch (JSONException e) {
+                        Log.e("professional list", "Failed to parse JSON response");
+                    }
+
+                    ArrayAdapter<String> adapterProf;
+                    adapterProf = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, professionalList);
+                    adapterProf.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
+                    profSpinner.setAdapter(adapterProf);
+
+                },
+                error -> {
+                    // Log error details
+                    Log.e("Volley Error (getProfessionalList)", error.toString());
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                // Define headers if needed
+                HashMap<String, String> headers = new HashMap<>();
+                // Headers
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Define parameters if needed
+                // Example parameter
+                // params.put("param1", "value1");
+                return new HashMap<>();
+            }
+        };
+
+        // Adding request to the Volley request queue
+        VolleySingleton.getInstance(requireContext()).addToRequestQueue(jsonObjReq);
     }
 
     private void bookAppointment(int appointmentGroupId) {
