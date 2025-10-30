@@ -5,7 +5,7 @@ import cymind.model.AppointmentGroup;
 
 import java.util.List;
 
-public record AppointmentGroupDTO(Long id, List<Long> professionalIds, Long studentId, String groupName, List<Appointment> appointments) {
+public record AppointmentGroupDTO(Long id, List<Long> professionalIds, Long studentId, String groupName, List<AppointmentDTO> appointments) {
     public AppointmentGroupDTO(AppointmentGroup appointmentGroup) {
         this(
                 appointmentGroup.getId(),
@@ -13,7 +13,7 @@ public record AppointmentGroupDTO(Long id, List<Long> professionalIds, Long stud
                 appointmentGroup.getMentalHealthProfessionals().stream().map(professional -> professional.getAbstractUser().getId()).toList(),
                 appointmentGroup.getStudent().getAbstractUser().getId(),
                 appointmentGroup.getGroupName(),
-                appointmentGroup.getAppointments()
+                appointmentGroup.getAppointments() != null ? appointmentGroup.getAppointments().stream().map(AppointmentDTO::new).toList() : null
         );
     }
 }

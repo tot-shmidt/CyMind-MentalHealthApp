@@ -29,7 +29,7 @@ public class AppointmentGroup {
 
     private String groupName;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "appointmentGroup")
     @JsonIgnore
     @Nullable
     private List<Appointment> appointments;
