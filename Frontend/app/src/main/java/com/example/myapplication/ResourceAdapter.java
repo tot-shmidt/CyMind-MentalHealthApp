@@ -12,13 +12,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHolder> {
+    private List<Resource> resourceList;
+    private Context context;
+    private boolean isProfessional;
+    private OnResourceClickListener listener;
 
-    private final List<Resource> resourceList;
-    private final Context context;
-
-    public ResourceAdapter(List<Resource> resourceList, Context context) {
+    public interface OnResourceClickListener {
+        void onResourceClick(Resource resource, int position);
+    }
+    public ResourceAdapter(List<Resource> resourceList, Context context, boolean isProfessional, OnResourceClickListener listener) {
         this.resourceList = resourceList;
         this.context = context;
+        this.isProfessional = isProfessional;
+        this.listener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -45,10 +51,16 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
         Resource resource = resourceList.get(position);
         holder.title.setText(resource.getTitle());
         holder.author.setText(resource.getAuthor());
-        holder.categories.setText(resource.getCategories());
 
-        // Entire card clickable
-        holder.itemView.setOnClickListener(v -> showResourceDialog(resource));
+        holder.itemView.setOnClickListener(v -> {
+            if (isProfessional) {
+                // Professional behavior: open update/delete dialog
+                listener.onResourceClick(resource, position);
+            } else {
+                // Student behavior: open info dialog
+                showResourceDialog(resource);
+            }
+        });
     }
 
     private void showResourceDialog(Resource resource) {

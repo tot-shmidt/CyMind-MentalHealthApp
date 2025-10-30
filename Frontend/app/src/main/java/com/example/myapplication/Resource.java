@@ -14,13 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Resource {
+    private final int id;
     private final String title;
     private final int authorId;
     private final String author;
     private final String categories;
     private final String description;
 
-    public Resource(String title, int authorId, String author, String categories, String description) {
+    // TODO make author a list
+    public Resource(int id, String title, int authorId, String author, String categories, String description) {
+        this.id = id;
         this.title = title;
         this.authorId = authorId;
         this.author = author;
@@ -28,6 +31,7 @@ public class Resource {
         this.description = description;
     }
 
+    public int getId() { return id; }
     public String getTitle() { return title; }
     public int getAuthorId() { return authorId; }
     public String getAuthor() { return author; }

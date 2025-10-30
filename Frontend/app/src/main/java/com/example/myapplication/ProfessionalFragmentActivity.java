@@ -22,7 +22,7 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         Fragment homeFragment = new ProfessionalHomeFragment();
-        Fragment resourceFragment = new StudentResourceFragment();
+        Fragment resourceFragment = new ProfessionalResourceFragment();
         Fragment chatFragment = new StudentChatFragment();
         Fragment appointmentFragment = new ProfessionalAppointmentFragment();
 

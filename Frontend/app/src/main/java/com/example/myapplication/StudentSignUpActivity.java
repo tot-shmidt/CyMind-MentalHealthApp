@@ -31,8 +31,7 @@ public class StudentSignUpActivity extends AppCompatActivity {
     private EditText editTextYearOfStudy;
     private Button buttonUserSignup;
 
-    public StudentSignUpActivity() {
-    }
+    public StudentSignUpActivity() {}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
