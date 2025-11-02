@@ -1,9 +1,13 @@
 package cymind.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -30,10 +34,15 @@ public class MentalHealthProfessional {
     @NotNull()
     private AbstractUser abstractUser;
 
+    @ManyToMany(mappedBy = "authors")
+    @JsonIgnore
+    private Set<Article> articles = new HashSet<>();
+
+
     // ========== Constructors ==========
 
     /**
-     * Creates an object of a MentalHealthProfessional user. First envokes parent AbstractUser class.
+     * Creates an object of a MentalHealthProfessional user. First invokes parent AbstractUser class.
      *
      * @param jobTitle
      * @param licenseNumber
