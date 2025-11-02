@@ -67,7 +67,7 @@ public class ArticleController {
     }
 
     /**
-     * Get exercises for specified article by its {id}
+     * Get exercises for specified article by its {id} 
      * @param id
      * @return
      */
@@ -83,7 +83,7 @@ public class ArticleController {
      * - /resources/articles/page?size=5    -> Returns first 5 articles
      * - /resources/articles/page?page=1    -> Returns second page of 10 articles
      * - /resources/articles/page?page=2&size=5 -> Returns third page with 5 articles per page
-     *
+     * 
      * @param page Page number (0-based). Default is 0 (first page)
      * @param size Number of articles per page. Default is 10
      * @return List of articles for the requested page
