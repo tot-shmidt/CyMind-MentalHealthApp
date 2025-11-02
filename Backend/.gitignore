@@ -14,8 +14,9 @@ src/main/resources/application-dev.properties
 .classpath
 .factorypath
 .gradle
-.idea/
-.idea
+**/.idea/
+**/.idea/**
+.idea/**
 .metadata
 .project
 .recommenders
