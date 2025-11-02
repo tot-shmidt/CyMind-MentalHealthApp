@@ -4,6 +4,7 @@ import cymind.dto.appointment.AppointmentDTO;
 import cymind.dto.appointment.AppointmentStatusDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
+import cymind.exceptions.AppointmentOverlapException;
 import cymind.model.*;
 import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
@@ -14,11 +15,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,19 +33,28 @@ public class AppointmentService {
 
     @Autowired
     private AppointmentGroupRepository appointmentGroupRepository;
+
     @Autowired
     private StudentRepository studentRepository;
+
     @Autowired
     private MentalHealthProfessionalRepository mentalHealthProfessionalRepository;
 
     @Transactional
-    public AppointmentDTO create(AppointmentDTO appointmentDTO) {
+    public AppointmentDTO create(AppointmentDTO appointmentDTO) throws AppointmentOverlapException {
         AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(appointmentDTO.appointmentGroupId().longValue());
         if (appointmentGroup == null) {
             throw new NoResultException("No appointment group found");
         }
 
         checkAuth(appointmentGroup);
+
+        // Check for overlapping appointments
+        LocalDateTime endTime = appointmentDTO.startTime().plusMinutes(appointmentDTO.duration());
+        List<Appointment> overlappingAppointments = appointmentRepository.findAllOverlappingAppointments(appointmentGroup.getMentalHealthProfessionals(), appointmentGroup.getStudent(), appointmentDTO.startTime(), endTime);
+        if (!overlappingAppointments.isEmpty()) {
+            throw new AppointmentOverlapException(overlappingAppointments, appointmentGroup);
+        }
 
         Appointment appointment = new Appointment(appointmentDTO.startTime(), appointmentDTO.duration(), appointmentGroup);
         appointment.setLocation(appointmentDTO.location());

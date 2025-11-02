@@ -25,7 +25,7 @@ public class Appointment {
     @NotNull
     private long duration;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinColumn(name = "appointment_group_id")
     @NotNull
     private AppointmentGroup appointmentGroup;
@@ -44,5 +44,10 @@ public class Appointment {
         this.appointmentGroup = appointmentGroup;
         this.status = AppointmentStatus.UPCOMING;
         this.statusManuallyOverridden = false;
+    }
+
+    @Override
+    public String toString() {
+        return "Start time: " + startTime + " - Duration: " + duration;
     }
 }
