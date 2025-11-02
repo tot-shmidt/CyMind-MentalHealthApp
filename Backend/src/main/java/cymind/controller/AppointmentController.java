@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class AppointmentController {
     @Autowired
@@ -24,6 +26,15 @@ public class AppointmentController {
     @PostMapping("/appointments/{id}/status")
     ResponseEntity<AppointmentDTO> setAppointmentStatus(@PathVariable long id, @RequestBody @Valid AppointmentStatusDTO status) {
         return new ResponseEntity<>(appointmentService.setStatus(id, status), HttpStatus.OK);
+    }
+
+    @GetMapping("/appointments")
+    ResponseEntity<List<AppointmentDTO>> getAllAppointments(@RequestParam(required = false) Integer num, @RequestParam(required = false) List<AppointmentStatus> status) {
+        if (num == null || num < 1) {
+            num = -1;
+        }
+
+        return new ResponseEntity<>(appointmentService.getByUserPrincipal(num, status), HttpStatus.OK);
     }
 
     @GetMapping("/appointments/{id}")

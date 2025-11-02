@@ -1,6 +1,7 @@
-package cymind.controller;
+package cymind.exceptions;
 
-import cymind.dto.ErrorMessageDTO;
+import cymind.dto.errors.ErrorAppointmentMessageDTO;
+import cymind.dto.errors.ErrorMessageDTO;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.NonUniqueResultException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,9 +13,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.util.Date;
 import java.util.List;
 
 @ControllerAdvice
@@ -72,5 +75,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorMessageDTO> handleAuthenticationException(HttpServletRequest req, AuthenticationException e) {
         return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), e), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorMessageDTO> handleMethodArgumentTypeMismatchException(HttpServletRequest req, MethodArgumentTypeMismatchException e) {
+        return new ResponseEntity<>(new ErrorMessageDTO(req.getRequestURI(), e), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AppointmentOverlapException.class)
+    public ResponseEntity<ErrorAppointmentMessageDTO> handleAppointmentOverlapException(HttpServletRequest req, AppointmentOverlapException e) {
+        return new ResponseEntity<>(new ErrorAppointmentMessageDTO(req.getRequestURI(), new Date(), e.getOverlapAppointments()), HttpStatus.CONFLICT);
     }
 }

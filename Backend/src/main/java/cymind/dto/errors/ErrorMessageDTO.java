@@ -1,4 +1,4 @@
-package cymind.dto;
+package cymind.dto.errors;
 
 import java.util.Date;
 import java.util.List;
