@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
@@ -55,31 +56,39 @@ public class AppointmentListFragment extends Fragment {
         Authorization.globalUserEmail = userEmail;
         Authorization.globalPassword = userPassword;
 
-        String getURL = "http://coms-3090-066.class.las.iastate.edu:8080/appointments/" + id;
+        String getURL = "http://coms-3090-066.class.las.iastate.edu:8080/appointments";
 
-        JsonObjectRequest get = new JsonObjectRequest(Request.Method.GET, getURL, null,
+        JsonArrayRequest get = new JsonArrayRequest(Request.Method.GET, getURL, null,
                 response -> {
                     try {
-                        int id = response.getInt("id");
-                        String startTime = response.getString("startTime");
-                        int duration = response.getInt("duration");
-                        int appointmentGroupId = response.getInt("appointmentGroupId");
-                        String status = response.getString("status");
+                        StringBuilder appointmentList = new StringBuilder();
 
-                        String location = response.isNull("location") ? "" : response.getString("location");
-                        String title = response.isNull("title") ? "" : response.getString("title");
-                        String description = response.isNull("description") ? "" : response.getString("description");
+                        for(int i = 0; i < response.length(); i++) {
+                            JSONObject appointment = response.getJSONObject(i);
+
+                            int id = appointment.getInt("id");
+                            String startTime = appointment.getString("startTime");
+                            int duration = appointment.getInt("duration");
+                            int appointmentGroupId = appointment.getInt("appointmentGroupId");
+                            String status = appointment.getString("status");
+
+                            String location = appointment.isNull("location") ? "" : appointment.getString("location");
+                            String title = appointment.isNull("title") ? "" : appointment.getString("title");
+                            String description = appointment.isNull("description") ? "" : appointment.getString("description");
+
+                            appointmentList.append("Appointment ID: ").append(id)
+                                    .append("\nTitle: ").append(title)
+                                    .append("\nTime: ").append(startTime)
+                                    .append("\nDuration: ").append(duration).append(" min")
+                                    .append("\nLocation: ").append(location)
+                                    .append("\nStatus: ").append(status)
+                                    .append("\nDescription: ").append(description)
+                                    .append("\n\n");
+
+                        }
 
 
-                        String display = "Appointment ID: " + id +
-                                "\nTitle: " + title +
-                                "\nTime: " + startTime +
-                                "\nDuration: " + duration + " min" +
-                                "\nLocation: " + location +
-                                "\nStatus: " + status +
-                                "\nDescription: " + description;
-
-                        appointmentInfo.setText(display);
+                        appointmentInfo.setText(appointmentList.toString());
 
                     } catch (JSONException e) {
                         Log.e("StudentAppointmentFragment", "Error parsing appointment JSON", e);

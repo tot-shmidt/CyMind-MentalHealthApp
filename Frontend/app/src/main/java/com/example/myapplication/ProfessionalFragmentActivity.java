@@ -35,6 +35,7 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         bund.putInt("userAge", userAge);
         bund.putInt("userID", userID);
         homeFragment.setArguments(bund);
+        appointmentFragment.setArguments(bund);
 
         setCurrentFragment(homeFragment);
 
