@@ -9,6 +9,15 @@
     </string>
     <string name="login_welcome_message">Welcome Back!</string>
     <string name="login_logo_description">App Logo</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="resource_categories">
+        <item>All</item>
+        <item>Meditation</item>
+        <item>Affirmation</item>
+        <item>Journaling</item>
+        <item>Breathing</item>
+        <item>Gratitude Practice</item>
+        <item>Mindful Walking</item>
+        <item>Sleep Hygiene</item>
+    </string-array>
 </resources>
