@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,14 +36,14 @@ public class ProfessionalResourceFragment extends Fragment {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
-    private int userAge;
-    private String userMajor;
-    private int userYearOfStudy;
+
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
-    private boolean loadStatus = false;
+    private Button createButton;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
 
+    // TODO: add view by category
+    // TODO: swap to professional specific details
 
     @Nullable
     @Override
@@ -55,6 +56,8 @@ public class ProfessionalResourceFragment extends Fragment {
         this.resourceAdapter = new ResourceAdapter(resources, getContext(), true, this::showResourceOptionsDialog);
         resourceViewer.setAdapter(this.resourceAdapter); // Use the field here as well
 
+        createButton = rootView.findViewById(R.id.createButton);
+
         return rootView;
     }
 
@@ -65,18 +68,27 @@ public class ProfessionalResourceFragment extends Fragment {
         //get the passed user info from previous page
         userEmail = getActivity().getIntent().getStringExtra("userEmail");
         userID = getActivity().getIntent().getIntExtra("userID", 0);
-        userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
-        // TODO: swap to prof specific details
+
 //        userMajor = getActivity().getIntent().getStringExtra("userMajor");
 //        userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
 
-        // Start fetching resources
-        if (!loadStatus) {
-            getArticlesByCategory("all");
-            loadStatus = true;
-        }
+        createButton.setOnClickListener(v-> {
+            Intent intentReturn = new Intent(getActivity(), CreateResourceActivity.class);
+            startActivity(intentReturn);
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Clear old data
+        clear();
+
+        // Re-fetch fresh data
+        getArticlesByCategory("all");
     }
 
     private void getArticlesByCategory(String category) {
@@ -90,8 +102,6 @@ public class ProfessionalResourceFragment extends Fragment {
             response -> {
                 Log.d("Volley Response", response.toString());
                 try {
-//                    resources.clear();
-//                    resourceAdapter.notifyItemRangeRemoved(0, resources.size());
                     // Loop through each element in the JSONArray
                     for (int i = 0; i < response.length(); i++) {
                         int articleId = response.getInt(i);
@@ -205,7 +215,6 @@ public class ProfessionalResourceFragment extends Fragment {
             .setTitle(resource.getTitle())
             .setMessage("Select an action for this resource.")
             .setPositiveButton("Update", (dialog, which) -> {
-                // TODO implement update resource
                 //Use intent to go to the next page, in this case the home page
                 Intent intent = new Intent(getActivity(), UpdateResourceActivity.class);
 
@@ -227,16 +236,21 @@ public class ProfessionalResourceFragment extends Fragment {
     }
 
     private void deleteResource(Resource resource, int position) {
-        // TODO modify so it doesn't crash if you try to delete multiple items
         // Creates new request defined as a DELETE request
         // Use StringRequest since there is no json response body, just status code
         String deleteURL = APP_API_URL + "resources/articles?id=" + resource.getId();
         StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
             response -> {
-                //Display message saying user was deleted by identifying their id
                 resources.remove(position);
                 resourceAdapter.notifyItemRemoved(position);
+                //Display message saying user was deleted by identifying their id
                 Toast.makeText(getActivity(), "Resource with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
+                // Clear old data
+                if (resourceAdapter.getItemCount() > 0) {
+                    clear();
+                }
+                // Re-fetch fresh data
+                getArticlesByCategory("all");
             },
             error -> {
                 //display error message if one occurs
@@ -253,8 +267,13 @@ public class ProfessionalResourceFragment extends Fragment {
 
         };
 
-        //finally, if no issues, add the deleted user to queue
+        //finally, if no issues, add the delete to queue
         VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(delete);
     }
 
+    private void clear() {
+        int size = resources.size();
+        resources.clear();
+        resourceAdapter.notifyItemRangeRemoved(0, size);
+    }
 }

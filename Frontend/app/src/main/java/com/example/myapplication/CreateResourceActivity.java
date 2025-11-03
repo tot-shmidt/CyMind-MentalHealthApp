@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,7 +19,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UpdateResourceActivity extends AppCompatActivity {
+public class CreateResourceActivity extends AppCompatActivity {
 
     // Define global componenet variables
 
@@ -27,18 +28,18 @@ public class UpdateResourceActivity extends AppCompatActivity {
     private EditText category2EditText;
     private EditText category3EditText;
     private EditText contentEditText;
-    private Button updateButton;
+    private Button createButton;
     private Button buttonReturn;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
 
 
-    public UpdateResourceActivity() {}
+    public CreateResourceActivity() {}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_update_resource);
+        setContentView(R.layout.activity_create_resource);
 
         // View initializations
         titleEditText = findViewById(R.id.titleEditText);
@@ -46,33 +47,21 @@ public class UpdateResourceActivity extends AppCompatActivity {
         category2EditText = findViewById(R.id.category2EditText);
         category3EditText = findViewById(R.id.category3EditText);
         contentEditText = findViewById(R.id.contentEditText);
-        updateButton = findViewById(R.id.updateButton);
+        createButton = findViewById(R.id.createButton);
         buttonReturn = findViewById(R.id.returnButton);
 
-        // Get intent
+
+        // TODO need to pass user ID to this page
         Intent intent = getIntent();
-        int resourceId = intent.getIntExtra("resourceId", -1);
-        int resourceAuthorId = intent.getIntExtra("resourceAuthorId", -1);
-        String resourceAuthorName = intent.getStringExtra("resourceAuthorName");
-        String resourceTitle = intent.getStringExtra("resourceTitle");
-        String resourceCategories = intent.getStringExtra("resourceCategories");
-        String resourceContent = intent.getStringExtra("resourceContent");
-
-        String[] categories = resourceCategories.split("\\s*,\\s*");
-
-        // Set text fields with resource data
-        titleEditText.setText(resourceTitle);
-        category1EditText.setText(categories.length > 0 ? categories[0] : null);
-        category2EditText.setText(categories.length > 1 ? categories[1] : null);
-        category3EditText.setText(categories.length > 2 ? categories[2] : null);
-        contentEditText.setText(resourceContent);
+        int currentUserId = intent.getIntExtra("currentUserId", -1);
 
         buttonReturn.setOnClickListener(view -> {
-            finish();
+            Intent intentReturn = new Intent(CreateResourceActivity.this, GeneralFragmentActivity.class);
+            startActivity(intentReturn);
         });
 
-        // TODO update to update resource
-        updateButton.setOnClickListener(view -> {
+        // TODO create resource
+        createButton.setOnClickListener(view -> {
             // Grab values from EditTexts
             String articleName = titleEditText.getText().toString().trim();
             String category1 = category1EditText.getText().toString().trim();
@@ -104,27 +93,27 @@ public class UpdateResourceActivity extends AppCompatActivity {
                 return;
             }
 
-            // PUT request URL
-            String url = APP_API_URL + "resources/articles/" + resourceId;
+            // POST request URL
+            String url = APP_API_URL + "resources/articles/create";
 
             // Create JsonObjectRequest for PUT
-            JsonObjectRequest putRequest = new JsonObjectRequest(
-                    Request.Method.PUT,
+            JsonObjectRequest postRequest = new JsonObjectRequest(
+                    Request.Method.POST,
                     url,
                     request,
                     response -> {
-                        Log.d("UpdateResource", "Response: " + response);
-                        Toast.makeText(UpdateResourceActivity.this,
-                                "Resource updated successfully",
+                        Log.d("CreateResource", "Response: " + response);
+                        Toast.makeText(CreateResourceActivity.this,
+                                "Resource created successfully",
                                 Toast.LENGTH_SHORT).show();
 
                         // Finish activity and return to previous screen
                         finish();
                     },
                     error -> {
-                        Log.e("UpdateResource", "Volley error: " + error.toString());
-                        Toast.makeText(UpdateResourceActivity.this,
-                                "Failed to update resource",
+                        Log.e("CreateResource", "Volley error: " + error.toString());
+                        Toast.makeText(CreateResourceActivity.this,
+                                "Failed to create resource",
                                 Toast.LENGTH_LONG).show();
                     }
             ) {
@@ -138,10 +127,7 @@ public class UpdateResourceActivity extends AppCompatActivity {
             };
 
             // Add request to queue
-            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(putRequest);
-
-            // send back to resource page!
-
+            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(postRequest);
         });
     }
 }
