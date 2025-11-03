@@ -23,6 +23,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,6 +49,8 @@ public class StudentAppointmentFragment extends Fragment {
     private String userEmail;
     private String userPassword;
 
+private  List<Integer> professionalIdList = new ArrayList<>();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,8 +75,8 @@ public class StudentAppointmentFragment extends Fragment {
         submitButton = v.findViewById(R.id.submit_btn);
 
 
-        String[] date = {"25-11-07", "25-11-08", "25-11-09", "25-11-10", "25-11-11", "25-11-12", "25-11-13"};
-        String[] time = {"8:00", "8:30", "9:00", "9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"};
+        String[] date = {"2025-11-07", "2025-11-08", "2025-11-09", "2025-11-10", "2025-11-11", "2025-11-12", "2025-11-13"};
+        String[] time = {"08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00"};
         Integer[] duration = {15, 30, 60, 90};
         String[] loc = {"120 Ash Ave", "453 Walnut St", "387 Knapp St", "400 Stanton Ave", "1738 Lincoln Way"};
         //String[] prof = {"Dr.Smith", "Dr.Murphy", "Dr.Jackson", "Dr.Washington", "Dr.e"};
@@ -127,7 +130,14 @@ public class StudentAppointmentFragment extends Fragment {
                 //try to pass the credentials into designated parameters
                 try {
                     request.put("studentId", studentId);
-                    request.put("professionalIds", userProf);
+                    //request.put("professionalIds", userProf);
+
+                    int selectedIndex = profSpinner.getSelectedItemPosition();
+                    int selectedProfId = professionalIdList.get(selectedIndex);
+                    JSONArray professionalIds = new JSONArray();
+                    professionalIds.put(selectedProfId);
+                    request.put("professionalIds", professionalIds);
+
                     request.put("groupName", userTitle.isEmpty() ? "Appointment Group" : userTitle);
                 }
                 //catch it if errors occur when requesting
@@ -137,7 +147,7 @@ public class StudentAppointmentFragment extends Fragment {
                 }
 
                 //connect to server with sign up POST endpoint (created from backend)
-                String postUrl = "http://coms-3090-066.class.las.iastate.edu:8080/appointments/group";
+                String postUrl = "http://coms-3090-066.class.las.iastate.edu:8080/appointments/groups";
 
                 //request to post info as json
                 JsonObjectRequest post = new JsonObjectRequest(Request.Method.POST, postUrl, request,
@@ -160,6 +170,7 @@ public class StudentAppointmentFragment extends Fragment {
                     public Map<String, String> getHeaders() {
                         HashMap<String, String> headers = new HashMap<>();
                         headers.put("Content-Type", "application/json");
+                        headers.put("Authorization", "Basic " + generateAuthToken());
                         return headers;
                     }
                 };
@@ -191,7 +202,9 @@ public class StudentAppointmentFragment extends Fragment {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject obj = response.getJSONObject(i);
                             String profFullName = obj.getString("firstName") + " " + obj.getString("lastName");
+                            int profId = obj.getInt("userId");
                             professionalList.add(profFullName);
+                            professionalIdList.add(profId);
                         }
                     } catch (JSONException e) {
                         Log.e("professional list", "Failed to parse JSON response");
@@ -264,6 +277,15 @@ public class StudentAppointmentFragment extends Fragment {
                         Toast.makeText(requireContext(),
                                 "Appointment booked (ID: " + id + ", Status: " + status + ")", Toast.LENGTH_LONG).show();
                         Log.d("StudentAppointment", "Booked appointment ID: " + id + " Status: " + status);
+
+                        AppointmentListFragment appList = new AppointmentListFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("id", id);
+                        bundle.putString("userEmail", userEmail);
+                        bundle.putString("userPassword", userPassword);
+                        appList.setArguments(bundle);
+
+                        requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.flFragment, appList).commit();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -275,8 +297,11 @@ public class StudentAppointmentFragment extends Fragment {
         ) {
             @Override
             public Map<String, String> getHeaders() {
+                // Define headers if needed
                 HashMap<String, String> headers = new HashMap<>();
+                // Headers
                 headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
                 return headers;
             }
         };

@@ -92,6 +92,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     intent2.putExtra( "userFirstName", userFirstName);
                     intent2.putExtra( "userLastName", userLastName);
                     intent2.putExtra("userEmail", userEmail);
+                    intent2.putExtra("userPassword", editTextPassword.getText().toString());
                     intent2.putExtra("userID", userID);
                     intent2.putExtra("userAge", userAge);
                     startActivity(intent2);

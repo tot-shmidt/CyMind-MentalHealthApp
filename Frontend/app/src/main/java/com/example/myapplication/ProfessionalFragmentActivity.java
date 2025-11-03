@@ -24,7 +24,7 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         Fragment homeFragment = new ProfessionalHomeFragment();
         Fragment resourceFragment = new StudentResourceFragment();
         Fragment chatFragment = new StudentChatFragment();
-        Fragment appointmentFragment = new StudentAppointmentFragment();
+        Fragment appointmentFragment = new ProfessionalAppointmentFragment();
 
         // create bundle of values as arguments
         Bundle bund = new Bundle();
