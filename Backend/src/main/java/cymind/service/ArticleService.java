@@ -1,7 +1,7 @@
 package cymind.service;
 
-import cymind.dto.article.CreateArticleDTO;
 import cymind.dto.article.ArticleDTO;
+import cymind.dto.article.CreateArticleDTO;
 import cymind.enums.ExerciseType;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Service
 public class ArticleService {
@@ -91,7 +90,7 @@ public class ArticleService {
         article.setContent(createArticleDTO.content());
 
         // Check if it is a new professional editing, and we need to add a new author
-        Set<MentalHealthProfessional> authors = article.getAuthors();
+        List<MentalHealthProfessional> authors = article.getAuthors();
         if (!authors.contains(professional)) {
             authors.add(professional);
             article.setAuthors(authors);

@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -32,8 +32,6 @@ public class Exercise {
 
     // Reverse relation to Article
     @ManyToMany(mappedBy = "relatedExercises")
-    private Set<Article> articles = new HashSet<>();
-
-
+    private List<Article> articles = new ArrayList<>();
 
 }

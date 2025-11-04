@@ -2,16 +2,13 @@ package cymind.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -42,7 +39,7 @@ public class Article {
     )
     @JsonIgnore
     @NotNull(message = "There has to be at least one creator")
-    private Set<MentalHealthProfessional> authors = new HashSet<>();
+    private List<MentalHealthProfessional> authors = new ArrayList<>();
 
     // List of exercises sutable for this article
     @ManyToMany
