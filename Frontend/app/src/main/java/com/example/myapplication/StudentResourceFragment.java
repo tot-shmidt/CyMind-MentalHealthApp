@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StudentResourceFragment extends Fragment {
+public class StudentResourceFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private int userID;
     private String userFirstName;
@@ -55,6 +57,19 @@ public class StudentResourceFragment extends Fragment {
         // Start fetching resources
         getArticlesByCategory("all");
 
+        Spinner categoryDropdown = (Spinner) rootView.findViewById(R.id.categoryDropdown);
+        categoryDropdown.setOnItemSelectedListener(this);
+        // Create an ArrayAdapter using the string array and a default spinner layout.
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this.getContext(),
+                R.array.resource_categories,
+                android.R.layout.simple_spinner_item
+        );
+        // Specify the layout to use when the list of choices appears.
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner.
+        categoryDropdown.setAdapter(adapter);
+
         return rootView;
     }
 
@@ -70,8 +85,37 @@ public class StudentResourceFragment extends Fragment {
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
         userMajor = getActivity().getIntent().getStringExtra("userMajor");
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
+    }
 
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        clear();
+        switch (pos) {
+            case 0:
+                getArticlesByCategory("ALL");
+                break;
+            case 1:
+                getArticlesByCategory("SLEEP");
+                break;
+            case 2:
+                getArticlesByCategory("FOCUS");
+                break;
+            case 3:
+                getArticlesByCategory("SELF_ESTEEM");
+                break;
+            case 4:
+                getArticlesByCategory("ANXIETY");
+                break;
+            case 5:
+                getArticlesByCategory("POSITIVITY");
+                break;
+            case 6:
+                getArticlesByCategory("AWARENESS");
+                break;
+        }
+    }
 
+    public void onNothingSelected(AdapterView<?> parent) {
+        parent.setSelection(0);
     }
 
     private void getArticlesByCategory(String category) {
@@ -90,11 +134,9 @@ public class StudentResourceFragment extends Fragment {
                     for (int i = 0; i < response.length(); i++) {
                         int articleId = response.getInt(i);
 
-
                         // Fetch the full resource for each ID
                         getStudentResource(articleId);
-                        Log.d("Volley Test", "created resource for article ID + articleId");
-
+                        Log.d("Volley", "created resource for article ID + articleId");
                     }
                 } catch (JSONException e) {
                     Log.e("getArticlesByCategory", "JSON parse error", e);
@@ -193,4 +235,9 @@ public class StudentResourceFragment extends Fragment {
                 .addToRequestQueue(jsonObjReq);
     }
 
+    private void clear() {
+        int size = resources.size();
+        resources.clear();
+        resourceAdapter.notifyItemRangeRemoved(0, size);
+    }
 }
