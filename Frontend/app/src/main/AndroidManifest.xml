@@ -65,7 +65,16 @@
         </activity>
         <activity
             android:name=".StudentSignUpActivity"
-            android:exported="false" />
+            android:exported="false" >
+        </activity>
+        <activity
+            android:name=".CreateChatActivity"
+            android:exported="false" >
+        </activity>
+        <activity
+            android:name=".GroupInfoActivity"
+            android:exported="false" >
+        </activity>
     </application>
 
 </manifest>
