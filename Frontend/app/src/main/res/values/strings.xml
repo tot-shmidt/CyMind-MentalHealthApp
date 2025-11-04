@@ -12,12 +12,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string-array name="resource_categories">
         <item>All</item>
-        <item>Meditation</item>
-        <item>Affirmation</item>
-        <item>Journaling</item>
-        <item>Breathing</item>
-        <item>Gratitude Practice</item>
-        <item>Mindful Walking</item>
-        <item>Sleep Hygiene</item>
+        <item>Sleep</item>
+        <item>Focus</item>
+        <item>Self Esteem</item>
+        <item>Anxiety</item>
+        <item>Positivity</item>
+        <item>Awareness</item>
     </string-array>
 </resources>

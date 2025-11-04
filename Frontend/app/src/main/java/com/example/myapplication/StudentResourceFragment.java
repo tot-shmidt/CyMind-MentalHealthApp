@@ -94,25 +94,22 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                 getArticlesByCategory("ALL");
                 break;
             case 1:
-                getArticlesByCategory("MEDITATION");
+                getArticlesByCategory("SLEEP");
                 break;
             case 2:
-                getArticlesByCategory("AFFIRMATION");
+                getArticlesByCategory("FOCUS");
                 break;
             case 3:
-                getArticlesByCategory("JOURNALING");
+                getArticlesByCategory("SELF_ESTEEM");
                 break;
             case 4:
-                getArticlesByCategory("BREATHING");
+                getArticlesByCategory("ANXIETY");
                 break;
             case 5:
-                getArticlesByCategory("GRATITUDE_PRACTICE");
+                getArticlesByCategory("POSITIVITY");
                 break;
             case 6:
-                getArticlesByCategory("MINDFUL_WALKING");
-                break;
-            case 7:
-                getArticlesByCategory("SLEEP_HYGIENE");
+                getArticlesByCategory("AWARENESS");
                 break;
         }
     }
