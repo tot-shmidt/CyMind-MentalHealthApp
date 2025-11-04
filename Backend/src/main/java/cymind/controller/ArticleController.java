@@ -51,7 +51,8 @@ public class ArticleController {
      * Delete article by its id. Only professional can do it.
      */
     @DeleteMapping("/resources/articles/{id}")
-    ResponseEntity<?> deleteProfessional(@PathVariable long id, long userId) {
+    ResponseEntity<?> deleteArticle(@PathVariable long id,
+                                         @RequestParam("userId") long userId) {
         articleService.deleteArticle(id, userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -79,10 +80,10 @@ public class ArticleController {
 
     /**
      * Get paginated articles. Examples:
-     * - /resources/articles/page           -> Returns first 10 articles
-     * - /resources/articles/page?size=5    -> Returns first 5 articles
-     * - /resources/articles/page?page=1    -> Returns second page of 10 articles
-     * - /resources/articles/page?page=2&size=5 -> Returns third page with 5 articles per page
+     * /resources/articles/page -> Returns first 10 articles
+     * /resources/articles/page?size=5 -> Returns first 5 articles
+     * /resources/articles/page?page=1 -> Returns second page of 10 articles
+     * /resources/articles/page?page=2&size=5 -> Returns third page with 5 articles per page
      * 
      * @param page Page number (0-based). Default is 0 (first page)
      * @param size Number of articles per page. Default is 10
