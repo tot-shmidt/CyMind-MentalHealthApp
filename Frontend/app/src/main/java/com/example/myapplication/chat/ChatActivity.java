@@ -1,36 +1,53 @@
 package com.example.myapplication.chat;
 
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.myapplication.R;
+import com.example.myapplication.VolleySingleton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatActivity";
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
     private RecyclerView messagesRv;
-    private EditText messageEt;
-    private Button sendBtn, backBtn, infoBtn;
+    private EditText messageEt, searchEt;
+    private Button sendBtn, backBtn, infoBtn, searchToggleBtn, searchBtn, clearSearchBtn;
+    private LinearLayout searchBarLayout;
     private TextView chatTitleTv;
 
     private String chatId;
     private String chatName;
     private ChatMessageAdapter messageAdapter;
     private List<ChatMessage> messages;
+    private List<ChatMessage> allMessages; // Keep all messages for restore after search
     private ChatManager chatManager;
     private Observer<ChatManager.MessageEvent> messageObserver;
+    private boolean isSearching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +69,21 @@ public class ChatActivity extends AppCompatActivity {
         // Initialize UI elements
         messagesRv = findViewById(R.id.messagesRv);
         messageEt = findViewById(R.id.messageEt);
+        searchEt = findViewById(R.id.searchEt);
         sendBtn = findViewById(R.id.sendBtn);
         backBtn = findViewById(R.id.backBtn);
         infoBtn = findViewById(R.id.infoBtn);
+        searchToggleBtn = findViewById(R.id.searchToggleBtn);
+        searchBtn = findViewById(R.id.searchBtn);
+        clearSearchBtn = findViewById(R.id.clearSearchBtn);
+        searchBarLayout = findViewById(R.id.searchBarLayout);
         chatTitleTv = findViewById(R.id.chatTitleTv);
 
         chatTitleTv.setText(chatName != null ? chatName : "Chat");
 
         // Setup messages RecyclerView
         messages = new ArrayList<>();
+        allMessages = new ArrayList<>();
         messageAdapter = new ChatMessageAdapter(messages, chatManager.getCurrentUserId());
         messagesRv.setLayoutManager(new LinearLayoutManager(this));
         messagesRv.setAdapter(messageAdapter);
@@ -73,6 +96,15 @@ public class ChatActivity extends AppCompatActivity {
 
         // Info button listener
         infoBtn.setOnClickListener(v -> openChatInfo());
+
+        // Search toggle button listener
+        searchToggleBtn.setOnClickListener(v -> toggleSearch());
+
+        // Search button listener
+        searchBtn.setOnClickListener(v -> performSearch());
+
+        // Clear search button listener
+        clearSearchBtn.setOnClickListener(v -> clearSearch());
 
         // Observe incoming messages using LiveData
         messageObserver = messageEvent -> {
@@ -209,5 +241,109 @@ public class ChatActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    private void toggleSearch() {
+        if (searchBarLayout.getVisibility() == View.VISIBLE) {
+            searchBarLayout.setVisibility(View.GONE);
+            clearSearch();
+        } else {
+            searchBarLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void performSearch() {
+        String searchQuery = searchEt.getText().toString().trim();
+
+        if (searchQuery.isEmpty()) {
+            Toast.makeText(this, "Please enter a search term", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Save all messages before searching
+        if (!isSearching) {
+            allMessages.clear();
+            allMessages.addAll(messages);
+        }
+
+        isSearching = true;
+
+        // Build URL with search parameter
+        String url = APP_API_URL + "chat/group/messages?search=" + searchQuery;
+
+        Log.d(TAG, "Searching messages with query: " + searchQuery);
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            response -> {
+                Log.d(TAG, "Search response received: " + response.length() + " messages");
+                List<ChatMessage> searchResults = new ArrayList<>();
+
+                try {
+                    // Parse search results
+                    for (int i = 0; i < response.length(); i++) {
+                        JSONObject msgObj = response.getJSONObject(i);
+
+                        String groupId = msgObj.optString("groupId", null);
+                        String content = msgObj.optString("content", "");
+                        int senderUserId = msgObj.optInt("senderUserId", 0);
+
+                        boolean isSentByCurrentUser = (senderUserId == chatManager.getCurrentUserId());
+
+                        ChatMessage chatMessage = new ChatMessage(
+                            groupId,
+                            senderUserId,
+                            content,
+                            System.currentTimeMillis(),
+                            isSentByCurrentUser
+                        );
+
+                        searchResults.add(chatMessage);
+                    }
+
+                    // Update UI with search results
+                    messages.clear();
+                    messages.addAll(searchResults);
+                    messageAdapter.notifyDataSetChanged();
+
+                    Toast.makeText(this, "Found " + searchResults.size() + " messages", Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    Log.e(TAG, "Error parsing search results", e);
+                    Toast.makeText(this, "Error parsing search results", Toast.LENGTH_SHORT).show();
+                }
+            },
+            error -> {
+                Log.e(TAG, "Search error: " + error.toString());
+                Toast.makeText(this, "Search failed. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + generateAuthToken());
+                return headers;
+            }
+        };
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonArrayRequest);
+    }
+
+    private void clearSearch() {
+        // Restore all messages
+        if (isSearching && allMessages != null) {
+            messages.clear();
+            messages.addAll(allMessages);
+            messageAdapter.notifyDataSetChanged();
+            isSearching = false;
+        }
+
+        // Clear search input
+        searchEt.setText("");
+
+        Toast.makeText(this, "Search cleared", Toast.LENGTH_SHORT).show();
     }
 }
