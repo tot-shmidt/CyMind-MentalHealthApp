@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cymind.dto.chat.MessageDTO;
+import cymind.enums.MessageType;
 import cymind.model.AbstractUser;
 import cymind.model.ChatGroup;
 import cymind.model.ChatMessage;
@@ -32,9 +33,9 @@ public class ChatSocket {
     private static ChatGroupRepository chatGroupRepository;
     private static ChatMessageRepository chatMessageRepository;
 
-    private static Map<Session, Long> sessionUserIdMap = new Hashtable<>();
-    private static Map<Session, Long> sessionGroupIdMap = new Hashtable<>();
-    private static Map<Long, List<Session>> groupIdSessionsMap = new Hashtable<>();
+    private static final Map<Session, Long> sessionUserIdMap = new Hashtable<>();
+    private static final Map<Session, Long> sessionGroupIdMap = new Hashtable<>();
+    private static final Map<Long, List<Session>> groupIdSessionsMap = new Hashtable<>();
 
     @Autowired
     public void setAbstractUserRepository(AbstractUserRepository repo) {
@@ -90,12 +91,16 @@ public class ChatSocket {
         log.info("[onMessage] chatMessageJson: {}", messageDTO);
 
         Long userId = sessionUserIdMap.get(session);
-        AbstractUser user = abstractUserRepository.findById(userId.longValue());
         Long groupId = sessionGroupIdMap.get(session);
-        ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
 
-        ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
-        chatMessageRepository.save(chatMessage);
+        if (messageDTO.messageType() == MessageType.MESSAGE) {
+            AbstractUser user = abstractUserRepository.findById(userId.longValue());
+            ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
+
+            ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
+            chatMessageRepository.save(chatMessage);
+        } else if (messageDTO.messageType() == MessageType.DELETE) {
+        }
 
         sendToGroup(messageDTO, groupId);
     }
