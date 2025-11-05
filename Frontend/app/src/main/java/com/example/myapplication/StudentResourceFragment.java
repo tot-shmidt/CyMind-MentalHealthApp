@@ -23,6 +23,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
 
         RecyclerView resourceViewer = rootView.findViewById(R.id.resourceViewer);
         resourceViewer.setLayoutManager(new LinearLayoutManager(getContext()));
-        resourceAdapter = new ResourceAdapter(resources, getContext());
+        resourceAdapter = new ResourceAdapter(resources, getContext(), false, null);
         resourceViewer.setAdapter(resourceAdapter);
 
         // Start fetching resources
@@ -186,9 +187,25 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
 
                     try {
                         // Parse the single resource object
+                        int id = response.getInt("id");
                         String title = response.getString("articleName");
                         int authorId = response.getInt("authorId");
-                        String author = response.getString("author");
+
+                        // Parse authors array
+                        List<String> authors = new ArrayList<>();
+                        JSONArray authorsArray = response.optJSONArray("authors");
+                        if (authorsArray != null) {
+                            for (int i = 0; i < authorsArray.length(); i++) {
+                                authors.add(authorsArray.getString(i));
+                            }
+                        } else {
+                            // Fallback to single author field if array doesn't exist
+                            String author = response.optString("author", "");
+                            if (!author.isEmpty()) {
+                                authors.add(author);
+                            }
+                        }
+
                         String category1 = response.optString("category1", "");
                         String category2 = response.optString("category2", "");
                         String category3 = response.optString("category3", "");
@@ -198,7 +215,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                         if (!category2.equals("null")) categories += ", " + category2;
                         if (!category3.equals("null")) categories += ", " + category3;
 
-                        Resource resource = new Resource(title, authorId, author, categories, description);
+                        Resource resource = new Resource(id, title, authorId, authors, categories, description);
                         resources.add(resource);
                         resourceAdapter.notifyItemInserted(resources.size() - 1); // Updates RecyclerView
 
