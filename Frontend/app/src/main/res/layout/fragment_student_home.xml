@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".StudentHomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -107,16 +105,4 @@
 
 
     </LinearLayout>
-
-
-
-
-    <!-- TODO: generic app information -->
-
-    <!-- TODO: mood tracking -->
-
-
-    <!-- TODO: page-to-page navigation menu -->
-
-
 </FrameLayout>

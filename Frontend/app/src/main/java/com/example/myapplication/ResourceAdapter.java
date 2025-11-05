@@ -51,7 +51,14 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
         Resource resource = resourceList.get(position);
 
         holder.title.setText(resource.getTitle() != null ? resource.getTitle() : "");
-        holder.author.setText(resource.getAuthor() != null ? resource.getAuthor() : "");
+
+        // Format multiple authors
+        String authorsText = "";
+        if (resource.getAuthors() != null && !resource.getAuthors().isEmpty()) {
+            authorsText = String.join(", ", resource.getAuthors());
+        }
+        holder.author.setText(authorsText);
+
         holder.categories.setText(resource.getCategories() != null ? resource.getCategories() : "");
         holder.preview.setText(resource.getDescription() != null ? resource.getDescription() : "");
 
@@ -78,7 +85,16 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
         TextView description = dialogView.findViewById(R.id.dialogDescription);
 
         title.setText(resource.getTitle());
-        author.setText("By " + resource.getAuthor());
+
+        // Format multiple authors
+        String authorsText = "By ";
+        if (resource.getAuthors() != null && !resource.getAuthors().isEmpty()) {
+            authorsText += String.join(", ", resource.getAuthors());
+        } else {
+            authorsText += "Unknown";
+        }
+        author.setText(authorsText);
+
         categories.setText(resource.getCategories());
         description.setText(resource.getDescription());
 

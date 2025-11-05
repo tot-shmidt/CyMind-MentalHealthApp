@@ -50,8 +50,6 @@ public class CreateResourceActivity extends AppCompatActivity {
         createButton = findViewById(R.id.createButton);
         buttonReturn = findViewById(R.id.returnButton);
 
-
-        // TODO need to pass user ID to this page
         Intent intent = getIntent();
         int currentUserId = intent.getIntExtra("currentUserId", -1);
 
@@ -60,7 +58,6 @@ public class CreateResourceActivity extends AppCompatActivity {
             startActivity(intentReturn);
         });
 
-        // TODO create resource
         createButton.setOnClickListener(view -> {
             // Grab values from EditTexts
             String articleName = titleEditText.getText().toString().trim();

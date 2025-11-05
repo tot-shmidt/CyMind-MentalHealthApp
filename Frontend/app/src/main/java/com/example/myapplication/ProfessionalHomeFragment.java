@@ -23,6 +23,8 @@ public class ProfessionalHomeFragment extends Fragment {
     private String userLastName;
     private String userEmail;
     private int userAge;
+    private String userJobTitle;
+    private String userLicenseNumber;
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
 
@@ -51,6 +53,9 @@ public class ProfessionalHomeFragment extends Fragment {
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
 
+        userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
+        userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
+
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
             welcomeMessage.append(", " + userFirstName + "!");
@@ -64,6 +69,8 @@ public class ProfessionalHomeFragment extends Fragment {
             intent.putExtra("userEmail", userEmail);
             intent.putExtra("userID", userID);
             intent.putExtra("userAge", userAge);
+            intent.putExtra("userJobTitle", userJobTitle);
+            intent.putExtra("userLicenseNumber", userLicenseNumber);
             startActivity(intent);
         }); */
    }

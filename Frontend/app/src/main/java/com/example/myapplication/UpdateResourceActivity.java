@@ -53,7 +53,7 @@ public class UpdateResourceActivity extends AppCompatActivity {
         Intent intent = getIntent();
         int resourceId = intent.getIntExtra("resourceId", -1);
         int resourceAuthorId = intent.getIntExtra("resourceAuthorId", -1);
-        String resourceAuthorName = intent.getStringExtra("resourceAuthorName");
+        String resourceAuthors = intent.getStringExtra("resourceAuthors");
         String resourceTitle = intent.getStringExtra("resourceTitle");
         String resourceCategories = intent.getStringExtra("resourceCategories");
         String resourceContent = intent.getStringExtra("resourceContent");
@@ -71,7 +71,6 @@ public class UpdateResourceActivity extends AppCompatActivity {
             finish();
         });
 
-        // TODO update to update resource
         updateButton.setOnClickListener(view -> {
             // Grab values from EditTexts
             String articleName = titleEditText.getText().toString().trim();

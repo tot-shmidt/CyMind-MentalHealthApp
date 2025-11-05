@@ -23,6 +23,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -36,14 +37,13 @@ public class ProfessionalResourceFragment extends Fragment {
     private String userFirstName;
     private String userLastName;
     private String userEmail;
+    private String userJobTitle;
+    private String userLicenseNumber;
 
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
     private Button createButton;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
-
-    // TODO: add view by category
-    // TODO: swap to professional specific details
 
     @Nullable
     @Override
@@ -70,12 +70,17 @@ public class ProfessionalResourceFragment extends Fragment {
         userID = getActivity().getIntent().getIntExtra("userID", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
-
-//        userMajor = getActivity().getIntent().getStringExtra("userMajor");
-//        userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
+        userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
+        userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
 
         createButton.setOnClickListener(v-> {
             Intent intentReturn = new Intent(getActivity(), CreateResourceActivity.class);
+            intentReturn.putExtra("userID", userID);
+            intentReturn.putExtra("userEmail", userEmail);
+            intentReturn.putExtra("userFirstName", userFirstName);
+            intentReturn.putExtra("userLastName", userLastName);
+            intentReturn.putExtra("userJobTitle", userJobTitle);
+            intentReturn.putExtra("userLicenseNumber", userLicenseNumber);
             startActivity(intentReturn);
         });
     }
@@ -163,7 +168,22 @@ public class ProfessionalResourceFragment extends Fragment {
                         int id = response.getInt("id");
                         String title = response.getString("articleName");
                         int authorId = response.getInt("authorId");
-                        String author = response.getString("author");
+
+                        // Parse authors array
+                        List<String> authors = new ArrayList<>();
+                        JSONArray authorsArray = response.optJSONArray("authors");
+                        if (authorsArray != null) {
+                            for (int i = 0; i < authorsArray.length(); i++) {
+                                authors.add(authorsArray.getString(i));
+                            }
+                        } else {
+                            // Fallback to single author field if array doesn't exist
+                            String author = response.optString("author", "");
+                            if (!author.isEmpty()) {
+                                authors.add(author);
+                            }
+                        }
+
                         String category1 = response.optString("category1", "");
                         String category2 = response.optString("category2", "");
                         String category3 = response.optString("category3", "");
@@ -173,7 +193,7 @@ public class ProfessionalResourceFragment extends Fragment {
                         if (!category2.equals("null")) categories += ", " + category2;
                         if (!category3.equals("null")) categories += ", " + category3;
 
-                        Resource resource = new Resource(id, title, authorId, author, categories, description);
+                        Resource resource = new Resource(id, title, authorId, authors, categories, description);
                         resources.add(resource);
                         resourceAdapter.notifyItemInserted(resources.size() - 1); // Updates RecyclerView
 
@@ -221,7 +241,7 @@ public class ProfessionalResourceFragment extends Fragment {
                 //send user email and pass and other vals to homepage
                 intent.putExtra("resourceId", resource.getId());
                 intent.putExtra("resourceAuthorId", resource.getAuthorId());
-                intent.putExtra("resourceAuthor", resource.getAuthor());
+                intent.putExtra("resourceAuthors", String.join(", ", resource.getAuthors()));
                 intent.putExtra("resourceTitle", resource.getTitle());
                 intent.putExtra("resourceCategories", resource.getCategories());
                 intent.putExtra("resourceContent", resource.getDescription());
