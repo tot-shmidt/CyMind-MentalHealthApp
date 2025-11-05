@@ -27,6 +27,8 @@ public class LogInProfessional extends AppCompatActivity{
     private String userLastName;
     private String userEmail;
     private int userAge;
+    private String userJobTitle;
+    private String userLicenseNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,8 @@ public class LogInProfessional extends AppCompatActivity{
                     userLastName = response.optString("lastName");
                     userEmail = response.optString("email");
                     userAge = response.optInt("age");
+                    userJobTitle = response.optString("jobTitle");
+                    userLicenseNumber = response.optString("licenseNumber");
                     Authorization.globalUserEmail = userEmail;
                     Authorization.globalPassword = editTextPassword.getText().toString();
                     Intent intent2 = new Intent(LogInProfessional.this, ProfessionalFragmentActivity.class);
@@ -91,6 +95,8 @@ public class LogInProfessional extends AppCompatActivity{
                     intent2.putExtra("userPassword",  editTextPassword.getText().toString());
                     intent2.putExtra("userID", userID);
                     intent2.putExtra("userAge", userAge);
+                    intent2.putExtra("userJobTitle", userJobTitle);
+                    intent2.putExtra("userLicenseNumber", userLicenseNumber);
                     startActivity(intent2);
                 },
                 error -> {

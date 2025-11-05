@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-public class SignUpProfessional extends AppCompatActivity{
+public class SignUpProfessional extends AppCompatActivity {
     private EditText editTextFirstName;
 
     private EditText editTextLastName;
@@ -25,6 +25,9 @@ public class SignUpProfessional extends AppCompatActivity{
     private EditText editTextPassword;
     private EditText editTextJobTitle;
     private EditText editTextLicenseNum;
+
+    private String jobTitle;
+    private String licenseNumber;
 
     public SignUpProfessional() {
     }
@@ -62,6 +65,10 @@ public class SignUpProfessional extends AppCompatActivity{
             String userPass = editTextPassword.getText().toString().trim();
             String userFirstName = editTextFirstName.getText().toString().trim();
             String userLastName = editTextLastName.getText().toString().trim();
+
+            // Store professional-specific fields
+            jobTitle = editTextJobTitle.getText().toString().trim();
+            licenseNumber = editTextLicenseNum.getText().toString().trim();
 
             Authorization.globalUserEmail = userEmail;
             Authorization.globalPassword = editTextPassword.getText().toString();
@@ -159,6 +166,8 @@ public class SignUpProfessional extends AppCompatActivity{
                             intent.putExtra("userFirstName", firstName);
                             intent.putExtra("userLastName", lastName);
                             intent.putExtra("userAge", age);
+                            intent.putExtra("userJobTitle", jobTitle);
+                            intent.putExtra("userLicenseNumber", licenseNumber);
 
                             startActivity(intent);
 

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".StudentProfileActivity"
+    android:background="@color/colorAccent"
+    android:fitsSystemWindows="true">
+
+    <Button
+        android:id="@+id/returnButton"
+        android:layout_width="75dip"
+        android:layout_height="75dip"
+        android:text="X"
+        android:textSize="18pt"
+        android:layout_marginTop="-10dip"
+        android:layout_marginStart="-10dp"
+        android:paddingRight="7dp"
+        android:paddingTop="0dp"
+        app:cornerRadius="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/returnButton">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dip"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="380dip"
+                android:layout_height="65dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="15dip"
+                android:ems="10"
+                android:hint="Title"
+                android:inputType="text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dip"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/category1EditText"
+                android:layout_width="112.7dip"
+                android:layout_height="65dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dip"
+                android:layout_marginLeft="15dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="15dip"
+                android:ems="10"
+                android:hint="Category 1"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/category2EditText"
+                android:layout_width="112.7dip"
+                android:layout_height="65dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_marginTop="15dip"
+                android:ems="10"
+                android:hint="Category 2"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/category3EditText"
+                android:layout_width="112.7dip"
+                android:layout_height="65dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="15dip"
+                android:layout_marginTop="15dip"
+                android:ems="10"
+                android:hint="Category 3"
+                android:inputType="text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/contentEditText"
+                android:layout_width="380dip"
+                android:layout_height="200dip"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="15dip"
+                android:ems="10"
+                android:inputType="textMultiLine"
+                android:hint="Content" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/createButton"
+            android:layout_width="200dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dip"
+            android:layout_marginBottom="15dip"
+            android:text="Create Resource" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

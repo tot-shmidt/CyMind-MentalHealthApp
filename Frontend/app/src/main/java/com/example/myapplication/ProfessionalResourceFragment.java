@@ -1,16 +1,14 @@
 package com.example.myapplication;
 
-import static android.widget.Toast.makeText;
 import static com.example.myapplication.Authorization.generateAuthToken;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,45 +31,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StudentResourceFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class ProfessionalResourceFragment extends Fragment {
 
     private int userID;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
-    private int userAge;
-    private String userMajor;
-    private int userYearOfStudy;
+    private String userJobTitle;
+    private String userLicenseNumber;
+
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
+    private Button createButton;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_student_resource, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_professional_resource, container, false);
 
         RecyclerView resourceViewer = rootView.findViewById(R.id.resourceViewer);
         resourceViewer.setLayoutManager(new LinearLayoutManager(getContext()));
-        resourceAdapter = new ResourceAdapter(resources, getContext(), false, null);
-        resourceViewer.setAdapter(resourceAdapter);
 
-        // Start fetching resources
-        getArticlesByCategory("all");
+        this.resourceAdapter = new ResourceAdapter(resources, getContext(), true, this::showResourceOptionsDialog);
+        resourceViewer.setAdapter(this.resourceAdapter); // Use the field here as well
 
-        Spinner categoryDropdown = (Spinner) rootView.findViewById(R.id.categoryDropdown);
-        categoryDropdown.setOnItemSelectedListener(this);
-        // Create an ArrayAdapter using the string array and a default spinner layout.
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this.getContext(),
-                R.array.resource_categories,
-                android.R.layout.simple_spinner_item
-        );
-        // Specify the layout to use when the list of choices appears.
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner.
-        categoryDropdown.setAdapter(adapter);
+        createButton = rootView.findViewById(R.id.createButton);
 
         return rootView;
     }
@@ -81,42 +68,32 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         //get the passed user info from previous page
         userEmail = getActivity().getIntent().getStringExtra("userEmail");
         userID = getActivity().getIntent().getIntExtra("userID", 0);
-        userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
-        userMajor = getActivity().getIntent().getStringExtra("userMajor");
-        userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
+        userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
+        userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
+
+        createButton.setOnClickListener(v-> {
+            Intent intentReturn = new Intent(getActivity(), CreateResourceActivity.class);
+            intentReturn.putExtra("userID", userID);
+            intentReturn.putExtra("userEmail", userEmail);
+            intentReturn.putExtra("userFirstName", userFirstName);
+            intentReturn.putExtra("userLastName", userLastName);
+            intentReturn.putExtra("userJobTitle", userJobTitle);
+            intentReturn.putExtra("userLicenseNumber", userLicenseNumber);
+            startActivity(intentReturn);
+        });
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Clear old data
         clear();
-        switch (pos) {
-            case 0:
-                getArticlesByCategory("ALL");
-                break;
-            case 1:
-                getArticlesByCategory("SLEEP");
-                break;
-            case 2:
-                getArticlesByCategory("FOCUS");
-                break;
-            case 3:
-                getArticlesByCategory("SELF_ESTEEM");
-                break;
-            case 4:
-                getArticlesByCategory("ANXIETY");
-                break;
-            case 5:
-                getArticlesByCategory("POSITIVITY");
-                break;
-            case 6:
-                getArticlesByCategory("AWARENESS");
-                break;
-        }
-    }
 
-    public void onNothingSelected(AdapterView<?> parent) {
-        parent.setSelection(0);
+        // Re-fetch fresh data
+        getArticlesByCategory("all");
     }
 
     private void getArticlesByCategory(String category) {
@@ -130,14 +107,15 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
             response -> {
                 Log.d("Volley Response", response.toString());
                 try {
-                    Log.d("Volley Response", String.valueOf(response.length()));
                     // Loop through each element in the JSONArray
                     for (int i = 0; i < response.length(); i++) {
                         int articleId = response.getInt(i);
 
+
                         // Fetch the full resource for each ID
                         getStudentResource(articleId);
-                        Log.d("Volley", "created resource for article ID + articleId");
+                        Log.d("Volley Test", "created resource for article ID + articleId");
+
                     }
                 } catch (JSONException e) {
                     Log.e("getArticlesByCategory", "JSON parse error", e);
@@ -250,6 +228,67 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         // Add request to the Volley queue
         VolleySingleton.getInstance(getActivity().getApplicationContext())
                 .addToRequestQueue(jsonObjReq);
+    }
+
+    private void showResourceOptionsDialog(Resource resource, int position) {
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle(resource.getTitle())
+            .setMessage("Select an action for this resource.")
+            .setPositiveButton("Update", (dialog, which) -> {
+                //Use intent to go to the next page, in this case the home page
+                Intent intent = new Intent(getActivity(), UpdateResourceActivity.class);
+
+                //send user email and pass and other vals to homepage
+                intent.putExtra("resourceId", resource.getId());
+                intent.putExtra("resourceAuthorId", resource.getAuthorId());
+                intent.putExtra("resourceAuthors", String.join(", ", resource.getAuthors()));
+                intent.putExtra("resourceTitle", resource.getTitle());
+                intent.putExtra("resourceCategories", resource.getCategories());
+                intent.putExtra("resourceContent", resource.getDescription());
+
+                startActivity(intent);
+            })
+            .setNegativeButton("Delete", (dialog, which) -> {
+                deleteResource(resource, position);
+            })
+            .setNeutralButton("Close", null)
+            .show();
+    }
+
+    private void deleteResource(Resource resource, int position) {
+        // Creates new request defined as a DELETE request
+        // Use StringRequest since there is no json response body, just status code
+        String deleteURL = APP_API_URL + "resources/articles?id=" + resource.getId();
+        StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
+            response -> {
+                resources.remove(position);
+                resourceAdapter.notifyItemRemoved(position);
+                //Display message saying user was deleted by identifying their id
+                Toast.makeText(getActivity(), "Resource with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
+                // Clear old data
+                if (resourceAdapter.getItemCount() > 0) {
+                    clear();
+                }
+                // Re-fetch fresh data
+                getArticlesByCategory("all");
+            },
+            error -> {
+                //display error message if one occurs
+                Toast.makeText(getActivity(), "Error deleting resource", Toast.LENGTH_LONG).show();
+            }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+
+        //finally, if no issues, add the delete to queue
+        VolleySingleton.getInstance(getActivity().getApplicationContext()).addToRequestQueue(delete);
     }
 
     private void clear() {
