@@ -12,8 +12,11 @@ import cymind.repository.AbstractUserRepository;
 import cymind.repository.ArticleRepository;
 import cymind.repository.ExerciseRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
+import cymind.websocket2.NotificationSocket;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +28,8 @@ import java.util.Random;
 
 @Service
 public class ArticleService {
+    private static final Logger log = LoggerFactory.getLogger(ArticleService.class);
+
     @Autowired
     ArticleRepository articleRepository;
 
@@ -65,6 +70,14 @@ public class ArticleService {
         );
 
         articleRepository.save(article);
+
+        // Websocket trigger.
+        try {
+            NotificationSocket.broadcastNewArticle(article);
+        } catch (Exception e) {
+            log.error("Error broadcasting article notification: {}", e.getMessage());
+        }
+
         return new ArticleDTO(article);
     }
 
