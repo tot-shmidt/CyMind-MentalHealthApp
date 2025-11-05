@@ -36,12 +36,54 @@
             android:layout_gravity="center_vertical"/>
 
         <Button
+            android:id="@+id/searchToggleBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔍"
+            android:textSize="20sp"
+            android:backgroundTint="#00000000"/>
+
+        <Button
             android:id="@+id/infoBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ⓘ"
             android:textSize="20sp"
             android:backgroundTint="#00000000"/>
+    </LinearLayout>
+
+    <!-- Search Bar -->
+    <LinearLayout
+        android:id="@+id/searchBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#F5F5F5"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/searchEt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Search messages..."
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/searchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"/>
+
+        <Button
+            android:id="@+id/clearSearchBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"
+            android:layout_marginStart="4dp"/>
     </LinearLayout>
 
     <!-- Messages RecyclerView -->
