@@ -1,0 +1,111 @@
+package com.example.myapplication;
+
+import androidx.fragment.app.Fragment;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ProfessionalAppointmentFragment extends Fragment {
+
+
+    private int studentId;
+    private String userEmail;
+    private String userPassword;
+    private TextView appointmentInfo;
+
+    private int id;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_prof_appointment_list, container, false);
+
+        appointmentInfo = v.findViewById(R.id.appointment_info);
+
+        Bundle bund = getArguments();
+        assert bund != null;
+        studentId = bund.getInt("userID", -1);
+        userEmail = bund.getString("userEmail");
+        userPassword = bund.getString("userPassword");
+        id = bund.getInt("id", -1);
+
+        Authorization.globalUserEmail = userEmail;
+        Authorization.globalPassword = userPassword;
+
+        String getURL = "http://coms-3090-066.class.las.iastate.edu:8080/appointments";
+
+        JsonArrayRequest get = new JsonArrayRequest(Request.Method.GET, getURL, null,
+                response -> {
+                    try {
+                        StringBuilder appointmentList = new StringBuilder();
+
+                        for(int i = 0; i < response.length(); i++) {
+                            JSONObject appointment = response.getJSONObject(i);
+
+                            int id = appointment.getInt("id");
+                            String startTime = appointment.getString("startTime");
+                            int duration = appointment.getInt("duration");
+                            int appointmentGroupId = appointment.getInt("appointmentGroupId");
+                            String status = appointment.getString("status");
+
+                            String location = appointment.isNull("location") ? "" : appointment.getString("location");
+                            String title = appointment.isNull("title") ? "" : appointment.getString("title");
+                            String description = appointment.isNull("description") ? "" : appointment.getString("description");
+
+                            appointmentList.append("Appointment ID: ").append(id)
+                                    .append("\nTitle: ").append(title)
+                                    .append("\nTime: ").append(startTime)
+                                    .append("\nDuration: ").append(duration).append(" min")
+                                    .append("\nLocation: ").append(location)
+                                    .append("\nStatus: ").append(status)
+                                    .append("\nDescription: ").append(description)
+                                    .append("\n\n");
+
+                        }
+
+
+                        appointmentInfo.setText(appointmentList.toString());
+
+                    } catch (JSONException e) {
+                        Log.e("StudentAppointmentFragment", "Error parsing appointment JSON", e);
+                    }
+                },
+                error -> Log.e("StudentAppointmentFragment", "Error fetching appointment", error)
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                return headers;
+            }
+        };
+        VolleySingleton.getInstance(requireContext()).addToRequestQueue(get);
+
+        return v;
+    }
+}
