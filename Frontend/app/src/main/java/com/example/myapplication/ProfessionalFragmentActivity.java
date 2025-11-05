@@ -18,6 +18,8 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         String userLastName = getIntent().getStringExtra("userLastName");
         int userID = getIntent().getIntExtra("userID", -1);
         int userAge = getIntent().getIntExtra("userAge", -1);
+        String userJobTitle = getIntent().getStringExtra("userJobTitle");
+        String userLicenseNumber = getIntent().getStringExtra("userLicenseNumber");
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
@@ -34,6 +36,8 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         bund.putString("userLastName", userLastName);
         bund.putInt("userAge", userAge);
         bund.putInt("userID", userID);
+        bund.putString("userJobTitle", userJobTitle);
+        bund.putString("userLicenseNumber", userLicenseNumber);
         homeFragment.setArguments(bund);
         appointmentFragment.setArguments(bund);
 
