@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 public class ProfessionalAppointmentFragment extends Fragment {
 
-    private Button makeAppointment;
+
     private int studentId;
     private String userEmail;
     private String userPassword;
@@ -41,7 +42,7 @@ public class ProfessionalAppointmentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_appointment_list, container, false);
+        View v = inflater.inflate(R.layout.fragment_prof_appointment_list, container, false);
 
         appointmentInfo = v.findViewById(R.id.appointment_info);
 
@@ -55,31 +56,39 @@ public class ProfessionalAppointmentFragment extends Fragment {
         Authorization.globalUserEmail = userEmail;
         Authorization.globalPassword = userPassword;
 
-        String getURL = "http://coms-3090-066.class.las.iastate.edu:8080/appointments/" + id;
+        String getURL = "http://coms-3090-066.class.las.iastate.edu:8080/appointments";
 
-        JsonObjectRequest get = new JsonObjectRequest(Request.Method.GET, getURL, null,
+        JsonArrayRequest get = new JsonArrayRequest(Request.Method.GET, getURL, null,
                 response -> {
                     try {
-                        int id = response.getInt("id");
-                        String startTime = response.getString("startTime");
-                        int duration = response.getInt("duration");
-                        int appointmentGroupId = response.getInt("appointmentGroupId");
-                        String status = response.getString("status");
+                        StringBuilder appointmentList = new StringBuilder();
 
-                        String location = response.isNull("location") ? "" : response.getString("location");
-                        String title = response.isNull("title") ? "" : response.getString("title");
-                        String description = response.isNull("description") ? "" : response.getString("description");
+                        for(int i = 0; i < response.length(); i++) {
+                            JSONObject appointment = response.getJSONObject(i);
+
+                            int id = appointment.getInt("id");
+                            String startTime = appointment.getString("startTime");
+                            int duration = appointment.getInt("duration");
+                            int appointmentGroupId = appointment.getInt("appointmentGroupId");
+                            String status = appointment.getString("status");
+
+                            String location = appointment.isNull("location") ? "" : appointment.getString("location");
+                            String title = appointment.isNull("title") ? "" : appointment.getString("title");
+                            String description = appointment.isNull("description") ? "" : appointment.getString("description");
+
+                            appointmentList.append("Appointment ID: ").append(id)
+                                    .append("\nTitle: ").append(title)
+                                    .append("\nTime: ").append(startTime)
+                                    .append("\nDuration: ").append(duration).append(" min")
+                                    .append("\nLocation: ").append(location)
+                                    .append("\nStatus: ").append(status)
+                                    .append("\nDescription: ").append(description)
+                                    .append("\n\n");
+
+                        }
 
 
-                        String display = "Appointment ID: " + id +
-                                "\nTitle: " + title +
-                                "\nTime: " + startTime +
-                                "\nDuration: " + duration + " min" +
-                                "\nLocation: " + location +
-                                "\nStatus: " + status +
-                                "\nDescription: " + description;
-
-                        appointmentInfo.setText(display);
+                        appointmentInfo.setText(appointmentList.toString());
 
                     } catch (JSONException e) {
                         Log.e("StudentAppointmentFragment", "Error parsing appointment JSON", e);
@@ -97,26 +106,6 @@ public class ProfessionalAppointmentFragment extends Fragment {
         };
         VolleySingleton.getInstance(requireContext()).addToRequestQueue(get);
 
-
-        makeAppointment = v.findViewById(R.id.make_app_button);
-
-        makeAppointment.setOnClickListener(view -> {
-            StudentAppointmentFragment fragment = new StudentAppointmentFragment();
-
-            Bundle bundle = new Bundle();
-            bundle.putInt("userID", studentId);
-            bundle.putString("userEmail", userEmail);
-            bundle.putString("userPassword", userPassword);
-            fragment.setArguments(bundle);
-
-            FragmentTransaction next = requireActivity().getSupportFragmentManager().beginTransaction();
-
-            next.replace(R.id.flFragment, fragment);
-            next.addToBackStack(null);
-            next.commit();
-        });
-
         return v;
     }
-
 }
