@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.myapplication.chat.ChatManager;
+
 public class ProfessionalHomeFragment extends Fragment {
 
     // Declare your views here
@@ -59,6 +61,7 @@ public class ProfessionalHomeFragment extends Fragment {
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
             welcomeMessage.append(", " + userFirstName + "!");
+            ChatManager.getInstance().setCurrentUserId(userID); // Set professional user ID
         }
 
         /* Uncomment when Professional Profile is made

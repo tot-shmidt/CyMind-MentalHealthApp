@@ -136,16 +136,20 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                         int articleId = response.getInt(i);
 
                         // Fetch the full resource for each ID
-                        getStudentResource(articleId);
-                        Log.d("Volley", "created resource for article ID + articleId");
+                        if (getActivity() != null) {
+                            getStudentResource(articleId);
+                            Log.d("Volley", "created resource for article ID + articleId");
+                        }
                     }
                 } catch (JSONException e) {
                     Log.e("getArticlesByCategory", "JSON parse error", e);
-                    Toast.makeText(
-                            getActivity().getApplicationContext(),
-                            "Failed to parse article IDs for category " + category,
-                            Toast.LENGTH_LONG
-                    ).show();
+                    if (getActivity() != null) {
+                        Toast.makeText(
+                                getActivity().getApplicationContext(),
+                                "Failed to parse article IDs for category " + category,
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
                 }
             },
             error -> {
@@ -248,8 +252,10 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         };
 
         // Add request to the Volley queue
-        VolleySingleton.getInstance(getActivity().getApplicationContext())
-                .addToRequestQueue(jsonObjReq);
+        if (getActivity() != null) {
+            VolleySingleton.getInstance(getActivity().getApplicationContext())
+                    .addToRequestQueue(jsonObjReq);
+        }
     }
 
     private void clear() {

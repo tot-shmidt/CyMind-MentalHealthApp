@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.myapplication.chat.ChatManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,9 +82,12 @@ public class StudentHomeFragment extends Fragment {
         userMajor = getActivity().getIntent().getStringExtra("userMajor");
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
 
+
+
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
             welcomeMessage.append(", " + userFirstName + "!");
+            ChatManager.getInstance().setCurrentUserId(userID); // Use actual user ID
         }
 
         buttonProfile.setOnClickListener(v -> {

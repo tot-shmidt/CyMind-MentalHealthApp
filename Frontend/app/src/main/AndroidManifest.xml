@@ -13,47 +13,61 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.App"
+        android:theme="@style/Theme.Demo"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:name="com.example.myapplication.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".WelcomeActivity"
-            android:exported="true">
+            android:exported="true"
+            android:name="com.example.myapplication.WelcomeActivity">
         </activity>
         <activity
-            android:name=".LogInProfessional"
-            android:exported="true">
+            android:exported="true"
+            android:name="com.example.myapplication.LogInProfessional">
+        </activity>
+
+        <activity
+            android:exported="true"
+            android:name="com.example.myapplication.SignUpProfessional">
         </activity>
         <activity
-            android:name=".SignUpProfessional"
-            android:exported="true">
+            android:exported="false"
+            android:name="com.example.myapplication.GeneralFragmentActivity">
+        </activity>
+
+        <activity
+            android:exported="false"
+            android:name="com.example.myapplication.ProfessionalFragmentActivity">
         </activity>
         <activity
             android:name=".ProfessionalFragmentActivity"
             android:exported="false">
         </activity>
         <activity
-            android:name=".GeneralFragmentActivity"
-            android:exported="false">
+            android:exported="false"
+            android:name="com.example.myapplication.StudentProfileActivity">
         </activity>
         <activity
-            android:name=".ProfessionalFragmentActivity"
-            android:exported="false">
+            android:exported="false"
+            android:name="com.example.myapplication.MoodActivity">
         </activity>
         <activity
-            android:name=".StudentProfileActivity"
-            android:exported="false">
+            android:exported="false"
+            android:name="com.example.myapplication.StudentSignUpActivity">
         </activity>
+        <service android:name="com.example.myapplication.chat.WebSocketService">
+        </service>
+        <service android:name="com.example.myapplication.chat.ChatMessageAdapter">
+        </service>
         <activity
-            android:name=".MoodActivity"
-            android:exported="false">
+            android:exported="false"
+            android:name="com.example.myapplication.chat.CreateChatActivity">
         </activity>
         <activity
             android:name=".UpdateResourceActivity"
@@ -64,16 +78,16 @@
             android:exported="false">
         </activity>
         <activity
-            android:name=".StudentSignUpActivity"
-            android:exported="false" >
+            android:exported="false"
+            android:name="com.example.myapplication.chat.ChatActivity">
         </activity>
         <activity
-            android:name=".CreateChatActivity"
-            android:exported="false" >
+            android:exported="false"
+            android:name="com.example.myapplication.chat.ChatInfoActivity">
         </activity>
         <activity
-            android:name=".GroupInfoActivity"
-            android:exported="false" >
+            android:exported="false"
+            android:name="com.example.myapplication.chat.AddMemberActivity">
         </activity>
     </application>
 
