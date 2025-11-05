@@ -116,7 +116,7 @@ public class AppointmentService {
 
         checkAuth(appointment.getAppointmentGroup());
 
-        AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(id);
+        AppointmentGroup appointmentGroup = appointmentGroupRepository.findById(appointment.getAppointmentGroup().getId());
         if (appointmentGroup == null) {
             throw new NoResultException("No appointment group found");
         }
