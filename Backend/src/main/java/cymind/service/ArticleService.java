@@ -12,7 +12,7 @@ import cymind.repository.AbstractUserRepository;
 import cymind.repository.ArticleRepository;
 import cymind.repository.ExerciseRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
-import cymind.websocket2.NotificationSocket;
+import cymind.websocket.notification.NotificationSocket;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

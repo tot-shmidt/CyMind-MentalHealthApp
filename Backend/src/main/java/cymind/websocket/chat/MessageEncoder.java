@@ -1,11 +1,9 @@
-package cymind.chat;
+package cymind.websocket.chat;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cymind.dto.chat.MessageDTO;
-import jakarta.websocket.DecodeException;
 import jakarta.websocket.EncodeException;
 import jakarta.websocket.Encoder;
 

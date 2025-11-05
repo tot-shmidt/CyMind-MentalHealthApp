@@ -1,4 +1,4 @@
-package cymind.websocket2;
+package cymind.websocket.notification;
 
 import java.io.IOException;
 import java.util.Hashtable;
