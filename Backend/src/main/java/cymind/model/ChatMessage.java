@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -19,8 +20,7 @@ public class ChatMessage {
     @NotNull
     String content;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    Date timestamp = new Date();
+    LocalDateTime timestamp;
 
     @ManyToOne
     @JoinColumn(name = "sender_id")
@@ -30,9 +30,10 @@ public class ChatMessage {
     @JoinColumn(name = "group_id")
     ChatGroup chatGroup;
 
-    public ChatMessage(AbstractUser sender, ChatGroup group, String content) {
+    public ChatMessage(AbstractUser sender, ChatGroup group, String content, LocalDateTime timestamp) {
         this.sender = sender;
         this.chatGroup = group;
         this.content = content;
+        this.timestamp = timestamp;
     }
 }
