@@ -3,6 +3,7 @@ package cymind.controller;
 import cymind.dto.appointment.CreateAppointmentGroupDTO;
 import cymind.dto.chat.ChatGroupDTO;
 import cymind.dto.chat.CreateChatGroupDTO;
+import cymind.dto.chat.MessageDTO;
 import cymind.repository.ChatGroupRepository;
 import cymind.service.ChatGroupService;
 import jakarta.validation.Valid;
@@ -42,5 +43,10 @@ public class ChatGroupController {
     ResponseEntity<?> deleteChatGroup(@PathVariable long id) {
         chatGroupService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/chat/groups/{id}/messages")
+    ResponseEntity<List<MessageDTO>> getMessages(@PathVariable Long id, @RequestParam(name = "search", required = false) String search) {
+        return new ResponseEntity<>(chatGroupService.getMessages(id, search), HttpStatus.OK);
     }
 }

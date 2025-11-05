@@ -2,12 +2,14 @@ package cymind.service;
 
 import cymind.dto.chat.ChatGroupDTO;
 import cymind.dto.chat.CreateChatGroupDTO;
+import cymind.dto.chat.MessageDTO;
 import cymind.enums.UserType;
 import cymind.model.AbstractUser;
 import cymind.model.ChatGroup;
 import cymind.model.MentalHealthProfessional;
 import cymind.model.Student;
 import cymind.repository.ChatGroupRepository;
+import cymind.repository.ChatMessageRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
 import cymind.repository.StudentRepository;
 import jakarta.persistence.NoResultException;
@@ -31,6 +33,8 @@ public class ChatGroupService {
 
     @Autowired
     private MentalHealthProfessionalRepository mentalHealthProfessionalRepository;
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
 
     @Transactional
     public ChatGroupDTO create(CreateChatGroupDTO chatGroupDTO) {
@@ -68,6 +72,18 @@ public class ChatGroupService {
         }
 
         return new ChatGroupDTO(chatGroupRepository.findById(id));
+    }
+
+    public List<MessageDTO> getMessages(long id, String search) {
+        if (search != null && !search.isEmpty()) {
+            return chatMessageRepository.findAllByChatGroup_IdAndContentContainsOrderByTimestampDesc(id, search).stream()
+                    .map(MessageDTO::new)
+                    .toList();
+        } else {
+            return chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(id).stream()
+                    .map(MessageDTO::new)
+                    .toList();
+        }
     }
 
     @Transactional
