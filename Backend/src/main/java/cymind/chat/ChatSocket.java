@@ -1,7 +1,8 @@
 package cymind.chat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import cymind.dto.chat.MessageDTO;
 import cymind.model.AbstractUser;
 import cymind.model.ChatGroup;
@@ -51,7 +52,7 @@ public class ChatSocket {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("groupId") Long groupId, @PathParam("userId") Long userId) {
+    public void onOpen(Session session, @PathParam("groupId") Long groupId, @PathParam("userId") Long userId) throws EncodeException, IOException {
         AbstractUser user = abstractUserRepository.findById(userId.longValue());
         ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
         log.info("[onOpen] groupId: {} groupName: {} userId: {} name: {} {}", groupId, chatGroup.getGroupName(), userId, user.getFirstName(), user.getLastName());
@@ -67,6 +68,8 @@ public class ChatSocket {
         } else {
             groupSession.add(session);
         }
+
+        sendGroupHistory(session);
     }
 
     @OnClose
@@ -86,7 +89,14 @@ public class ChatSocket {
     public void onMessage(Session session, MessageDTO messageDTO) {
         log.info("[onMessage] chatMessageJson: {}", messageDTO);
 
+        Long userId = sessionUserIdMap.get(session);
+        AbstractUser user = abstractUserRepository.findById(userId.longValue());
         Long groupId = sessionGroupIdMap.get(session);
+        ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
+
+        ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
+        chatMessageRepository.save(chatMessage);
+
         sendToGroup(messageDTO, groupId);
     }
 
@@ -103,5 +113,17 @@ public class ChatSocket {
                 log.error("[sendToGroup] id: {} - {}", session.getId(), e.getMessage());
             }
         });
+    }
+
+    private void sendGroupHistory(Session session) throws IOException {
+        Long groupId = sessionGroupIdMap.get(session);
+        List<MessageDTO> messages = chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(groupId).stream()
+                .map(MessageDTO::new)
+                .toList();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        session.getBasicRemote().sendText(mapper.writeValueAsString(messages));
     }
 }
