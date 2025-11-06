@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.myapplication.chat.ProfessionalChatFragment;
+import com.example.myapplication.chat.StudentChatFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ProfessionalFragmentActivity extends AppCompatActivity {
@@ -28,9 +29,6 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         Fragment resourceFragment = new ProfessionalResourceFragment();
         Fragment chatFragment = new StudentChatFragment();
         Fragment appointmentFragment = new ProfessionalAppointmentFragment();
-        Fragment resourceFragment = new StudentResourceFragment();
-        Fragment chatFragment = new ProfessionalChatFragment();
-        Fragment appointmentFragment = new StudentAppointmentFragment();
 
         // create bundle of values as arguments
         Bundle bund = new Bundle();

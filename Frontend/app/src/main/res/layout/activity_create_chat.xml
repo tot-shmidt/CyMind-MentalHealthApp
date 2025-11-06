@@ -30,20 +30,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Server URL"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
-
-    <EditText
-        android:id="@+id/serverUrlEt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="ws://localhost:8080/chat"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Select Professionals"
         android:textSize="16sp"
         android:textStyle="bold"

@@ -63,26 +63,38 @@ public class ProfessionalChatFragment extends Fragment {
     }
 
     private void loadChatRooms() {
-        // Get only chats where this professional is included
+        // Fetch chat groups from backend using GET /chat/groups
         int professionalId = chatManager.getCurrentUserId();
 
-        // Debug logging
-        android.util.Log.d("ProfessionalChatFragment", "Professional ID: " + professionalId);
-        android.util.Log.d("ProfessionalChatFragment", "Total chats in manager: " + chatManager.getAllChatRooms().size());
+        chatManager.fetchChatGroups(getContext(), new ChatManager.ChatGroupsCallback() {
+            @Override
+            public void onSuccess(List<ChatRoom> chatRooms) {
+                android.util.Log.d("ProfessionalChatFragment", "Loaded " + chatRooms.size() + " chat groups from server");
 
-        List<ChatRoom> allChats = chatManager.getAllChatRooms();
-        for (ChatRoom room : allChats) {
-            android.util.Log.d("ProfessionalChatFragment", "Chat: " + room.getChatName() +
-                " - Professional IDs: " + room.getProfessionalIds().toString());
-        }
+                // Filter to only chats where this professional is a member
+                List<ChatRoom> professionalChats = chatManager.getChatRoomsForProfessional(professionalId);
+                android.util.Log.d("ProfessionalChatFragment", "Filtered to " + professionalChats.size() + " chats for professional ID: " + professionalId);
 
-        List<ChatRoom> professionalChats = chatManager.getChatRoomsForProfessional(professionalId);
-        android.util.Log.d("ProfessionalChatFragment", "Filtered chats for professional: " + professionalChats.size());
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        adapter.updateChatRooms(professionalChats);
+                    });
+                }
+            }
 
-        adapter.updateChatRooms(professionalChats);
+            @Override
+            public void onError(String errorMessage) {
+                android.util.Log.e("ProfessionalChatFragment", "Error loading chat groups: " + errorMessage);
 
-        // TODO: Uncomment when backend is ready to fetch chats from server
-        // fetchChatsFromBackend();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        // Fallback to locally cached chats
+                        List<ChatRoom> cachedRooms = chatManager.getChatRoomsForProfessional(professionalId);
+                        adapter.updateChatRooms(cachedRooms);
+                    });
+                }
+            }
+        });
     }
 
     /**

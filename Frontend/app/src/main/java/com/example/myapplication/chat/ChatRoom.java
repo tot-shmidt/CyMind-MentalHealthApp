@@ -8,20 +8,27 @@ public class ChatRoom {
     private String chatName;
     private int creatorId; // Student who created the chat
     private List<Integer> professionalIds;
+    private List<Integer> studentIds;
     private String webSocketUrl;
     private long createdTimestamp;
     private String lastMessage;
     private long lastMessageTimestamp;
 
-    public ChatRoom(String chatId, String chatName, List<Integer> professionalIds, String webSocketUrl) {
+    public ChatRoom(String chatId, String chatName, List<Integer> professionalIds, List<Integer> studentIds, String webSocketUrl) {
         this.chatId = chatId;
         this.chatName = chatName;
         this.creatorId = -1; // Will be set separately
         this.professionalIds = professionalIds != null ? professionalIds : new ArrayList<>();
+        this.studentIds = studentIds != null ? studentIds : new ArrayList<>();
         this.webSocketUrl = webSocketUrl;
         this.createdTimestamp = System.currentTimeMillis();
         this.lastMessage = "";
         this.lastMessageTimestamp = 0;
+    }
+
+    // Legacy constructor for backward compatibility
+    public ChatRoom(String chatId, String chatName, List<Integer> professionalIds, String webSocketUrl) {
+        this(chatId, chatName, professionalIds, new ArrayList<>(), webSocketUrl);
     }
 
     // Getters
@@ -29,6 +36,7 @@ public class ChatRoom {
     public String getChatName() { return chatName; }
     public int getCreatorId() { return creatorId; }
     public List<Integer> getProfessionalIds() { return professionalIds; }
+    public List<Integer> getStudentIds() { return studentIds; }
     public String getWebSocketUrl() { return webSocketUrl; }
     public long getCreatedTimestamp() { return createdTimestamp; }
     public String getLastMessage() { return lastMessage; }
@@ -44,6 +52,11 @@ public class ChatRoom {
     public void addProfessional(int professionalId) {
         if (!professionalIds.contains(professionalId)) {
             professionalIds.add(professionalId);
+        }
+    }
+    public void addStudent(int studentId) {
+        if (!studentIds.contains(studentId)) {
+            studentIds.add(studentId);
         }
     }
 }

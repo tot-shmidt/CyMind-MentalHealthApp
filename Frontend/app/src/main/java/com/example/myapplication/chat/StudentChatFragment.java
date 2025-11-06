@@ -73,20 +73,32 @@ public class StudentChatFragment extends Fragment {
     }
 
     private void loadChatRooms() {
-        List<ChatRoom> chatRooms = chatManager.getAllChatRooms();
+        // Fetch chat groups from backend using GET /chat/groups
+        chatManager.fetchChatGroups(getContext(), new ChatManager.ChatGroupsCallback() {
+            @Override
+            public void onSuccess(List<ChatRoom> chatRooms) {
+                android.util.Log.d("StudentChatFragment", "Loaded " + chatRooms.size() + " chat groups from server");
 
-        // Debug logging
-        android.util.Log.d("StudentChatFragment", "Student ID: " + chatManager.getCurrentUserId());
-        android.util.Log.d("StudentChatFragment", "Total chats: " + chatRooms.size());
-        for (ChatRoom room : chatRooms) {
-            android.util.Log.d("StudentChatFragment", "Chat: " + room.getChatName() +
-                " - Professional IDs: " + room.getProfessionalIds().toString());
-        }
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        adapter.updateChatRooms(chatRooms);
+                    });
+                }
+            }
 
-        adapter.updateChatRooms(chatRooms);
+            @Override
+            public void onError(String errorMessage) {
+                android.util.Log.e("StudentChatFragment", "Error loading chat groups: " + errorMessage);
 
-        // TODO: Uncomment when backend is ready to fetch chats from server
-        // fetchChatsFromBackend();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        // Fallback to locally cached chats
+                        List<ChatRoom> cachedRooms = chatManager.getAllChatRooms();
+                        adapter.updateChatRooms(cachedRooms);
+                    });
+                }
+            }
+        });
     }
 
     /**

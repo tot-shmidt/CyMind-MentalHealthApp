@@ -7,6 +7,9 @@ import android.util.Log;
 import androidx.lifecycle.Observer;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,23 +79,45 @@ public class WebSocketService extends Service {
             WebSocketClient webSocketClient = new WebSocketClient(serverUri) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
-                    Log.d(key, "Connected");
+                    Log.d(key, "Connected to WebSocket");
                 }
 
                 @Override
                 public void onMessage(String message) {
-                    // Post message to ChatManager LiveData
-                    chatManager.postMessage(key, message);
+                    Log.d(key, "Received message: " + message);
+
+                    try {
+                        // Check if it's an array (initial message history) or single object
+                        if (message.trim().startsWith("[")) {
+                            // Initial message history - array of messages
+                            JSONArray messageArray = new JSONArray(message);
+                            for (int i = 0; i < messageArray.length(); i++) {
+                                JSONObject msgObj = messageArray.getJSONObject(i);
+                                // Post each message to ChatManager
+                                chatManager.postMessage(key, msgObj.toString());
+                            }
+                            Log.d(key, "Loaded " + messageArray.length() + " historical messages");
+                        } else {
+                            // Single incoming message - {groupId, senderId, content, timestamp}
+                            JSONObject msgObj = new JSONObject(message);
+                            chatManager.postMessage(key, message);
+                            Log.d(key, "Received new message from sender: " + msgObj.optInt("senderId", -1));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(key, "Error parsing message JSON: " + e.getMessage());
+                        // If JSON parsing fails, post raw message as fallback
+                        chatManager.postMessage(key, message);
+                    }
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    Log.d(key, "Closed: " + reason);
+                    Log.d(key, "WebSocket closed: " + reason);
                 }
 
                 @Override
                 public void onError(Exception ex) {
-                    Log.e(key, "Error: " + ex.getMessage());
+                    Log.e(key, "WebSocket error: " + ex.getMessage());
                 }
             };
 
