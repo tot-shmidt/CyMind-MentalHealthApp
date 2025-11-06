@@ -93,16 +93,28 @@ public class ChatSocket {
         Long userId = sessionUserIdMap.get(session);
         Long groupId = sessionGroupIdMap.get(session);
 
+        MessageDTO response;
         if (messageDTO.messageType() == MessageType.MESSAGE) {
             AbstractUser user = abstractUserRepository.findById(userId.longValue());
             ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
 
             ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
-            chatMessageRepository.save(chatMessage);
+            response = new MessageDTO(chatMessageRepository.save(chatMessage));
         } else if (messageDTO.messageType() == MessageType.DELETE) {
+            chatMessageRepository.deleteById(messageDTO.messageId());
+
+            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), null, messageDTO.timestamp(), MessageType.DELETE);
+        } else if (messageDTO.messageType() == MessageType.EDIT) {
+            ChatMessage message = chatMessageRepository.findById(messageDTO.messageId().longValue());
+            message.setContent(messageDTO.content());
+            chatMessageRepository.save(message);
+
+            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), null, messageDTO.timestamp(), MessageType.EDIT);
+        } else {
+            response = new MessageDTO(null, null, "Unable to parse message type", null, MessageType.ERROR);
         }
 
-        sendToGroup(messageDTO, groupId);
+        sendToGroup(response, groupId);
     }
 
     @OnError

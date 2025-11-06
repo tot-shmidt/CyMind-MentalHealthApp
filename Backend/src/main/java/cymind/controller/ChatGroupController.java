@@ -49,4 +49,9 @@ public class ChatGroupController {
     ResponseEntity<List<MessageDTO>> getMessages(@PathVariable Long id, @RequestParam(name = "search", required = false) String search) {
         return new ResponseEntity<>(chatGroupService.getMessages(id, search), HttpStatus.OK);
     }
+
+    @GetMapping("/chat/groups/{id}/messages/{messageId}")
+    ResponseEntity<MessageDTO> getMessages(@PathVariable Long id, @PathVariable Long messageId) {
+        return new ResponseEntity<>(chatGroupService.getMessageByMessageId(id, messageId), HttpStatus.OK);
+    }
 }

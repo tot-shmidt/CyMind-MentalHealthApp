@@ -74,6 +74,12 @@ public class ChatGroupService {
         return new ChatGroupDTO(chatGroupRepository.findById(id));
     }
 
+    @Transactional
+    public MessageDTO getMessageByMessageId(long groupId, long messageId) {
+        return new MessageDTO(chatMessageRepository.findById(messageId));
+    }
+
+    @Transactional
     public List<MessageDTO> getMessages(long id, String search) {
         if (search != null && !search.isEmpty()) {
             return chatMessageRepository.findAllByChatGroup_IdAndContentContainsOrderByTimestampDesc(id, search).stream()
