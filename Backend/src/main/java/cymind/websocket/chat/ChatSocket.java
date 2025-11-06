@@ -11,6 +11,7 @@ import cymind.model.ChatMessage;
 import cymind.repository.AbstractUserRepository;
 import cymind.repository.ChatGroupRepository;
 import cymind.repository.ChatMessageRepository;
+import cymind.service.ChatGroupService;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -54,8 +55,26 @@ public class ChatSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("groupId") Long groupId, @PathParam("userId") Long userId) throws EncodeException, IOException {
-        AbstractUser user = abstractUserRepository.findById(userId.longValue());
         ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
+        if (chatGroup == null) {
+            sendError(session, "Group not found");
+            session.close();
+            return;
+        }
+
+        AbstractUser user = abstractUserRepository.findById(userId.longValue());
+        if (user == null) {
+            sendError(session, "User not found");
+            session.close();
+            return;
+        }
+
+        if (!chatGroup.containsUser(user)) {
+            sendError(session, "User not part of group");
+            session.close();
+            return;
+        };
+
         log.info("[onOpen] groupId: {} groupName: {} userId: {} name: {} {}", groupId, chatGroup.getGroupName(), userId, user.getFirstName(), user.getLastName());
 
         sessionUserIdMap.put(session, userId);
@@ -87,13 +106,17 @@ public class ChatSocket {
     }
 
     @OnMessage
-    public void onMessage(Session session, MessageDTO messageDTO) {
+    public void onMessage(Session session, MessageDTO messageDTO) throws EncodeException, IOException {
         log.info("[onMessage] chatMessageJson: {}", messageDTO);
 
-        Long userId = sessionUserIdMap.get(session);
         Long groupId = sessionGroupIdMap.get(session);
+        Long userId = sessionUserIdMap.get(session);
+        if (userId != messageDTO.senderId()) {
+            sendError(session, "Sender id does not match sender");
+            return;
+        }
 
-        MessageDTO response;
+        MessageDTO response = null;
         if (messageDTO.messageType() == MessageType.MESSAGE) {
             AbstractUser user = abstractUserRepository.findById(userId.longValue());
             ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
@@ -101,28 +124,51 @@ public class ChatSocket {
             ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
             response = new MessageDTO(chatMessageRepository.save(chatMessage));
         } else if (messageDTO.messageType() == MessageType.DELETE) {
-            chatMessageRepository.deleteById(messageDTO.messageId());
+            ChatMessage chatMessage = chatMessageRepository.findById(messageDTO.messageId().longValue());
+            if (chatMessage == null) {
+                sendError(session, "Message not found");
+                return;
+            }
+            if (userId != chatMessage.getSender().getId()) {
+                sendError(session, "Current id does not match sender");
+                return;
+            }
 
+            chatMessageRepository.deleteById(messageDTO.messageId());
             response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), null, messageDTO.timestamp(), MessageType.DELETE);
         } else if (messageDTO.messageType() == MessageType.EDIT) {
-            ChatMessage message = chatMessageRepository.findById(messageDTO.messageId().longValue());
-            message.setContent(messageDTO.content());
-            chatMessageRepository.save(message);
+            ChatMessage chatMessage = chatMessageRepository.findById(messageDTO.messageId().longValue());
+            if (chatMessage == null) {
+                sendError(session, "Message not found");
+                return;
+            }
+            if (userId != chatMessage.getSender().getId()) {
+                sendError(session, "Current id does not match sender");
+                return;
+            }
+
+            chatMessage.setContent(messageDTO.content());
+            chatMessageRepository.save(chatMessage);
 
             response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), messageDTO.content(), messageDTO.timestamp(), MessageType.EDIT);
         } else {
-            response = new MessageDTO(null, null, "Unable to parse message type", null, MessageType.ERROR);
+            sendError(session, "Invalid message type");
         }
 
         sendToGroup(response, groupId);
     }
 
     @OnError
-    public void onError(Session session, Throwable error) {
+    public void onError(Session session, Throwable error) throws EncodeException, IOException {
+        sendError(session, error.getMessage());
         log.error("[onError] id: {} - {}", session.getId(), error.getMessage());
     }
 
     private void sendToGroup(MessageDTO messageDTO, Long groupId) {
+        if (messageDTO == null) {
+            return;
+        }
+
         groupIdSessionsMap.get(groupId).forEach(session -> {
             try {
                 session.getBasicRemote().sendObject(messageDTO);
@@ -142,5 +188,9 @@ public class ChatSocket {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         session.getBasicRemote().sendText(mapper.writeValueAsString(messages));
+    }
+
+    private void sendError(Session session, String message) throws EncodeException, IOException {
+        session.getBasicRemote().sendObject(new MessageDTO(null, null, message, null, MessageType.ERROR));
     }
 }

@@ -43,4 +43,20 @@ public class ChatGroup {
         this.students = students;
         this.groupName = groupName;
     }
+
+    public boolean containsUser(AbstractUser user) {
+        for (MentalHealthProfessional professional : professionals) {
+            if (professional.getAbstractUser().getId() == user.getId()) {
+                return true;
+            }
+        }
+
+        for (Student student : students) {
+            if (student.getId() == user.getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

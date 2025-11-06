@@ -4,10 +4,7 @@ import cymind.dto.chat.ChatGroupDTO;
 import cymind.dto.chat.CreateChatGroupDTO;
 import cymind.dto.chat.MessageDTO;
 import cymind.enums.UserType;
-import cymind.model.AbstractUser;
-import cymind.model.ChatGroup;
-import cymind.model.MentalHealthProfessional;
-import cymind.model.Student;
+import cymind.model.*;
 import cymind.repository.ChatGroupRepository;
 import cymind.repository.ChatMessageRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
@@ -50,6 +47,8 @@ public class ChatGroupService {
 
         ChatGroup chatGroup = new ChatGroup(professionalList, studentList, chatGroupDTO.groupName());
 
+        checkAuth(chatGroup);
+
         return new ChatGroupDTO(chatGroupRepository.save(chatGroup));
     }
 
@@ -67,26 +66,49 @@ public class ChatGroupService {
 
     @Transactional
     public ChatGroupDTO get(long id) {
-        if (!chatGroupRepository.existsById(id)) {
-            throw new NoResultException("No such chat group");
+        ChatGroup chatGroup = chatGroupRepository.findById(id);
+        if (chatGroup == null) {
+            throw new NoResultException("No chat group found");
         }
+        checkAuth(chatGroup);
 
-        return new ChatGroupDTO(chatGroupRepository.findById(id));
+        return new ChatGroupDTO(chatGroup);
     }
 
     @Transactional
     public MessageDTO getMessageByMessageId(long groupId, long messageId) {
-        return new MessageDTO(chatMessageRepository.findById(messageId));
+        ChatGroup chatGroup = chatGroupRepository.findById(groupId);
+        if (chatGroup == null) {
+            throw new NoResultException("No chat group found");
+        }
+        checkAuth(chatGroup);
+
+        ChatMessage chatMessage = chatMessageRepository.findById(messageId);
+        if (chatMessage == null) {
+            throw new NoResultException("No message found");
+        }
+
+        if (chatGroup.getChatMessages() == null || !chatGroup.getChatMessages().contains(chatMessage)) {
+            throw new AuthorizationDeniedException("Attempting to access a message using a different group");
+        }
+
+        return new MessageDTO(chatMessage);
     }
 
     @Transactional
-    public List<MessageDTO> getMessages(long id, String search) {
+    public List<MessageDTO> getMessages(long groupId, String search) {
+        ChatGroup chatGroup = chatGroupRepository.findById(groupId);
+        if (chatGroup == null) {
+            throw new NoResultException("No chat group found");
+        }
+        checkAuth(chatGroup);
+
         if (search != null && !search.isEmpty()) {
-            return chatMessageRepository.findAllByChatGroup_IdAndContentContainsOrderByTimestampDesc(id, search).stream()
+            return chatMessageRepository.findAllByChatGroup_IdAndContentContainsOrderByTimestampDesc(groupId, search).stream()
                     .map(MessageDTO::new)
                     .toList();
         } else {
-            return chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(id).stream()
+            return chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(groupId).stream()
                     .map(MessageDTO::new)
                     .toList();
         }
@@ -98,6 +120,7 @@ public class ChatGroupService {
         if (chatGroup == null) {
             throw new NoResultException("No such chat group");
         }
+        checkAuth(chatGroup);
 
         List<Student> studentList = studentRepository.findAllByAbstractUserIdIn(chatGroupDTO.studentIds());
         if (studentList.isEmpty()) {
@@ -118,10 +141,24 @@ public class ChatGroupService {
 
     @Transactional
     public void delete(long id) {
-        if (!chatGroupRepository.existsById(id)) {
+        ChatGroup chatGroup = chatGroupRepository.findById(id);
+        if (chatGroup == null) {
             throw new NoResultException("No such chat group");
         }
+        checkAuth(chatGroup);
 
         chatGroupRepository.deleteById(id);
     }
+
+    private void checkAuth(ChatGroup chatGroup) {
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(o instanceof AbstractUser authedUser)) {
+            throw new AuthorizationDeniedException("Invalid user");
+        }
+
+        if (!chatGroup.containsUser(authedUser)) {
+            throw new AuthorizationDeniedException("Attempting to access a group without user");
+        }
+    }
+
 }
