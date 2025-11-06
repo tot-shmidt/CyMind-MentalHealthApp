@@ -20,6 +20,8 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import cymind.dto.appointment.AppointmentNotificationDTO;
+import cymind.websocket2.NotificationSocket;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,7 +63,27 @@ public class AppointmentService {
         appointment.setDescription(appointmentDTO.description());
         appointment.setTitle(appointmentDTO.title());
 
-        return new AppointmentDTO(appointmentRepository.save(appointment));
+        // ~~~ MY STUFF FOR NOTIFICATIONS ~~~
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        try {
+            Long studentUserId = appointmentGroup.getStudent().getAbstractUser().getId();
+
+            AppointmentNotificationDTO notifDTO = new AppointmentNotificationDTO(
+                    "APPOINTMENT_BOOKED",
+                    savedAppointment.getTitle(),
+                    savedAppointment.getLocation(),
+                    savedAppointment.getStartTime()
+            );
+
+            NotificationSocket.sendNotificationToUser(studentUserId, notifDTO);
+
+        } catch (Exception e) {
+            log.error("Failed to send appointment creation notification for user {}: {}",
+                    appointmentGroup.getStudent().getAbstractUser().getId(), e.getMessage());
+        }
+
+        return new AppointmentDTO(savedAppointment);
     }
 
     @Transactional
