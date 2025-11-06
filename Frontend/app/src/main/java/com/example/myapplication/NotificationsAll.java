@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ public class NotificationsAll extends Fragment {
     private ArrayAdapter<String> adapter;
 
     private Spinner categorySpinner;
+    private SearchView search;
 
     @Nullable
     @Override
@@ -34,6 +36,7 @@ public class NotificationsAll extends Fragment {
         View v = inflater.inflate(R.layout.fragment_notifications_all, container, false);
         listView = v.findViewById(R.id.notification_list);
         categorySpinner = v.findViewById(R.id.category_spinner);
+        search = v.findViewById(R.id.notification_search);
 
         // Get notifications from WebSocketManager
         notifications.addAll(WebSocketManager.getInstance().getNotificationHistory());
@@ -70,6 +73,49 @@ public class NotificationsAll extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                String selected = (String) categorySpinner.getSelectedItem();
+                category_notifications.clear();
+
+                for (String notif : notifications) {
+                    boolean matchesCategory =
+                            selected.equals("All") ||
+                                    (selected.equals("Articles") && notif.contains("Article")) ||
+                                    (selected.equals("Appointments") && notif.contains("APPOINTMENT_BOOKED"));
+
+                    if (matchesCategory && notif.toLowerCase().contains(query.toLowerCase())) {
+                        category_notifications.add(notif);
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String selected = (String) categorySpinner.getSelectedItem();
+                category_notifications.clear();
+
+                for (String notif : notifications) {
+                    boolean matchesCategory =
+                            selected.equals("All") ||
+                                    (selected.equals("Articles") && notif.contains("Article")) ||
+                                    (selected.equals("Appointments") && notif.contains("APPOINTMENT_BOOKED"));
+
+                    if (matchesCategory && notif.toLowerCase().contains(newText.toLowerCase())) {
+                        category_notifications.add(notif);
+                    }
+                }
+
+                adapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+
 
 
         listView.setOnItemLongClickListener((parent, view1, position, id) -> {
