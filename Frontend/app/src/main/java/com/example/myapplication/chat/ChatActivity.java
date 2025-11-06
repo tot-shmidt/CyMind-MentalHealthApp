@@ -110,119 +110,108 @@ public class ChatActivity extends AppCompatActivity {
         messageObserver = messageEvent -> {
             if (messageEvent != null && chatId.equals(messageEvent.chatId)) {
                 runOnUiThread(() -> {
-                    // Parse message (adjust based on your backend format)
-                    int senderId = 0; // Default
-                    String content = messageEvent.message;
+                    // Parse message format: {groupId, senderId, content, timestamp}
+                    int senderId = 0;
+                    String content = "";
+                    long timestamp = System.currentTimeMillis();
+                    String groupId = chatId;
 
-                    if (messageEvent.message.contains(":")) {
-                        String[] parts = messageEvent.message.split(":", 2);
-                        try {
-                            senderId = Integer.parseInt(parts[0]);
-                            content = parts.length > 1 ? parts[1] : "";
-                        } catch (NumberFormatException e) {
-                            // If parsing fails, use default
-                            Log.w(TAG, "Failed to parse senderId from message");
-                        }
+                    try {
+                        JSONObject json = new JSONObject(messageEvent.message);
+                        groupId = json.optString("groupId", chatId);
+                        senderId = json.optInt("senderId", 0);
+                        content = json.optString("content", "");
+                        timestamp = json.optLong("timestamp", System.currentTimeMillis());
+
+                        Log.d(TAG, "Parsed message - groupId: " + groupId + ", senderId: " + senderId + ", content: " + content);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing message JSON: " + e.getMessage());
+                        // Fallback: treat entire message as content
+                        content = messageEvent.message;
                     }
 
                     boolean isSentByMe = (senderId == chatManager.getCurrentUserId());
 
                     ChatMessage chatMessage = new ChatMessage(
+                            groupId,
                             senderId,
                             content,
-                            System.currentTimeMillis(),
+                            timestamp,
                             isSentByMe
                     );
 
                     messages.add(chatMessage);
+                    allMessages.add(chatMessage);
                     messageAdapter.notifyItemInserted(messages.size() - 1);
                     messagesRv.scrollToPosition(messages.size() - 1);
 
                     chatManager.updateLastMessage(chatId, content);
-
-                    /* TODO: Uncomment when backend implements JSON message format
-                    // Expected format: {"groupId": "string", "content": "string", "senderUserId": int}
-                    int senderId = 0;
-                    String content = messageEvent.message;
-                    String groupId = null;
-
-                    try {
-                        org.json.JSONObject json = new org.json.JSONObject(messageEvent.message);
-                        groupId = json.optString("groupId", null);
-                        content = json.optString("content", messageEvent.message);
-                        senderId = json.optInt("senderUserId", 0);
-                    } catch (org.json.JSONException e) {
-                        // Not JSON, try old format (senderId:message)
-                        if (messageEvent.message.contains(":")) {
-                            String[] parts = messageEvent.message.split(":", 2);
-                            try {
-                                senderId = Integer.parseInt(parts[0]);
-                                content = parts.length > 1 ? parts[1] : "";
-                            } catch (NumberFormatException ex) {
-                                Log.w(TAG, "Failed to parse senderId from message");
-                            }
-                        }
-                    }
-
-                    boolean isSentByMe = (senderId == chatManager.getCurrentUserId());
-
-                    ChatMessage chatMessage;
-                    if (groupId != null) {
-                        chatMessage = new ChatMessage(
-                                groupId,
-                                senderId,
-                                content,
-                                System.currentTimeMillis(),
-                                isSentByMe
-                        );
-                    } else {
-                        chatMessage = new ChatMessage(
-                                senderId,
-                                content,
-                                System.currentTimeMillis(),
-                                isSentByMe
-                        );
-                    }
-
-                    messages.add(chatMessage);
-                    messageAdapter.notifyItemInserted(messages.size() - 1);
-                    messagesRv.scrollToPosition(messages.size() - 1);
-
-                    chatManager.updateLastMessage(chatId, content);
-                    */
                 });
             }
         };
 
         chatManager.getMessageEvent().observe(this, messageObserver);
 
+        // Connect to WebSocket for this chat
+        connectWebSocket();
+
         Log.d(TAG, "ChatActivity initialized for chatId: " + chatId);
     }
 
-    private void sendMessage() {
-        String message = messageEt.getText().toString().trim();
+    private void connectWebSocket() {
+        // Get the ChatRoom to retrieve the WebSocket URL
+        ChatRoom chatRoom = chatManager.getChatRoom(chatId);
+        if (chatRoom != null && chatRoom.getWebSocketUrl() != null) {
+            Intent serviceIntent = new Intent(this, WebSocketService.class);
+            serviceIntent.setAction("CONNECT");
+            serviceIntent.putExtra("key", chatId);
+            serviceIntent.putExtra("url", chatRoom.getWebSocketUrl());
+            startService(serviceIntent);
+            Log.d(TAG, "Connected to WebSocket for chatId: " + chatId);
+        } else {
+            Log.w(TAG, "No WebSocket URL found for chatId: " + chatId);
+        }
+    }
 
-        if (message.isEmpty()) {
+    private void sendMessage() {
+        String messageContent = messageEt.getText().toString().trim();
+
+        if (messageContent.isEmpty()) {
             return;
         }
 
-        // Send message through ChatManager LiveData
-        chatManager.sendMessage(chatId, message);
+        // Build message in format: {groupId, senderId, content, timestamp}
+        try {
+            JSONObject messageJson = new JSONObject();
+            messageJson.put("groupId", chatId);
+            messageJson.put("senderId", chatManager.getCurrentUserId());
+            messageJson.put("content", messageContent);
+            messageJson.put("timestamp", System.currentTimeMillis());
 
-        Log.d(TAG, "Message sent for chatId " + chatId + ": " + message);
+            // Send message through ChatManager LiveData
+            chatManager.sendMessage(chatId, messageJson.toString());
 
-        // Add message to local list (optimistic update)
-        ChatMessage chatMessage = new ChatMessage(
-                chatManager.getCurrentUserId(),
-                message,
-                System.currentTimeMillis(),
-                true
-        );
-        messages.add(chatMessage);
-        messageAdapter.notifyItemInserted(messages.size() - 1);
-        messagesRv.scrollToPosition(messages.size() - 1);
+            Log.d(TAG, "Message sent for chatId " + chatId + ": " + messageJson.toString());
 
-        messageEt.setText("");
+            // Add message to local list (optimistic update)
+            ChatMessage chatMessage = new ChatMessage(
+                    chatId,
+                    chatManager.getCurrentUserId(),
+                    messageContent,
+                    System.currentTimeMillis(),
+                    true
+            );
+            messages.add(chatMessage);
+            allMessages.add(chatMessage);
+            messageAdapter.notifyItemInserted(messages.size() - 1);
+            messagesRv.scrollToPosition(messages.size() - 1);
+
+            messageEt.setText("");
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error creating message JSON: " + e.getMessage());
+            Toast.makeText(this, "Error sending message", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void openChatInfo() {
@@ -240,6 +229,30 @@ public class ChatActivity extends AppCompatActivity {
                 // User left the chat, close this activity too
                 finish();
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Disconnect from WebSocket when leaving the chat screen
+        disconnectWebSocket();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Ensure WebSocket is disconnected when activity is destroyed
+        disconnectWebSocket();
+    }
+
+    private void disconnectWebSocket() {
+        if (chatId != null) {
+            Intent serviceIntent = new Intent(this, WebSocketService.class);
+            serviceIntent.setAction("DISCONNECT");
+            serviceIntent.putExtra("key", chatId);
+            startService(serviceIntent);
+            Log.d(TAG, "Disconnected from WebSocket for chatId: " + chatId);
         }
     }
 
@@ -268,8 +281,8 @@ public class ChatActivity extends AppCompatActivity {
 
         isSearching = true;
 
-        // Build URL with search parameter
-        String url = APP_API_URL + "chat/group/messages?search=" + searchQuery;
+        // Build URL: GET /chat/groups/{id}/messages?search={string}
+        String url = APP_API_URL + "chat/groups/" + chatId + "/messages?search=" + searchQuery;
 
         Log.d(TAG, "Searching messages with query: " + searchQuery);
 
@@ -282,21 +295,22 @@ public class ChatActivity extends AppCompatActivity {
                 List<ChatMessage> searchResults = new ArrayList<>();
 
                 try {
-                    // Parse search results
+                    // Parse search results: [{chatId, senderId, content, timestamp, messageType}, ...]
                     for (int i = 0; i < response.length(); i++) {
                         JSONObject msgObj = response.getJSONObject(i);
 
-                        String groupId = msgObj.optString("groupId", null);
+                        String msgChatId = msgObj.optString("chatId", chatId);
+                        int senderId = msgObj.optInt("senderId", 0);
                         String content = msgObj.optString("content", "");
-                        int senderUserId = msgObj.optInt("senderUserId", 0);
+                        long timestamp = msgObj.optLong("timestamp", System.currentTimeMillis());
 
-                        boolean isSentByCurrentUser = (senderUserId == chatManager.getCurrentUserId());
+                        boolean isSentByCurrentUser = (senderId == chatManager.getCurrentUserId());
 
                         ChatMessage chatMessage = new ChatMessage(
-                            groupId,
-                            senderUserId,
+                            msgChatId,
+                            senderId,
                             content,
-                            System.currentTimeMillis(),
+                            timestamp,
                             isSentByCurrentUser
                         );
 

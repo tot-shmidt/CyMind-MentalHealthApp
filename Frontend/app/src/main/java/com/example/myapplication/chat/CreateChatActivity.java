@@ -17,6 +17,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.example.myapplication.R;
 import com.example.myapplication.VolleySingleton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,13 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CreateChatActivity extends AppCompatActivity {
 
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
+    private static final String WS_URL = "ws://coms-3090-066.class.las.iastate.edu:8080/chat";
 
-    private EditText chatNameEt, serverUrlEt;
+    private EditText chatNameEt;
     private RecyclerView professionalsRv;
     private Button createBtn, cancelBtn;
     private ProfessionalSelectionAdapter professionalAdapter;
@@ -46,7 +48,6 @@ public class CreateChatActivity extends AppCompatActivity {
 
         // Initialize UI elements
         chatNameEt = findViewById(R.id.chatNameEt);
-        serverUrlEt = findViewById(R.id.serverUrlEt);
         professionalsRv = findViewById(R.id.professionalsRv);
         createBtn = findViewById(R.id.createBtn);
         cancelBtn = findViewById(R.id.cancelBtn);
@@ -99,7 +100,7 @@ public class CreateChatActivity extends AppCompatActivity {
         String url = APP_API_URL + "users/professional";
 
         // Optional: Add query parameters
-        // String url = APP_API_URL + "users/professional?name=searchName&num=10";
+        // String url = APP_API_URL + TBD?;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
             Request.Method.GET,
@@ -182,15 +183,9 @@ public class CreateChatActivity extends AppCompatActivity {
 
     private void createChat() {
         String chatName = chatNameEt.getText().toString().trim();
-        String serverUrl = serverUrlEt.getText().toString().trim();
 
         if (chatName.isEmpty()) {
             Toast.makeText(this, "Please enter a chat name", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (serverUrl.isEmpty()) {
-            Toast.makeText(this, "Please enter server URL", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -204,39 +199,132 @@ public class CreateChatActivity extends AppCompatActivity {
             return;
         }
 
-        // Generate unique chat ID
-        String chatId = "chat_" + UUID.randomUUID().toString().substring(0, 8);
+        // Create request body: {professionalIds, studentIds, groupName}
+        int userId = chatManager.getCurrentUserId();
 
-        // Build WebSocket URL (adjust format based on your backend)
-        int username = chatManager.getCurrentUserId();
-        String wsUrl = serverUrl + "/" + chatId + "/" + username;
+        try {
+            JSONObject requestBody = new JSONObject();
 
-        Log.d("CreateChatActivity", "Creating chat: " + chatName + " with ID: " + chatId);
-        Log.d("CreateChatActivity", "Professional IDs: " + selectedProfIds.toString());
-        Log.d("CreateChatActivity", "Current user ID: " + username);
+            // Add professionalIds array
+            org.json.JSONArray professionalIdsArray = new org.json.JSONArray();
+            for (Integer profId : selectedProfIds) {
+                professionalIdsArray.put(profId);
+            }
+            requestBody.put("professionalIds", professionalIdsArray);
 
-        // Create chat room
-        ChatRoom newChat = new ChatRoom(chatId, chatName, selectedProfIds, wsUrl);
-        newChat.setCreatorId(username); // Set the student who created it
-        chatManager.addChatRoom(newChat);
+            // Add studentIds array (current user only)
+            org.json.JSONArray studentIdsArray = new org.json.JSONArray();
+            studentIdsArray.put(userId);
+            requestBody.put("studentIds", studentIdsArray);
 
-        Log.d("CreateChatActivity", "Chat added to manager. Total chats now: " + chatManager.getAllChatRooms().size());
+            // Add groupName
+            requestBody.put("groupName", chatName);
 
-        // Start WebSocket service
-        Intent serviceIntent = new Intent(this, WebSocketService.class);
-        serviceIntent.setAction("CONNECT");
-        serviceIntent.putExtra("key", chatId);
-        serviceIntent.putExtra("url", wsUrl);
-        startService(serviceIntent);
+            Log.d("CreateChatActivity", "Creating chat with body: " + requestBody.toString());
 
-        Toast.makeText(this, "Chat created successfully!", Toast.LENGTH_SHORT).show();
+            // POST /chat/groups
+            String url = APP_API_URL + "chat/groups";
+            Log.d("CreateChatActivity", "POST URL: " + url);
+            Log.d("CreateChatActivity", "User ID: " + userId);
 
-        // Open the new chat
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("chatId", chatId);
-        intent.putExtra("chatName", chatName);
-        startActivity(intent);
+            com.android.volley.toolbox.JsonObjectRequest jsonObjectRequest = new com.android.volley.toolbox.JsonObjectRequest(
+                com.android.volley.Request.Method.POST,
+                url,
+                requestBody,
+                response -> {
+                    try {
+                        // Parse response: {id, professionalIds, studentIds, groupName, messageIds, createdOn}
+                        String groupId = response.getString("id");
+                        String groupName = response.getString("groupName");
 
-        finish();
+                        // Parse professionalIds array from response
+                        List<Integer> professionalIds = new ArrayList<>();
+                        org.json.JSONArray profIdsArray = response.optJSONArray("professionalIds");
+                        if (profIdsArray != null) {
+                            for (int i = 0; i < profIdsArray.length(); i++) {
+                                professionalIds.add(profIdsArray.getInt(i));
+                            }
+                        }
+
+                        // Parse studentIds array from response
+                        List<Integer> studentIds = new ArrayList<>();
+                        org.json.JSONArray studentIdsResponseArray = response.optJSONArray("studentIds");
+                        if (studentIdsResponseArray != null) {
+                            for (int i = 0; i < studentIdsResponseArray.length(); i++) {
+                                studentIds.add(studentIdsResponseArray.getInt(i));
+                            }
+                        }
+
+                        Log.d("CreateChatActivity", "Chat created successfully with ID: " + groupId);
+                        Log.d("CreateChatActivity", "ProfessionalIds: " + professionalIds);
+                        Log.d("CreateChatActivity", "StudentIds: " + studentIds);
+
+                        // Build WebSocket URL: ws://server/chat/{groupId}/{userId}
+                        String wsUrl = WS_URL + "/" + groupId + "/" + userId;
+
+                        // Create chat room with both professionalIds and studentIds
+                        ChatRoom newChat = new ChatRoom(groupId, groupName, professionalIds, studentIds, wsUrl);
+                        newChat.setCreatorId(userId);
+                        chatManager.addChatRoom(newChat);
+
+                        // Start WebSocket service
+                        Intent serviceIntent = new Intent(this, WebSocketService.class);
+                        serviceIntent.setAction("CONNECT");
+                        serviceIntent.putExtra("key", groupId);
+                        serviceIntent.putExtra("url", wsUrl);
+                        startService(serviceIntent);
+
+                        Toast.makeText(this, "Chat created successfully!", Toast.LENGTH_SHORT).show();
+
+                        // Open the new chat
+                        Intent intent = new Intent(this, ChatActivity.class);
+                        intent.putExtra("chatId", groupId);
+                        intent.putExtra("chatName", groupName);
+                        startActivity(intent);
+
+                        finish();
+
+                    } catch (JSONException e) {
+                        Log.e("CreateChatActivity", "Error parsing response: " + e.getMessage());
+                        Toast.makeText(this, "Error creating chat", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    Log.e("CreateChatActivity", "Error creating chat: " + error.toString());
+
+                    // Detailed error logging
+                    if (error.networkResponse != null) {
+                        Log.e("CreateChatActivity", "Status Code: " + error.networkResponse.statusCode);
+                        Log.e("CreateChatActivity", "Response Data: " + new String(error.networkResponse.data));
+                        Log.e("CreateChatActivity", "Headers: " + error.networkResponse.headers);
+                    } else {
+                        Log.e("CreateChatActivity", "Network Response is null - possible network issue");
+                    }
+
+                    if (error.getCause() != null) {
+                        Log.e("CreateChatActivity", "Cause: " + error.getCause().getMessage());
+                    }
+
+                    Toast.makeText(this, "Failed to create chat: " + error.toString(), Toast.LENGTH_LONG).show();
+                }
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    String authToken = generateAuthToken();
+                    headers.put("Authorization", "Basic " + authToken);
+                    Log.d("CreateChatActivity", "Request Headers: " + headers.toString());
+                    Log.d("CreateChatActivity", "Auth Token (first 20 chars): " + (authToken.length() > 20 ? authToken.substring(0, 20) : authToken));
+                    return headers;
+                }
+            };
+
+            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+
+        } catch (JSONException e) {
+            Log.e("CreateChatActivity", "Error building request: " + e.getMessage());
+            Toast.makeText(this, "Error creating chat", Toast.LENGTH_SHORT).show();
+        }
     }
 }
