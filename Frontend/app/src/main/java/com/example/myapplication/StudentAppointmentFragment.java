@@ -279,6 +279,8 @@ private  List<Integer> professionalIdList = new ArrayList<>();
                                 "Appointment booked (ID: " + id + ", Status: " + status + ")", Toast.LENGTH_LONG).show();
                         Log.d("StudentAppointment", "Booked appointment ID: " + id + " Status: " + status);
 
+
+
                         AppointmentListFragment appList = new AppointmentListFragment();
                         Bundle bundle = new Bundle();
                         bundle.putInt("id", id);
@@ -309,6 +311,8 @@ private  List<Integer> professionalIdList = new ArrayList<>();
 
         VolleySingleton.getInstance(requireContext()).addToRequestQueue(post);
     }
+
+
 
 
 }

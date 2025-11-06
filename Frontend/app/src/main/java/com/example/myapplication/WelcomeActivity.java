@@ -17,10 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends AppCompatActivity implements WebSocketListener{
 
     private static final String URL_LOGIN = "http://coms-3090-066.class.las.iastate.edu:8080/login";
     private EditText editTextEmail;
@@ -34,7 +35,6 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_welcome);
 
         // View initializations
@@ -89,6 +89,11 @@ public class WelcomeActivity extends AppCompatActivity {
                     Authorization.globalUserEmail = userEmail;
                     Authorization.globalPassword = editTextPassword.getText().toString();
                     Intent intent2 = new Intent(WelcomeActivity.this, GeneralFragmentActivity.class);
+
+                    String webSocketURL = "ws://coms-3090-066.class.las.iastate.edu:8080/notifications/" + userID;
+                    WebSocketManager.getInstance().setWebSocketListener(WelcomeActivity.this);
+                    WebSocketManager.getInstance().connectWebSocket(webSocketURL);
+
                     intent2.putExtra( "userFirstName", userFirstName);
                     intent2.putExtra( "userLastName", userLastName);
                     intent2.putExtra("userEmail", userEmail);
@@ -128,4 +133,58 @@ public class WelcomeActivity extends AppCompatActivity {
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
     }
+
+    @Override
+    public void onWebSocketOpen(ServerHandshake handshakedata) {
+        Log.d("WebSocket", "Connected to articles endpoint");
+    }
+
+    @Override
+    public void onWebSocketMessage(String message) {
+        Log.d("WebSocket", "New message: " + message);
+
+        WebSocketManager.getInstance().addNotification(message);
+
+        try {
+            JSONObject json = new JSONObject(message);
+
+            String notif_type = json.optString("type", "ARTICLE");
+
+            String title;
+            String body;
+
+            if (notif_type.equals("APPOINTMENT_BOOKED")) {
+                title = json.optString("title", "Appointment");
+                String location = json.optString("location", "");
+                String startTime = json.optString("startTime", "");
+                body = "New appointment booked at " + location + " on " + startTime;
+            } else {
+
+                title = json.optString("ArticleName", "New Article");
+                body = json.optString("message", "A new article is available!");
+            }
+
+            Notifications.showNotification(getApplicationContext(), title, body);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onWebSocketClose(int code, String reason, boolean remote) {
+        Log.d("WebSocket", "Closed: " + reason);
+    }
+
+    @Override
+    public void onWebSocketError(Exception ex) {
+        Log.e("WebSocket", "Error", ex);
+    }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        // Disconnect WebSocket when leaving this activity
+//        //WebSocketManager.getInstance().disconnectWebSocket();
+//    }
 }

@@ -6,6 +6,8 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton WebSocketManager instance used for managing WebSocket connections
@@ -19,6 +21,7 @@ public class WebSocketManager {
     private static WebSocketManager instance;
     private MyWebSocketClient webSocketClient;
     private WebSocketListener webSocketListener;
+    private List<String> notificationHistory = new ArrayList<>();
 
     private WebSocketManager() {}
 
@@ -170,6 +173,19 @@ public class WebSocketManager {
                 webSocketListener.onWebSocketError(ex);
             }
         }
+    }
+
+
+    public void addNotification(String notification) {
+        notificationHistory.add(notification);
+    }
+
+    public List<String> getNotificationHistory() {
+        return new ArrayList<>(notificationHistory);
+    }
+
+    public void removeNotification(String notif) {
+        notificationHistory.remove(notif);
     }
 }
 
