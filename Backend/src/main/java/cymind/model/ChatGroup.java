@@ -52,7 +52,7 @@ public class ChatGroup {
         }
 
         for (Student student : students) {
-            if (student.getId() == user.getId()) {
+            if (student.getAbstractUser().getId() == user.getId()) {
                 return true;
             }
         }

@@ -92,7 +92,7 @@ public class ChatGroupService {
             throw new AuthorizationDeniedException("Attempting to access a message using a different group");
         }
 
-        return new MessageDTO(chatMessage);
+        return new MessageDTO(chatMessage, chatMessage.getSender().getFirstName() + " " + chatMessage.getSender().getLastName());
     }
 
     @Transactional
@@ -105,11 +105,11 @@ public class ChatGroupService {
 
         if (search != null && !search.isEmpty()) {
             return chatMessageRepository.findAllByChatGroup_IdAndContentContainsOrderByTimestampDesc(groupId, search).stream()
-                    .map(MessageDTO::new)
+                    .map(message -> new MessageDTO(message, message.getSender().getFirstName() + " " + message.getSender().getLastName()))
                     .toList();
         } else {
             return chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(groupId).stream()
-                    .map(MessageDTO::new)
+                    .map(message -> new MessageDTO(message, message.getSender().getFirstName() + " " + message.getSender().getLastName()))
                     .toList();
         }
     }

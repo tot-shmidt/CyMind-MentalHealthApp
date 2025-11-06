@@ -116,13 +116,15 @@ public class ChatSocket {
             return;
         }
 
+        AbstractUser user = abstractUserRepository.findById(userId.longValue());
+        String name = user.getFirstName() + " " + user.getLastName();
+
         MessageDTO response = null;
         if (messageDTO.messageType() == MessageType.MESSAGE) {
-            AbstractUser user = abstractUserRepository.findById(userId.longValue());
             ChatGroup chatGroup = chatGroupRepository.findById(groupId.longValue());
 
             ChatMessage chatMessage = new ChatMessage(user, chatGroup, messageDTO.content(), messageDTO.timestamp());
-            response = new MessageDTO(chatMessageRepository.save(chatMessage));
+            response = new MessageDTO(chatMessageRepository.save(chatMessage), name);
         } else if (messageDTO.messageType() == MessageType.DELETE) {
             ChatMessage chatMessage = chatMessageRepository.findById(messageDTO.messageId().longValue());
             if (chatMessage == null) {
@@ -135,7 +137,7 @@ public class ChatSocket {
             }
 
             chatMessageRepository.deleteById(messageDTO.messageId());
-            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), null, messageDTO.timestamp(), MessageType.DELETE);
+            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), name, null, messageDTO.timestamp(), MessageType.DELETE);
         } else if (messageDTO.messageType() == MessageType.EDIT) {
             ChatMessage chatMessage = chatMessageRepository.findById(messageDTO.messageId().longValue());
             if (chatMessage == null) {
@@ -150,7 +152,7 @@ public class ChatSocket {
             chatMessage.setContent(messageDTO.content());
             chatMessageRepository.save(chatMessage);
 
-            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), messageDTO.content(), messageDTO.timestamp(), MessageType.EDIT);
+            response = new MessageDTO(messageDTO.messageId(), user.getId(), name, messageDTO.content(), messageDTO.timestamp(), MessageType.EDIT);
         } else {
             sendError(session, "Invalid message type");
         }
@@ -181,7 +183,7 @@ public class ChatSocket {
     private void sendGroupHistory(Session session) throws IOException {
         Long groupId = sessionGroupIdMap.get(session);
         List<MessageDTO> messages = chatMessageRepository.findAllByChatGroup_IdOrderByTimestampDesc(groupId).stream()
-                .map(MessageDTO::new)
+                .map(message -> new MessageDTO(message, message.getSender().getFirstName() + " " + message.getSender().getLastName()))
                 .toList();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -191,6 +193,6 @@ public class ChatSocket {
     }
 
     private void sendError(Session session, String message) throws EncodeException, IOException {
-        session.getBasicRemote().sendObject(new MessageDTO(null, null, message, null, MessageType.ERROR));
+        session.getBasicRemote().sendObject(new MessageDTO(null, null, null, message, null, MessageType.ERROR));
     }
 }
