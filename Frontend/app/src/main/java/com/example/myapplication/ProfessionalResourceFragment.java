@@ -8,7 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProfessionalResourceFragment extends Fragment {
+public class ProfessionalResourceFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private int userID;
     private String userFirstName;
@@ -43,6 +46,7 @@ public class ProfessionalResourceFragment extends Fragment {
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
     private Button createButton;
+    private boolean isInitialLoad = true;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
 
     @Nullable
@@ -57,6 +61,19 @@ public class ProfessionalResourceFragment extends Fragment {
         resourceViewer.setAdapter(this.resourceAdapter); // Use the field here as well
 
         createButton = rootView.findViewById(R.id.createButton);
+
+        Spinner categoryDropdown = (Spinner) rootView.findViewById(R.id.categoryDropdown);
+        categoryDropdown.setOnItemSelectedListener(this);
+        // Create an ArrayAdapter using the string array and a default spinner layout.
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this.getContext(),
+                R.array.resource_categories,
+                android.R.layout.simple_spinner_item
+        );
+        // Specify the layout to use when the list of choices appears.
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner.
+        categoryDropdown.setAdapter(adapter);
 
         return rootView;
     }
@@ -89,6 +106,9 @@ public class ProfessionalResourceFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        // Reset flag to prevent spinner from triggering on resume
+        isInitialLoad = true;
+
         // Clear old data
         clear();
 
@@ -109,12 +129,12 @@ public class ProfessionalResourceFragment extends Fragment {
                 try {
                     // Loop through each element in the JSONArray
                     for (int i = 0; i < response.length(); i++) {
+                        // Get the integer article ID at index i
                         int articleId = response.getInt(i);
-
 
                         // Fetch the full resource for each ID
                         getStudentResource(articleId);
-                        Log.d("Volley Test", "created resource for article ID + articleId");
+                        Log.d("Volley Test", "created resource for article ID " + articleId);
 
                     }
                 } catch (JSONException e) {
@@ -169,19 +189,24 @@ public class ProfessionalResourceFragment extends Fragment {
                         String title = response.getString("articleName");
                         int authorId = response.getInt("authorId");
 
-                        // Parse authors array
+                        // Parse authors array - extract userId from each author object
                         List<String> authors = new ArrayList<>();
+
                         JSONArray authorsArray = response.optJSONArray("authors");
-                        if (authorsArray != null) {
+                        if (authorsArray != null && authorsArray.length() > 0) {
                             for (int i = 0; i < authorsArray.length(); i++) {
-                                authors.add(authorsArray.getString(i));
+                                org.json.JSONObject authorObj = authorsArray.getJSONObject(i);
+                                int userId = authorObj.getInt("userId");
+                                authors.add(String.valueOf(userId));
+
+                                // Use first author's userId as the primary authorId
+                                if (i == 0) {
+                                    authorId = userId;
+                                }
                             }
                         } else {
-                            // Fallback to single author field if array doesn't exist
-                            String author = response.optString("author", "");
-                            if (!author.isEmpty()) {
-                                authors.add(author);
-                            }
+                            // Fallback: try to get authorId from root level
+                            authorId = response.optInt("authorId", 0);
                         }
 
                         String category1 = response.optString("category1", "");
@@ -230,8 +255,44 @@ public class ProfessionalResourceFragment extends Fragment {
                 .addToRequestQueue(jsonObjReq);
     }
 
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        // Skip the initial automatic selection when spinner is first set up
+        if (isInitialLoad) {
+            isInitialLoad = false;
+            return;
+        }
+
+        clear();
+        switch (pos) {
+            case 0:
+                getArticlesByCategory("ALL");
+                break;
+            case 1:
+                getArticlesByCategory("SLEEP");
+                break;
+            case 2:
+                getArticlesByCategory("FOCUS");
+                break;
+            case 3:
+                getArticlesByCategory("SELF_ESTEEM");
+                break;
+            case 4:
+                getArticlesByCategory("ANXIETY");
+                break;
+            case 5:
+                getArticlesByCategory("POSITIVITY");
+                break;
+            case 6:
+                getArticlesByCategory("AWARENESS");
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {}
+
     private void showResourceOptionsDialog(Resource resource, int position) {
-        new MaterialAlertDialogBuilder(requireContext())
+        androidx.appcompat.app.AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
             .setTitle(resource.getTitle())
             .setMessage("Select an action for this resource.")
             .setPositiveButton("Update", (dialog, which) -> {
@@ -246,30 +307,39 @@ public class ProfessionalResourceFragment extends Fragment {
                 intent.putExtra("resourceCategories", resource.getCategories());
                 intent.putExtra("resourceContent", resource.getDescription());
 
+                // Pass current professional's info to add them as author if needed
+                intent.putExtra("currentUserId", userID);
+                intent.putExtra("currentUserJobTitle", userJobTitle);
+                intent.putExtra("currentUserLicenseNumber", userLicenseNumber);
+
                 startActivity(intent);
             })
             .setNegativeButton("Delete", (dialog, which) -> {
                 deleteResource(resource, position);
             })
-            .setNeutralButton("Close", null)
-            .show();
+            .setNeutralButton("View Details", (dialog, which) -> {
+                resourceAdapter.showResourceDialogPublic(resource);
+            })
+            .create();
+
+        alertDialog.show();
+
+        // Set neutral button text color to black for better readability
+        if (alertDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL) != null) {
+            alertDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL)
+                .setTextColor(getResources().getColor(android.R.color.black));
+        }
     }
 
     private void deleteResource(Resource resource, int position) {
         // Creates new request defined as a DELETE request
         // Use StringRequest since there is no json response body, just status code
-        String deleteURL = APP_API_URL + "resources/articles?id=" + resource.getId();
+        String deleteURL = APP_API_URL + "resources/articles/" + resource.getId() + "?userId=" + userID;
         StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
             response -> {
-                resources.remove(position);
-                resourceAdapter.notifyItemRemoved(position);
-                //Display message saying user was deleted by identifying their id
-                Toast.makeText(getActivity(), "Resource with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
-                // Clear old data
-                if (resourceAdapter.getItemCount() > 0) {
-                    clear();
-                }
-                // Re-fetch fresh data
+                Toast.makeText(getActivity(), "Resource deleted successfully", Toast.LENGTH_LONG).show();
+                // Clear and refresh the list
+                clear();
                 getArticlesByCategory("all");
             },
             error -> {

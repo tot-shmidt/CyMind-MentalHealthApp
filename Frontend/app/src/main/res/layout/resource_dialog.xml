@@ -33,5 +33,23 @@
         android:id="@+id/dialogDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Full description goes here." />
+        android:text="Full description goes here."
+        android:paddingBottom="16dp" />
+
+    <TextView
+        android:id="@+id/exercisesHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Suggested Exercises"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/exercisesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
 </LinearLayout>
