@@ -63,7 +63,7 @@ public class AppointmentService {
         appointment.setDescription(appointmentDTO.description());
         appointment.setTitle(appointmentDTO.title());
 
-        // ~~~ STUFF FOR NOTIFICATIONS ~~~
+        // ~~~ MY STUFF FOR NOTIFICATIONS ~~~
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         try {
