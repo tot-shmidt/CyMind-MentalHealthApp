@@ -52,6 +52,10 @@
             android:exported="false">
         </activity>
         <activity
+            android:name=".ProfessionalProfileActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".MoodActivity"
             android:exported="false">
         </activity>
