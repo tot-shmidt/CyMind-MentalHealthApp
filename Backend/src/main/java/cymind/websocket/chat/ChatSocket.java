@@ -109,7 +109,7 @@ public class ChatSocket {
             message.setContent(messageDTO.content());
             chatMessageRepository.save(message);
 
-            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), null, messageDTO.timestamp(), MessageType.EDIT);
+            response = new MessageDTO(messageDTO.messageId(), messageDTO.senderId(), messageDTO.content(), messageDTO.timestamp(), MessageType.EDIT);
         } else {
             response = new MessageDTO(null, null, "Unable to parse message type", null, MessageType.ERROR);
         }
