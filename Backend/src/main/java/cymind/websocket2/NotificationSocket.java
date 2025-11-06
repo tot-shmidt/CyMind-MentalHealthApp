@@ -157,4 +157,25 @@ public class NotificationSocket {
             }
         }
     }
+
+    /**
+     * Send notificationDTO to a specific user, if are online
+     */
+    public static void sendNotificationToUser(Long userId, Object notificationDTO) {
+        Session session = useridSessionMap.get(userId);
+
+        if (session != null && session.isOpen()) {
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(notificationDTO);
+
+                session.getAsyncRemote().sendText(jsonMessage);
+                logger.info("Sent notification to user {}: {}", userId, jsonMessage);
+
+            } catch (IOException e) {
+                logger.error("Error serializing or sending notification to user {}: {}", userId, e.getMessage());
+            }
+        } else {
+            logger.info("User {} is not online. Live notification not sent.", userId);
+        }
+    }
 }
