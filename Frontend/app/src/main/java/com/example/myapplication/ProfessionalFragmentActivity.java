@@ -27,7 +27,7 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
 
         Fragment homeFragment = new ProfessionalHomeFragment();
         Fragment resourceFragment = new ProfessionalResourceFragment();
-        Fragment chatFragment = new StudentChatFragment();
+        Fragment chatFragment = new ProfessionalChatFragment();
         Fragment appointmentFragment = new ProfessionalAppointmentFragment();
 
         // create bundle of values as arguments
@@ -41,6 +41,7 @@ public class ProfessionalFragmentActivity extends AppCompatActivity {
         bund.putString("userJobTitle", userJobTitle);
         bund.putString("userLicenseNumber", userLicenseNumber);
         homeFragment.setArguments(bund);
+        chatFragment.setArguments(bund);
         appointmentFragment.setArguments(bund);
 
         setCurrentFragment(homeFragment);

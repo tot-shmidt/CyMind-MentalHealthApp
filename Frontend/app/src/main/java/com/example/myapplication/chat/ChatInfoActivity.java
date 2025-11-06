@@ -166,36 +166,119 @@ public class ChatInfoActivity extends AppCompatActivity implements ChatMembersAd
             android.util.Log.d("ChatInfoActivity", "Is creator: " + isCreator + " (creatorId=" + chatRoom.getCreatorId() + ")");
 
             if (isCreator) {
-                // Student/creator leaving - remove the entire chat
-                android.util.Log.d("ChatInfoActivity", "Creator leaving - removing entire chat");
-                chatManager.removeChatRoom(chatId);
+                // Student/creator leaving - delete the entire chat from backend
+                android.util.Log.d("ChatInfoActivity", "Creator leaving - deleting entire chat");
+
+                chatManager.deleteChatGroup(this, chatId, new ChatManager.ChatGroupDeleteCallback() {
+                    @Override
+                    public void onSuccess() {
+                        android.util.Log.d("ChatInfoActivity", "Chat deleted from backend successfully");
+                        runOnUiThread(() -> {
+                            Toast.makeText(ChatInfoActivity.this, "Chat deleted", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent();
+                            intent.putExtra("chatLeft", true);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        android.util.Log.e("ChatInfoActivity", "Failed to delete chat: " + errorMessage);
+                        // Still remove locally even if backend fails
+                        chatManager.removeChatRoom(chatId);
+                        runOnUiThread(() -> {
+                            Toast.makeText(ChatInfoActivity.this, "You left the chat (offline)", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent();
+                            intent.putExtra("chatLeft", true);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        });
+                    }
+                });
             } else {
-                // Professional leaving - just remove from professional list
-                List<Integer> profIds = chatRoom.getProfessionalIds();
+                // Professional leaving - update the chat to remove them
+                List<Integer> profIds = new ArrayList<>(chatRoom.getProfessionalIds());
+                List<Integer> studentIds = new ArrayList<>(chatRoom.getStudentIds());
+
                 android.util.Log.d("ChatInfoActivity", "Professional IDs before removal: " + profIds.toString());
-
                 profIds.remove(Integer.valueOf(currentUserId));
-
                 android.util.Log.d("ChatInfoActivity", "Professional IDs after removal: " + profIds.toString());
 
-                // If no professionals left, remove the chat
                 if (profIds.isEmpty()) {
-                    android.util.Log.d("ChatInfoActivity", "No professionals left - removing chat");
-                    chatManager.removeChatRoom(chatId);
+                    // If no professionals left, delete the entire chat
+                    android.util.Log.d("ChatInfoActivity", "No professionals left - deleting chat");
+
+                    chatManager.deleteChatGroup(this, chatId, new ChatManager.ChatGroupDeleteCallback() {
+                        @Override
+                        public void onSuccess() {
+                            android.util.Log.d("ChatInfoActivity", "Chat deleted from backend (no professionals left)");
+                            runOnUiThread(() -> {
+                                Toast.makeText(ChatInfoActivity.this, "Chat deleted (no professionals left)", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent();
+                                intent.putExtra("chatLeft", true);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            android.util.Log.e("ChatInfoActivity", "Failed to delete chat: " + errorMessage);
+                            chatManager.removeChatRoom(chatId);
+                            runOnUiThread(() -> {
+                                Toast.makeText(ChatInfoActivity.this, "You left the chat (offline)", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent();
+                                intent.putExtra("chatLeft", true);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            });
+                        }
+                    });
+                } else {
+                    // Update the chat group on backend to remove this professional
+                    chatManager.updateChatGroup(this, chatId, profIds, studentIds, chatRoom.getChatName(),
+                        new ChatManager.ChatGroupUpdateCallback() {
+                            @Override
+                            public void onSuccess(String response) {
+                                android.util.Log.d("ChatInfoActivity", "Successfully removed from chat on backend");
+                                // Remove from local cache
+                                chatManager.removeChatRoom(chatId);
+
+                                runOnUiThread(() -> {
+                                    Toast.makeText(ChatInfoActivity.this, "You left the chat", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent();
+                                    intent.putExtra("chatLeft", true);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                });
+                            }
+
+                            @Override
+                            public void onError(String errorMessage) {
+                                android.util.Log.e("ChatInfoActivity", "Failed to update chat: " + errorMessage);
+                                // Still remove locally even if backend fails
+                                chatManager.removeChatRoom(chatId);
+
+                                runOnUiThread(() -> {
+                                    Toast.makeText(ChatInfoActivity.this, "You left the chat (offline)", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent();
+                                    intent.putExtra("chatLeft", true);
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                });
+                            }
+                        });
                 }
             }
 
             android.util.Log.d("ChatInfoActivity", "Total chats in manager: " + chatManager.getAllChatRooms().size());
-
-            // TODO: Send leave chat request to backend when available
-
-            Toast.makeText(this, "You left the chat", Toast.LENGTH_SHORT).show();
-
-            // Close all chat-related activities and return to chat list
-            Intent intent = new Intent();
-            intent.putExtra("chatLeft", true);
-            setResult(RESULT_OK, intent);
-            finish();
         }
     }
 }
