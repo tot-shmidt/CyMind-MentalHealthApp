@@ -1,6 +1,7 @@
 package cymind.service;
 
 import cymind.dto.appointment.AppointmentDTO;
+import cymind.dto.appointment.AppointmentNotificationDTO;
 import cymind.dto.appointment.AppointmentStatusDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
@@ -10,21 +11,17 @@ import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
 import cymind.repository.MentalHealthProfessionalRepository;
 import cymind.repository.StudentRepository;
+import cymind.websocket.notification.NotificationSocket;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import cymind.dto.appointment.AppointmentNotificationDTO;
-import cymind.websocket2.NotificationSocket;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
