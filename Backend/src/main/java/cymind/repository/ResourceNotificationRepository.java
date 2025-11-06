@@ -7,6 +7,6 @@ import java.util.List;
 
 
 public interface ResourceNotificationRepository extends JpaRepository<ResourceNotification, Long> {
-    List<ResourceNotification> findTop2ByOrderByTimestampDesc();
+    List<ResourceNotification> findAllByOrderByTimestampDesc();
 }
 
