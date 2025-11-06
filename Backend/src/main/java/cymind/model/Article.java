@@ -30,6 +30,9 @@ public class Article {
     // Content of the article
     private String content;
 
+    @OneToMany(mappedBy = "relatedArticle", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ResourceNotification> notifications = new ArrayList<>();
+
     //Authors of the article
     @ManyToMany
     @JoinTable(
