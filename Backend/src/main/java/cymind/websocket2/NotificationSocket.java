@@ -23,9 +23,14 @@ import org.springframework.stereotype.Controller;
 public class NotificationSocket {
     private static final Logger logger = LoggerFactory.getLogger(NotificationSocket.class);
     // Jackson ObjectMapper for JSON conversion
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper;
     // cannot autowire static directly (instead we do it by the below method
     private static ResourceNotificationRepository resourceNotifRepo;
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper mapper) {
+        NotificationSocket.objectMapper = mapper;
+    }
 
     @Autowired
     public void setResourceNotificationRepo(ResourceNotificationRepository resRepo) {
