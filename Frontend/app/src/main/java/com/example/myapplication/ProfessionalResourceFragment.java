@@ -292,7 +292,7 @@ public class ProfessionalResourceFragment extends Fragment implements AdapterVie
     public void onNothingSelected(AdapterView<?> adapterView) {}
 
     private void showResourceOptionsDialog(Resource resource, int position) {
-        new MaterialAlertDialogBuilder(requireContext())
+        androidx.appcompat.app.AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
             .setTitle(resource.getTitle())
             .setMessage("Select an action for this resource.")
             .setPositiveButton("Update", (dialog, which) -> {
@@ -317,25 +317,29 @@ public class ProfessionalResourceFragment extends Fragment implements AdapterVie
             .setNegativeButton("Delete", (dialog, which) -> {
                 deleteResource(resource, position);
             })
-            .setNeutralButton("Close", null)
-            .show();
+            .setNeutralButton("View Details", (dialog, which) -> {
+                resourceAdapter.showResourceDialogPublic(resource);
+            })
+            .create();
+
+        alertDialog.show();
+
+        // Set neutral button text color to black for better readability
+        if (alertDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL) != null) {
+            alertDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL)
+                .setTextColor(getResources().getColor(android.R.color.black));
+        }
     }
 
     private void deleteResource(Resource resource, int position) {
         // Creates new request defined as a DELETE request
         // Use StringRequest since there is no json response body, just status code
-        String deleteURL = APP_API_URL + "resources/articles?id=" + resource.getId();
+        String deleteURL = APP_API_URL + "resources/articles/" + resource.getId() + "?userId=" + userID;
         StringRequest delete = new StringRequest(Request.Method.DELETE, deleteURL,
             response -> {
-                resources.remove(position);
-                resourceAdapter.notifyItemRemoved(position);
-                //Display message saying user was deleted by identifying their id
-                Toast.makeText(getActivity(), "Resource with an id: " + userID + " was successfully deleted", Toast.LENGTH_LONG).show();
-                // Clear old data
-                if (resourceAdapter.getItemCount() > 0) {
-                    clear();
-                }
-                // Re-fetch fresh data
+                Toast.makeText(getActivity(), "Resource deleted successfully", Toast.LENGTH_LONG).show();
+                // Clear and refresh the list
+                clear();
                 getArticlesByCategory("all");
             },
             error -> {

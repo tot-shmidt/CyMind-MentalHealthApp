@@ -42,7 +42,6 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
     private int userYearOfStudy;
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
-    private boolean isInitialLoad = true;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
 
 
@@ -86,27 +85,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // Reset flag to prevent spinner from triggering on resume
-        isInitialLoad = true;
-
-        // Clear old data
-        clear();
-
-        // Re-fetch fresh data
-        getArticlesByCategory("all");
-    }
-
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        // Skip the initial automatic selection when spinner is first set up
-        if (isInitialLoad) {
-            isInitialLoad = false;
-            return;
-        }
-
         clear();
         switch (pos) {
             case 0:

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/exerciseName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:text="Exercise Name"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/exerciseType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:text="Exercise Type"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/exerciseContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="Exercise content description" />
+
+</LinearLayout>
