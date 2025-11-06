@@ -13,11 +13,12 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
 
-    <Button
-        android:id="@+id/createChatBtn"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="+ Create New Chat"
+        android:text="You can access chats where students have added you"
+        android:textSize="14sp"
+        android:textColor="#666666"
         android:layout_marginBottom="16dp"/>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -1,4 +1,4 @@
-package cymind.websocket2;
+package cymind.websocket.notification;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -23,9 +23,14 @@ import org.springframework.stereotype.Controller;
 public class NotificationSocket {
     private static final Logger logger = LoggerFactory.getLogger(NotificationSocket.class);
     // Jackson ObjectMapper for JSON conversion
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper;
     // cannot autowire static directly (instead we do it by the below method
     private static ResourceNotificationRepository resourceNotifRepo;
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper mapper) {
+        NotificationSocket.objectMapper = mapper;
+    }
 
     @Autowired
     public void setResourceNotificationRepo(ResourceNotificationRepository resRepo) {
@@ -54,6 +59,12 @@ public class NotificationSocket {
     @OnMessage
     public void onMessage(Session session, String message) throws IOException {
         logger.info("Received Message from client: {}", message);
+
+        for (Session s : sessionUseridMap.keySet()) {
+            if (s.isOpen()) {
+                s.getAsyncRemote().sendText(message);
+            }
+        }
     }
 
     @OnClose
@@ -149,6 +160,27 @@ public class NotificationSocket {
             } catch (IOException e) {
                 logger.error("Error sending history message to user: {}", e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Send notificationDTO to a specific user, if are online
+     */
+    public static void sendNotificationToUser(Long userId, Object notificationDTO) {
+        Session session = useridSessionMap.get(userId);
+
+        if (session != null && session.isOpen()) {
+            try {
+                String jsonMessage = objectMapper.writeValueAsString(notificationDTO);
+
+                session.getAsyncRemote().sendText(jsonMessage);
+                logger.info("Sent notification to user {}: {}", userId, jsonMessage);
+
+            } catch (IOException e) {
+                logger.error("Error serializing or sending notification to user {}: {}", userId, e.getMessage());
+            }
+        } else {
+            logger.info("User {} is not online. Live notification not sent.", userId);
         }
     }
 }

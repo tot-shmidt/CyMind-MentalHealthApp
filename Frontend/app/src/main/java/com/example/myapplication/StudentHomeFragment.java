@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.myapplication.chat.ChatManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ public class StudentHomeFragment extends Fragment {
     private SeekBar moodSeekBar;
     private EditText journalEntry;
     private Button submitEntries;
+    private Button notifications;
     private int userID;
     private String userFirstName;
     private String userLastName;
@@ -62,6 +64,7 @@ public class StudentHomeFragment extends Fragment {
         moodSeekBar = rootView.findViewById(R.id.moodSeekBar);
         journalEntry = rootView.findViewById(R.id.editTextJournal);
         submitEntries = rootView.findViewById(R.id.submit);
+        notifications = rootView.findViewById(R.id.notifications_button);
 
         return rootView;
     }
@@ -79,9 +82,12 @@ public class StudentHomeFragment extends Fragment {
         userMajor = getActivity().getIntent().getStringExtra("userMajor");
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
 
+
+
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
             welcomeMessage.append(", " + userFirstName + "!");
+            ChatManager.getInstance().setCurrentUserId(userID); // Use actual user ID
         }
 
         buttonProfile.setOnClickListener(v -> {
@@ -94,6 +100,15 @@ public class StudentHomeFragment extends Fragment {
             intent.putExtra("userYearOfStudy", userYearOfStudy);
             intent.putExtra("userMajor", userMajor);
             startActivity(intent);
+        });
+
+        notifications.setOnClickListener(v -> {
+            NotificationsAll notificationsFragment = new NotificationsAll();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flFragment, notificationsFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         // Set a listener to handle changes and enforce discrete positions

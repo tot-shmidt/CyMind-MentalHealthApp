@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import static android.widget.Toast.makeText;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.myapplication.chat.ChatManager;
 
 public class ProfessionalHomeFragment extends Fragment {
 
@@ -52,6 +55,8 @@ public class ProfessionalHomeFragment extends Fragment {
         userAge = getActivity().getIntent().getIntExtra("userAge", 0);
         userFirstName = getActivity().getIntent().getStringExtra("userFirstName");
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
+        userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
+        userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
 
         userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
         userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
@@ -59,9 +64,9 @@ public class ProfessionalHomeFragment extends Fragment {
         welcomeMessage.setText("Welcome to Cymind");
         if (!(userID == 0)) {
             welcomeMessage.append(", " + userFirstName + "!");
+            ChatManager.getInstance().setCurrentUserId(userID); // Set professional user ID
         }
 
-        /* Uncomment when Professional Profile is made
         buttonProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfessionalProfileActivity.class);
             intent.putExtra( "userFirstName", userFirstName);
@@ -72,6 +77,6 @@ public class ProfessionalHomeFragment extends Fragment {
             intent.putExtra("userJobTitle", userJobTitle);
             intent.putExtra("userLicenseNumber", userLicenseNumber);
             startActivity(intent);
-        }); */
+        });
    }
 }
