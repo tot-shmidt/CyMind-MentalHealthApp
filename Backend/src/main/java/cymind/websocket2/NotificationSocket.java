@@ -54,6 +54,12 @@ public class NotificationSocket {
     @OnMessage
     public void onMessage(Session session, String message) throws IOException {
         logger.info("Received Message from client: {}", message);
+
+        for (Session s : sessionUseridMap.keySet()) {
+            if (s.isOpen()) {
+                s.getAsyncRemote().sendText(message);
+            }
+        }
     }
 
     @OnClose
