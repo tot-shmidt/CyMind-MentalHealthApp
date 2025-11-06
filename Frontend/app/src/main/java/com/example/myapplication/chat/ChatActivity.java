@@ -24,6 +24,7 @@ import com.example.myapplication.VolleySingleton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatManager chatManager;
     private Observer<ChatManager.MessageEvent> messageObserver;
     private boolean isSearching = false;
+    private ChatMessage editingMessage = null; // Track message being edited
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +86,17 @@ public class ChatActivity extends AppCompatActivity {
         // Setup messages RecyclerView
         messages = new ArrayList<>();
         allMessages = new ArrayList<>();
-        messageAdapter = new ChatMessageAdapter(messages, chatManager.getCurrentUserId());
+        messageAdapter = new ChatMessageAdapter(messages, chatManager.getCurrentUserId(), new ChatMessageAdapter.OnMessageActionListener() {
+            @Override
+            public void onEditMessage(ChatMessage message, int position) {
+                startEditingMessage(message);
+            }
+
+            @Override
+            public void onDeleteMessage(ChatMessage message, int position) {
+                deleteMessage(message);
+            }
+        });
         messagesRv.setLayoutManager(new LinearLayoutManager(this));
         messagesRv.setAdapter(messageAdapter);
 
@@ -92,7 +104,14 @@ public class ChatActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(v -> sendMessage());
 
         // Back button listener
-        backBtn.setOnClickListener(v -> finish());
+        backBtn.setOnClickListener(v -> {
+            if (editingMessage != null) {
+                // Cancel edit mode if active
+                cancelEdit();
+            } else {
+                finish();
+            }
+        });
 
         // Info button listener
         infoBtn.setOnClickListener(v -> openChatInfo());
@@ -108,45 +127,118 @@ public class ChatActivity extends AppCompatActivity {
 
         // Observe incoming messages using LiveData
         messageObserver = messageEvent -> {
+            Log.d(TAG, "MessageObserver called - messageEvent: " + (messageEvent != null ? "not null" : "null") +
+                    ", eventChatId: " + (messageEvent != null ? messageEvent.chatId : "null") +
+                    ", thisChatId: " + chatId);
+
             if (messageEvent != null && chatId.equals(messageEvent.chatId)) {
+                Log.d(TAG, "Processing message for chatId: " + chatId);
                 runOnUiThread(() -> {
-                    // Parse message format: {groupId, senderId, content, timestamp}
+                    // Parse message format: {messageId, senderId, name, content, timestamp, messageType}
+                    String messageId = null;
                     int senderId = 0;
+                    String senderName = null;
                     String content = "";
-                    long timestamp = System.currentTimeMillis();
-                    String groupId = chatId;
+                    LocalDateTime timestamp = LocalDateTime.now();
+                    String messageType = "MESSAGE";
 
                     try {
                         JSONObject json = new JSONObject(messageEvent.message);
-                        groupId = json.optString("groupId", chatId);
+                        messageId = json.optString("messageId", null);
                         senderId = json.optInt("senderId", 0);
+                        senderName = json.optString("name", null);
                         content = json.optString("content", "");
-                        timestamp = json.optLong("timestamp", System.currentTimeMillis());
 
-                        Log.d(TAG, "Parsed message - groupId: " + groupId + ", senderId: " + senderId + ", content: " + content);
+                        // Parse timestamp as ISO string and convert to LocalDateTime
+                        String timestampStr = json.optString("timestamp", null);
+                        if (timestampStr != null && !timestampStr.isEmpty()) {
+                            timestamp = LocalDateTime.parse(timestampStr);
+                        }
+
+                        messageType = json.optString("messageType", "MESSAGE");
+
+                        Log.d(TAG, "Parsed message - messageId: " + messageId + ", senderId: " + senderId +
+                                   ", senderName: " + senderName + ", content: " + content +
+                                   ", timestamp: " + timestamp + ", messageType: " + messageType);
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing message JSON: " + e.getMessage());
                         // Fallback: treat entire message as content
                         content = messageEvent.message;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing timestamp: " + e.getMessage());
                     }
 
                     boolean isSentByMe = (senderId == chatManager.getCurrentUserId());
 
-                    ChatMessage chatMessage = new ChatMessage(
-                            groupId,
-                            senderId,
-                            content,
-                            timestamp,
-                            isSentByMe
-                    );
+                    // Handle different message types
+                    switch (messageType) {
+                        case "MESSAGE":
+                            // Regular message - add to list
+                            ChatMessage chatMessage = new ChatMessage(
+                                    messageId,
+                                    chatId,
+                                    senderId,
+                                    senderName,
+                                    content,
+                                    timestamp.toString(),
+                                    messageType,
+                                    isSentByMe
+                            );
+                            messages.add(chatMessage);
+                            allMessages.add(chatMessage);
+                            Log.d(TAG, "Added message to list. Total messages now: " + messages.size());
+                            messageAdapter.notifyItemInserted(messages.size() - 1);
+                            messagesRv.scrollToPosition(messages.size() - 1);
+                            chatManager.updateLastMessage(chatId, content);
+                            break;
 
-                    messages.add(chatMessage);
-                    allMessages.add(chatMessage);
-                    messageAdapter.notifyItemInserted(messages.size() - 1);
-                    messagesRv.scrollToPosition(messages.size() - 1);
+                        case "EDIT":
+                            // Edited message - find and update existing message
+                            if (messageId != null) {
+                                for (int i = 0; i < messages.size(); i++) {
+                                    if (messageId.equals(messages.get(i).getMessageId())) {
+                                        ChatMessage updatedMessage = new ChatMessage(
+                                                messageId,
+                                                chatId,
+                                                senderId,
+                                                senderName,
+                                                content,
+                                                LocalDateTime.now().toString(),
+                                                messageType,
+                                                isSentByMe
+                                        );
+                                        messages.set(i, updatedMessage);
+                                        allMessages.set(i, updatedMessage);
+                                        messageAdapter.notifyItemChanged(i);
+                                        Log.d(TAG, "Updated message at position " + i);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
 
-                    chatManager.updateLastMessage(chatId, content);
+                        case "DELETE":
+                            // Delete message - find and remove from list
+                            if (messageId != null) {
+                                for (int i = 0; i < messages.size(); i++) {
+                                    if (messageId.equals(messages.get(i).getMessageId())) {
+                                        messages.remove(i);
+                                        allMessages.remove(i);
+                                        messageAdapter.notifyItemRemoved(i);
+                                        Log.d(TAG, "Deleted message at position " + i);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+
+                        default:
+                            Log.w(TAG, "Unknown message type: " + messageType);
+                            break;
+                    }
                 });
+            } else {
+                Log.d(TAG, "Message filtered out - chatId mismatch or null messageEvent");
             }
         };
 
@@ -180,37 +272,50 @@ public class ChatActivity extends AppCompatActivity {
             return;
         }
 
-        // Build message in format: {groupId, senderId, content, timestamp}
-        try {
-            JSONObject messageJson = new JSONObject();
-            messageJson.put("groupId", chatId);
-            messageJson.put("senderId", chatManager.getCurrentUserId());
-            messageJson.put("content", messageContent);
-            messageJson.put("timestamp", System.currentTimeMillis());
+        // Check if we're editing an existing message
+        if (editingMessage != null) {
+            // Send EDIT message
+            try {
+                JSONObject editJson = new JSONObject();
+                editJson.put("messageId", editingMessage.getMessageId());
+                editJson.put("senderId", chatManager.getCurrentUserId());
+                editJson.put("content", messageContent);
+                editJson.put("timestamp", LocalDateTime.now().toString());
+                editJson.put("messageType", "EDIT");
 
-            // Send message through ChatManager LiveData
-            chatManager.sendMessage(chatId, messageJson.toString());
+                chatManager.sendMessage(chatId, editJson.toString());
 
-            Log.d(TAG, "Message sent for chatId " + chatId + ": " + messageJson.toString());
+                Log.d(TAG, "Edit message sent: " + editJson.toString());
 
-            // Add message to local list (optimistic update)
-            ChatMessage chatMessage = new ChatMessage(
-                    chatId,
-                    chatManager.getCurrentUserId(),
-                    messageContent,
-                    System.currentTimeMillis(),
-                    true
-            );
-            messages.add(chatMessage);
-            allMessages.add(chatMessage);
-            messageAdapter.notifyItemInserted(messages.size() - 1);
-            messagesRv.scrollToPosition(messages.size() - 1);
+                // Clear editing mode
+                cancelEdit();
 
-            messageEt.setText("");
+            } catch (JSONException e) {
+                Log.e(TAG, "Error creating edit JSON: " + e.getMessage());
+                Toast.makeText(this, "Error editing message", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Send new MESSAGE
+            try {
+                LocalDateTime now = LocalDateTime.now();
+                JSONObject messageJson = new JSONObject();
+                messageJson.put("senderId", chatManager.getCurrentUserId());
+                messageJson.put("content", messageContent);
+                messageJson.put("timestamp", now.toString()); // ISO-8601 format
+                messageJson.put("messageType", "MESSAGE");
 
-        } catch (JSONException e) {
-            Log.e(TAG, "Error creating message JSON: " + e.getMessage());
-            Toast.makeText(this, "Error sending message", Toast.LENGTH_SHORT).show();
+                // Send message through ChatManager LiveData
+                chatManager.sendMessage(chatId, messageJson.toString());
+
+                Log.d(TAG, "Message sent for chatId " + chatId + ": " + messageJson.toString());
+
+                // Wait for server confirmation before displaying message
+                messageEt.setText("");
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Error creating message JSON: " + e.getMessage());
+                Toast.makeText(this, "Error sending message", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -302,7 +407,7 @@ public class ChatActivity extends AppCompatActivity {
                         String msgChatId = msgObj.optString("chatId", chatId);
                         int senderId = msgObj.optInt("senderId", 0);
                         String content = msgObj.optString("content", "");
-                        long timestamp = msgObj.optLong("timestamp", System.currentTimeMillis());
+                        String timestamp = msgObj.optString("timestamp", LocalDateTime.now().toString());
 
                         boolean isSentByCurrentUser = (senderId == chatManager.getCurrentUserId());
 
@@ -359,5 +464,54 @@ public class ChatActivity extends AppCompatActivity {
         searchEt.setText("");
 
         Toast.makeText(this, "Search cleared", Toast.LENGTH_SHORT).show();
+    }
+
+    private void startEditingMessage(ChatMessage message) {
+        // Set editing mode
+        editingMessage = message;
+
+        // Populate the input field with the current message content
+        messageEt.setText(message.getContent());
+        messageEt.setSelection(message.getContent().length()); // Move cursor to end
+        messageEt.requestFocus();
+
+        // Change send button text to indicate editing
+        sendBtn.setText("Update");
+
+        Toast.makeText(this, "Editing message", Toast.LENGTH_SHORT).show();
+    }
+
+    private void cancelEdit() {
+        editingMessage = null;
+        messageEt.setText("");
+        sendBtn.setText("Send");
+    }
+
+    private void deleteMessage(ChatMessage message) {
+        // Show confirmation dialog
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Message")
+                .setMessage("Are you sure you want to delete this message?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    // Send DELETE message via WebSocket
+                    try {
+                        JSONObject deleteJson = new JSONObject();
+                        deleteJson.put("messageId", message.getMessageId());
+                        deleteJson.put("senderId", chatManager.getCurrentUserId());
+                        deleteJson.put("timestamp", LocalDateTime.now().toString());
+                        deleteJson.put("messageType", "DELETE");
+
+                        chatManager.sendMessage(chatId, deleteJson.toString());
+
+                        Log.d(TAG, "Delete message sent: " + deleteJson.toString());
+                        Toast.makeText(this, "Message deleted", Toast.LENGTH_SHORT).show();
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error creating delete JSON: " + e.getMessage());
+                        Toast.makeText(this, "Error deleting message", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

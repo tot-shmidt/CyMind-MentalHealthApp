@@ -1,6 +1,7 @@
 package com.example.myapplication.chat;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,6 +11,7 @@ import com.example.myapplication.VolleySingleton;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +94,16 @@ public class ChatManager {
     }
 
     public void postMessage(String chatId, String message) {
-        messageEvent.postValue(new MessageEvent(chatId, message));
+        MessageEvent event = new MessageEvent(chatId, message);
+
+        // Use setValue if on main thread, postValue if on background thread
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Log.d("ChatManager", "Using setValue (main thread)");
+            messageEvent.setValue(event);
+        } else {
+            Log.d("ChatManager", "Using postValue (background thread)");
+            messageEvent.postValue(event);
+        }
     }
 
     // LiveData for outgoing messages to WebSocket
@@ -145,6 +156,7 @@ public class ChatManager {
 
                         String groupId = msgObj.getString("groupId");
                         String content = msgObj.getString("content");
+                        String timestamp = msgObj.getString("timestamp");
                         int senderUserId = msgObj.getInt("senderUserId");
 
                         // Determine if message was sent by current user
@@ -155,7 +167,7 @@ public class ChatManager {
                             groupId,
                             senderUserId,
                             content,
-                            System.currentTimeMillis(), // Backend doesn't provide timestamp, using current time
+                            timestamp,
                             isSentByCurrentUser
                         );
 

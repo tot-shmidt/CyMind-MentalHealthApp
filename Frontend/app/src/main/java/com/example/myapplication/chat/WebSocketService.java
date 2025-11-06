@@ -2,7 +2,9 @@ package com.example.myapplication.chat;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import androidx.lifecycle.Observer;
 import org.java_websocket.client.WebSocketClient;
@@ -19,6 +21,7 @@ public class WebSocketService extends Service {
     private final Map<String, WebSocketClient> webSockets = new HashMap<>();
     private ChatManager chatManager;
     private Observer<ChatManager.MessageEvent> outgoingMessageObserver;
+    private Handler mainHandler;
 
     public WebSocketService() {}
 
@@ -26,6 +29,7 @@ public class WebSocketService extends Service {
     public void onCreate() {
         super.onCreate();
         chatManager = ChatManager.getInstance();
+        mainHandler = new Handler(Looper.getMainLooper());
 
         // Observe outgoing messages from activities
         outgoingMessageObserver = messageEvent -> {
@@ -90,18 +94,52 @@ public class WebSocketService extends Service {
                         // Check if it's an array (initial message history) or single object
                         if (message.trim().startsWith("[")) {
                             // Initial message history - array of messages
+                            // Format: [{messageId, senderId, content, timestamp, messageType}, ...]
                             JSONArray messageArray = new JSONArray(message);
+                            Log.d(key, "Received array of " + messageArray.length() + " messages");
+
+                            // Post each message to main thread with slight delay to prevent LiveData dropping
                             for (int i = 0; i < messageArray.length(); i++) {
-                                JSONObject msgObj = messageArray.getJSONObject(i);
-                                // Post each message to ChatManager
-                                chatManager.postMessage(key, msgObj.toString());
+                                final int index = i;
+                                final String msgStr;
+                                try {
+                                    msgStr = messageArray.getJSONObject(i).toString();
+                                } catch (JSONException e) {
+                                    Log.e(key, "Error getting message at index " + i, e);
+                                    continue;
+                                }
+
+                                // Post to main thread with incremental delay (50ms per message)
+                                mainHandler.postDelayed(() -> {
+                                    Log.d(key, "Posting message " + (index + 1) + "/" + messageArray.length() + " to ChatManager: " + msgStr);
+                                    chatManager.postMessage(key, msgStr);
+                                }, i * 50L);
                             }
-                            Log.d(key, "Loaded " + messageArray.length() + " historical messages");
+                            Log.d(key, "Scheduled " + messageArray.length() + " historical messages for delivery");
                         } else {
-                            // Single incoming message - {groupId, senderId, content, timestamp}
+                            // Single incoming message
+                            // Format: {messageId, senderId, content, timestamp, messageType}
                             JSONObject msgObj = new JSONObject(message);
-                            chatManager.postMessage(key, message);
-                            Log.d(key, "Received new message from sender: " + msgObj.optInt("senderId", -1));
+                            String messageType = msgObj.optString("messageType", "MESSAGE");
+
+                            Log.d(key, "Received message type: " + messageType + " from sender: " + msgObj.optInt("senderId", -1));
+
+                            // Handle different message types
+                            switch (messageType) {
+                                case "MESSAGE":
+                                case "EDIT":
+                                    // Regular message or edited message - post to ChatManager
+                                    chatManager.postMessage(key, message);
+                                    break;
+                                case "DELETE":
+                                    // Delete message - post to ChatManager for handling
+                                    chatManager.postMessage(key, message);
+                                    break;
+                                default:
+                                    Log.w(key, "Unknown message type: " + messageType);
+                                    chatManager.postMessage(key, message);
+                                    break;
+                            }
                         }
                     } catch (JSONException e) {
                         Log.e(key, "Error parsing message JSON: " + e.getMessage());

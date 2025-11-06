@@ -11,19 +11,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.MessageViewHolder> {
 
     private List<ChatMessage> messages;
     private int currentUserId;
+    private OnMessageActionListener actionListener;
 
-    public ChatMessageAdapter(List<ChatMessage> messages, int currentUserId) {
+    public interface OnMessageActionListener {
+        void onEditMessage(ChatMessage message, int position);
+        void onDeleteMessage(ChatMessage message, int position);
+    }
+
+    public ChatMessageAdapter(List<ChatMessage> messages, int currentUserId, OnMessageActionListener actionListener) {
         this.messages = messages;
         this.currentUserId = currentUserId;
+        this.actionListener = actionListener;
+    }
+
+    // Backward compatible constructor
+    public ChatMessageAdapter(List<ChatMessage> messages, int currentUserId) {
+        this(messages, currentUserId, null);
     }
 
     @NonNull
@@ -40,9 +51,14 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
         holder.messageTv.setText(message.getContent());
 
-        // Format timestamp
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        holder.timestampTv.setText(sdf.format(new Date(message.getTimestamp())));
+        // Format timestamp using LocalDateTime
+        LocalDateTime timestamp = message.getTimestamp();
+        if (timestamp != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            holder.timestampTv.setText(timestamp.format(formatter));
+        } else {
+            holder.timestampTv.setText("");
+        }
 
         // Set sender name and alignment
         if (message.isSentByCurrentUser()) {
@@ -51,11 +67,51 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             holder.messageTv.setBackgroundResource(R.drawable.bg_message_sent);
         } else {
             holder.senderTv.setVisibility(View.VISIBLE);
-            holder.senderTv.setText(message.getSenderId());
+            // Display sender name if available, otherwise fall back to "User [id]"
+            if (message.getSenderName() != null && !message.getSenderName().isEmpty()) {
+                holder.senderTv.setText(message.getSenderName());
+            } else {
+                holder.senderTv.setText("User " + message.getSenderId());
+            }
             holder.messageContainer.setGravity(Gravity.START);
             holder.messageTv.setBackgroundResource(R.drawable.bg_message_sent);
             // update with message received
         }
+
+        // Long-press listener for edit/delete (only for current user's messages)
+        if (message.isSentByCurrentUser() && actionListener != null) {
+            holder.messageTv.setOnLongClickListener(v -> {
+                showMessageOptions(v, message, position);
+                return true;
+            });
+        } else {
+            holder.messageTv.setOnLongClickListener(null);
+        }
+    }
+
+    private void showMessageOptions(View view, ChatMessage message, int position) {
+        // Create options dialog
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(view.getContext());
+        builder.setTitle("Message Options");
+
+        String[] options = {"Edit", "Delete"};
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Edit
+                    if (actionListener != null) {
+                        actionListener.onEditMessage(message, position);
+                    }
+                    break;
+                case 1: // Delete
+                    if (actionListener != null) {
+                        actionListener.onDeleteMessage(message, position);
+                    }
+                    break;
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 
     @Override
