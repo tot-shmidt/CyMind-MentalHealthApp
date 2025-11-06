@@ -68,7 +68,7 @@ public class NotificationSocket {
     }
 
     @OnClose
-    public void onClose(Session session) throws IOException { // --- FIXED SIGNATURE ---
+    public void onClose(Session session) throws IOException {
         // We get the userId from our map, not from the path
         Long userId = sessionUseridMap.get(session);
 
@@ -133,7 +133,7 @@ public class NotificationSocket {
      * Sends recent notification history to a single user who just connected.
      */
     private void sendRecentHistory(Session session) {
-        List<ResourceNotification> history = resourceNotifRepo.findTop2ByOrderByTimestampDesc();
+        List<ResourceNotification> history = resourceNotifRepo.findAllByOrderByTimestampDesc();
 
         // Loop backwards to send oldest first
         for (int i = history.size() - 1; i >= 0; i--) {
