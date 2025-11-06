@@ -42,6 +42,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
     private int userYearOfStudy;
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
+    private boolean isInitialLoad = true;
     private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
 
 
@@ -54,9 +55,6 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         resourceViewer.setLayoutManager(new LinearLayoutManager(getContext()));
         resourceAdapter = new ResourceAdapter(resources, getContext(), false, null);
         resourceViewer.setAdapter(resourceAdapter);
-
-        // Start fetching resources
-        getArticlesByCategory("all");
 
         Spinner categoryDropdown = (Spinner) rootView.findViewById(R.id.categoryDropdown);
         categoryDropdown.setOnItemSelectedListener(this);
@@ -88,7 +86,27 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Reset flag to prevent spinner from triggering on resume
+        isInitialLoad = true;
+
+        // Clear old data
+        clear();
+
+        // Re-fetch fresh data
+        getArticlesByCategory("all");
+    }
+
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        // Skip the initial automatic selection when spinner is first set up
+        if (isInitialLoad) {
+            isInitialLoad = false;
+            return;
+        }
+
         clear();
         switch (pos) {
             case 0:
@@ -120,9 +138,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
     }
 
     private void getArticlesByCategory(String category) {
-        Log.d("Volley Test", "starting getArticlesByCategory()");
         String url = APP_API_URL + "resources/articles?category=" + category;
-        Log.d("Volley Response", "3");
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -133,11 +149,12 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                     Log.d("Volley Response", String.valueOf(response.length()));
                     // Loop through each element in the JSONArray
                     for (int i = 0; i < response.length(); i++) {
+                        // Get the integer article ID at index i
                         int articleId = response.getInt(i);
 
                         // Fetch the full resource for each ID
                         getStudentResource(articleId);
-                        Log.d("Volley", "created resource for article ID + articleId");
+                        Log.d("Volley", "created resource for article ID " + articleId);
                     }
                 } catch (JSONException e) {
                     Log.e("getArticlesByCategory", "JSON parse error", e);
@@ -191,12 +208,19 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                         String title = response.getString("articleName");
                         int authorId = response.getInt("authorId");
 
-                        // Parse authors array
+                        // Parse authors array - extract userId from each author object
                         List<String> authors = new ArrayList<>();
                         JSONArray authorsArray = response.optJSONArray("authors");
-                        if (authorsArray != null) {
+                        if (authorsArray != null && authorsArray.length() > 0) {
                             for (int i = 0; i < authorsArray.length(); i++) {
-                                authors.add(authorsArray.getString(i));
+                                org.json.JSONObject authorObj = authorsArray.getJSONObject(i);
+                                int userId = authorObj.getInt("userId");
+                                authors.add(String.valueOf(userId));
+
+                                // Use first author's userId as the primary authorId
+                                if (i == 0) {
+                                    authorId = userId;
+                                }
                             }
                         } else {
                             // Fallback to single author field if array doesn't exist

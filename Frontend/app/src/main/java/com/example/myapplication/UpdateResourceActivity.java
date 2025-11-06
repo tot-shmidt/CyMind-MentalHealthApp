@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,13 +12,19 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class UpdateResourceActivity extends AppCompatActivity {
 
@@ -58,6 +66,11 @@ public class UpdateResourceActivity extends AppCompatActivity {
         String resourceCategories = intent.getStringExtra("resourceCategories");
         String resourceContent = intent.getStringExtra("resourceContent");
 
+        // Get current professional's info
+        int currentUserId = intent.getIntExtra("currentUserId", -1);
+        String currentUserJobTitle = intent.getStringExtra("currentUserJobTitle");
+        String currentUserLicenseNumber = intent.getStringExtra("currentUserLicenseNumber");
+
         String[] categories = resourceCategories.split("\\s*,\\s*");
 
         // Set text fields with resource data
@@ -89,11 +102,50 @@ public class UpdateResourceActivity extends AppCompatActivity {
                 return;
             }
 
+            // Build authors array - add current user if not already in it
+            Set<Integer> authorIds = new HashSet<>();
+            if (resourceAuthors != null && !resourceAuthors.trim().isEmpty()) {
+                String[] existingAuthors = resourceAuthors.split("\\s*,\\s*");
+                for (String authorIdStr : existingAuthors) {
+                    try {
+                        authorIds.add(Integer.parseInt(authorIdStr.trim()));
+                    } catch (NumberFormatException e) {
+                        Log.e("UpdateResource", "Invalid author ID: " + authorIdStr);
+                    }
+                }
+            }
+
+            // Add current user if not already in the list
+            if (currentUserId != -1) {
+                authorIds.add(currentUserId);
+            }
+
+            // Build JSONArray of author objects
+            JSONArray authorsArray = new JSONArray();
+            for (int authorId : authorIds) {
+                try {
+                    JSONObject authorObj = new JSONObject();
+                    authorObj.put("userId", authorId);
+                    // Only add job title and license number for current user
+                    if (authorId == currentUserId && currentUserJobTitle != null) {
+                        authorObj.put("jobTitle", currentUserJobTitle);
+                    }
+                    if (authorId == currentUserId && currentUserLicenseNumber != null) {
+                        authorObj.put("licenseNumber", currentUserLicenseNumber);
+                    }
+                    authorsArray.put(authorObj);
+                } catch (JSONException e) {
+                    Log.e("UpdateResource", "Error building author object", e);
+                }
+            }
+
             // Build JSON request
             JSONObject request = new JSONObject();
             try {
+                request.put("id", resourceId);
                 request.put("articleName", articleName);
-                request.put("authorId", intent.getIntExtra("resourceAuthorId", -1));
+                request.put("authorId", resourceAuthorId);
+                request.put("authors", authorsArray);
                 request.put("category1", category1.isEmpty() ? JSONObject.NULL : category1);
                 request.put("category2", category2.isEmpty() ? JSONObject.NULL : category2);
                 request.put("category3", category3.isEmpty() ? JSONObject.NULL : category3);
@@ -104,13 +156,12 @@ public class UpdateResourceActivity extends AppCompatActivity {
             }
 
             // PUT request URL
-            String url = APP_API_URL + "resources/articles/" + resourceId;
+            String url = APP_API_URL + "resources/articles/";
 
-            // Create JsonObjectRequest for PUT
-            JsonObjectRequest putRequest = new JsonObjectRequest(
+            // Create StringRequest for PUT (handles empty response body)
+            StringRequest putRequest = new StringRequest(
                     Request.Method.PUT,
                     url,
-                    request,
                     response -> {
                         Log.d("UpdateResource", "Response: " + response);
                         Toast.makeText(UpdateResourceActivity.this,
@@ -131,8 +182,13 @@ public class UpdateResourceActivity extends AppCompatActivity {
                 public Map<String, String> getHeaders() {
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
-                    // headers.put("Authorization", "Basic " + generateAuthToken());
+                    headers.put("Authorization", "Basic " + generateAuthToken());
                     return headers;
+                }
+
+                @Override
+                public byte[] getBody() {
+                    return request.toString().getBytes();
                 }
             };
 

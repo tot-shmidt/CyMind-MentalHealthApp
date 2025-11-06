@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import static com.example.myapplication.Authorization.generateAuthToken;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,7 +54,9 @@ public class CreateResourceActivity extends AppCompatActivity {
         buttonReturn = findViewById(R.id.returnButton);
 
         Intent intent = getIntent();
-        int currentUserId = intent.getIntExtra("currentUserId", -1);
+        int userID = intent.getIntExtra("userID", -1);
+        String userJobTitle = intent.getStringExtra("userJobTitle");
+        String userLicenseNumber = intent.getStringExtra("userLicenseNumber");
 
         buttonReturn.setOnClickListener(view -> {
             Intent intentReturn = new Intent(CreateResourceActivity.this, GeneralFragmentActivity.class);
@@ -76,11 +81,28 @@ public class CreateResourceActivity extends AppCompatActivity {
                 return;
             }
 
+            // Build authors array with current user
+            JSONArray authorsArray = new JSONArray();
+            try {
+                JSONObject authorObj = new JSONObject();
+                authorObj.put("userId", userID);
+                if (userJobTitle != null) {
+                    authorObj.put("jobTitle", userJobTitle);
+                }
+                if (userLicenseNumber != null) {
+                    authorObj.put("licenseNumber", userLicenseNumber);
+                }
+                authorsArray.put(authorObj);
+            } catch (JSONException e) {
+                Log.e("CreateResource", "Error building author object", e);
+            }
+
             // Build JSON request
             JSONObject request = new JSONObject();
             try {
                 request.put("articleName", articleName);
-                request.put("authorId", intent.getIntExtra("resourceAuthorId", -1));
+                request.put("authorId", userID);
+                request.put("authors", authorsArray);
                 request.put("category1", category1.isEmpty() ? JSONObject.NULL : category1);
                 request.put("category2", category2.isEmpty() ? JSONObject.NULL : category2);
                 request.put("category3", category3.isEmpty() ? JSONObject.NULL : category3);
@@ -118,7 +140,7 @@ public class CreateResourceActivity extends AppCompatActivity {
                 public Map<String, String> getHeaders() {
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
-                    // headers.put("Authorization", "Basic " + generateAuthToken());
+                    headers.put("Authorization", "Basic " + generateAuthToken());
                     return headers;
                 }
             };
