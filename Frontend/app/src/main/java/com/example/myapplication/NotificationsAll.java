@@ -17,8 +17,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NotificationsAll extends Fragment {
 
@@ -117,7 +125,6 @@ public class NotificationsAll extends Fragment {
         });
 
 
-
         listView.setOnItemLongClickListener((parent, view1, position, id) -> {
             String notifToDelete = category_notifications.get(position);
 
@@ -125,12 +132,43 @@ public class NotificationsAll extends Fragment {
                     .setTitle("Delete Notification")
                     .setMessage("Are you sure you want to delete this notification?")
                     .setPositiveButton("Delete", (dialog, which) -> {
-                        category_notifications.remove(notifToDelete);
-                        notifications.remove(notifToDelete);
-                        WebSocketManager.getInstance().removeNotification(notifToDelete);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(requireContext(), "Notification deleted", Toast.LENGTH_SHORT).show();
+
+                        try {
+
+                            JSONObject notifJson = new JSONObject(notifToDelete);
+                            int notificationId = notifJson.getInt("notificationId");
+
+                            String deleteURL = "http://coms-3090-066.class.las.iastate.edu:8080/notifications/" + notificationId;
+
+                            StringRequest deleteRequest = new StringRequest(Request.Method.DELETE, deleteURL,
+                                    response -> {
+                                     category_notifications.remove(notifToDelete);
+                                     notifications.remove(notifToDelete);
+                                     WebSocketManager.getInstance().removeNotification(notifToDelete);
+                                     adapter.notifyDataSetChanged();
+                                     Toast.makeText(requireContext(), "Notification deleted", Toast.LENGTH_SHORT).show();
+                                    },
+                                    error -> {
+                                        Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT).show();
+                                    }) {
+                                @Override
+                                public Map<String, String> getHeaders() {
+                                    HashMap<String, String> headers = new HashMap<>();
+                                    headers.put("Content-Type", "application/json");
+                                    headers.put("Authorization", "Basic " + Authorization.generateAuthToken());
+                                    return headers;
+                                }
+                            };
+
+                            VolleySingleton.getInstance(requireContext()).addToRequestQueue(deleteRequest);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(requireContext(), "Error getting appointment id, can't delete", Toast.LENGTH_SHORT).show();
+                        }
+
                     })
+
                     .setNegativeButton("Cancel", null)
                     .show();
 
