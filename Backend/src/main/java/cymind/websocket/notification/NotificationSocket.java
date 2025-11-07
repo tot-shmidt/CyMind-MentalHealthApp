@@ -99,13 +99,14 @@ public class NotificationSocket {
         ResourceNotification entity = new ResourceNotification(
                 "New Article: " + article.getArticleName(), article
         );
-        resourceNotifRepo.save(entity);
+        ResourceNotification savedEntity = resourceNotifRepo.save(entity);
 
         // Create DTO for live broadcast
         ArticleNotificationDTO dto = new ArticleNotificationDTO(
                 article.getArticleName(),
                 "New Article just added!",
-                article.getId()
+                article.getId(),
+                savedEntity.getId()
         );
 
         // Broadcast to all connected users
@@ -152,7 +153,8 @@ public class NotificationSocket {
             ArticleNotificationDTO dto = new ArticleNotificationDTO(
                     articleName,
                     notif.getMessage(),
-                    articleId
+                    articleId,
+                    notif.getId()
             );
 
             try {
