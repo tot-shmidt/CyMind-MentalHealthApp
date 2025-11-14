@@ -63,7 +63,7 @@ public class ProfessionalHomeFragment extends Fragment {
 
         welcomeMessage.setText("Welcome to CyMind");
         if (!(userID == 0)) {
-            welcomeMessage.append(", " + userFirstName + + " " + userLastName + "!");
+            welcomeMessage.append(", " + userFirstName + " " + userLastName + "!");
             ChatManager.getInstance().setCurrentUserId(userID); // Set professional user ID
         }
 
