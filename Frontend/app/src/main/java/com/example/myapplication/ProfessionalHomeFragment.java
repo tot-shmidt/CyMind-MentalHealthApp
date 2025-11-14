@@ -61,9 +61,9 @@ public class ProfessionalHomeFragment extends Fragment {
         userJobTitle = getActivity().getIntent().getStringExtra("userJobTitle");
         userLicenseNumber = getActivity().getIntent().getStringExtra("userLicenseNumber");
 
-        welcomeMessage.setText("Welcome to Cymind");
+        welcomeMessage.setText("Welcome to CyMind");
         if (!(userID == 0)) {
-            welcomeMessage.append(", " + userFirstName + "!");
+            welcomeMessage.append(", " + userFirstName + + " " + userLastName + "!");
             ChatManager.getInstance().setCurrentUserId(userID); // Set professional user ID
         }
 
