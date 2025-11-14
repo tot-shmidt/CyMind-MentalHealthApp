@@ -26,6 +26,12 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         void onDeleteMessage(ChatMessage message, int position);
     }
 
+    public ChatMessageAdapter() {
+        messages = null;
+        currentUserId = 0;
+        actionListener = null;
+    }
+
     public ChatMessageAdapter(List<ChatMessage> messages, int currentUserId, OnMessageActionListener actionListener) {
         this.messages = messages;
         this.currentUserId = currentUserId;
