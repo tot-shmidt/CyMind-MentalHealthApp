@@ -59,17 +59,11 @@
         </activity>
         <service android:name="com.example.myapplication.chat.WebSocketService">
         </service>
-        <service android:name="com.example.myapplication.chat.ChatMessageAdapter">
-        </service>
         <activity
             android:exported="false"
             android:name="com.example.myapplication.chat.CreateChatActivity"/>
         <activity
             android:name=".ProfessionalProfileActivity"
-            android:exported="false">
-        </activity>
-        <activity
-            android:name=".MoodActivity"
             android:exported="false">
         </activity>
         <activity
