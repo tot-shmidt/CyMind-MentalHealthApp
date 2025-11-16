@@ -6,6 +6,7 @@ import static com.example.myapplication.Authorization.generateAuthToken;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.github.mikephil.charting.charts.LineChart;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 public class MoodActivity extends AppCompatActivity {
 
     private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
@@ -47,6 +50,7 @@ public class MoodActivity extends AppCompatActivity {
     private EditText updateJournalIdEditText;
     private EditText updateMoodRatingEditText;
     private EditText updateJournalEntryEditText;
+    private LineChart chart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +142,38 @@ public class MoodActivity extends AppCompatActivity {
             updateJournalIdEditText.setText("");
             updateJournalEntryEditText.setText("");
         });
+
+        // // Chart Style // //
+        chart = findViewById(R.id.moodChart);
+
+        // background color
+        chart.setBackgroundColor(Color.WHITE);
+
+        // disable description text
+        chart.getDescription().setEnabled(false);
+
+        // enable touch gestures
+        chart.setTouchEnabled(true);
+
+        chart.setDrawGridBackground(false);
+
+        /*
+        // create marker to display box when values are selected
+        MyMarkerView mv = new MyMarkerView(this, R.layout.custom_marker_view);
+
+        // Set the marker to the chart
+        mv.setChartView(chart);
+        chart.setMarker(mv);
+         */
+
+        // enable scaling and dragging
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+        // chart.setScaleXEnabled(true);
+        // chart.setScaleYEnabled(true);
+
+        // force pinch zoom along both axis
+        chart.setPinchZoom(true);
 
     }
 

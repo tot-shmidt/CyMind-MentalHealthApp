@@ -7,6 +7,13 @@
     tools:context=".StudentProfileActivity"
     android:background="@color/colorAccent">
 
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/moodChart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        tools:ignore="MissingConstraints" />
+
     <Button
         android:id="@+id/returnButton"
         android:layout_width="75dip"

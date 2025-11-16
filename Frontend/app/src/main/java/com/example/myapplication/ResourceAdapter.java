@@ -98,7 +98,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ViewHo
         showResourceDialog(resource);
     }
 
-    private void showResourceDialog(Resource resource) {
+    void showResourceDialog(Resource resource) {
         Log.d(TAG, "showResourceDialog starting for resource ID: " + resource.getId());
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.resource_dialog, null);

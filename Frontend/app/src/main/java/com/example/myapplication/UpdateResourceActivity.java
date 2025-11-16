@@ -37,7 +37,7 @@ public class UpdateResourceActivity extends AppCompatActivity {
     private EditText contentEditText;
     private Button updateButton;
     private Button buttonReturn;
-    private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
 
     public UpdateResourceActivity() {}
@@ -142,21 +142,22 @@ public class UpdateResourceActivity extends AppCompatActivity {
             // Build JSON request
             JSONObject request = new JSONObject();
             try {
-                request.put("id", resourceId);
+                // request.put("id", resourceId);
                 request.put("articleName", articleName);
-                request.put("authorId", resourceAuthorId);
-                request.put("authors", authorsArray);
+//                request.put("authorId", resourceAuthorId);
+//                request.put("authors", authorsArray);
                 request.put("category1", category1.isEmpty() ? JSONObject.NULL : category1);
                 request.put("category2", category2.isEmpty() ? JSONObject.NULL : category2);
                 request.put("category3", category3.isEmpty() ? JSONObject.NULL : category3);
                 request.put("content", content);
+                request.put("userId", currentUserId);
             } catch (JSONException e) {
                 e.printStackTrace();
                 return;
             }
 
             // PUT request URL
-            String url = APP_API_URL + "resources/articles/";
+            String url = APP_API_URL + "resources/articles/" + resourceId;
 
             // Create StringRequest for PUT (handles empty response body)
             StringRequest putRequest = new StringRequest(

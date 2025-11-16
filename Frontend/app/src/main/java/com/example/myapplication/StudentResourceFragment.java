@@ -42,7 +42,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
     private int userYearOfStudy;
     private List<Resource> resources = new ArrayList<>();
     private ResourceAdapter resourceAdapter;
-    private static final String APP_API_URL = "https://834f7701-6129-40fc-b41d-30cf356d46b0.mock.pstmn.io/";
+    private static final String APP_API_URL = "http://coms-3090-066.class.las.iastate.edu:8080/";
 
 
     @Nullable
@@ -83,6 +83,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         userLastName = getActivity().getIntent().getStringExtra("userLastName");
         userMajor = getActivity().getIntent().getStringExtra("userMajor");
         userYearOfStudy = getActivity().getIntent().getIntExtra("userYearOfStudy", 0);
+        Log.d("StudentResourceFragment", "userID: " + userID);
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -117,7 +118,7 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
     }
 
     private void getArticlesByCategory(String category) {
-        String url = APP_API_URL + "resources/articles?category=" + category;
+        String url = APP_API_URL + "resources/articles/category/" + category;
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -126,26 +127,58 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
                 Log.d("Volley Response", response.toString());
                 try {
                     Log.d("Volley Response", String.valueOf(response.length()));
-                    // Loop through each element in the JSONArray
+                    // Loop through each article object in the JSONArray
                     for (int i = 0; i < response.length(); i++) {
-                        // Get the integer article ID at index i
-                        int articleId = response.getInt(i);
+                        // Get the full article object at index i
+                        org.json.JSONObject articleObj = response.getJSONObject(i);
 
-                        // Fetch the full resource for each ID
-                        if (getActivity() != null) {
-                            getStudentResource(articleId);
-                            Log.d("Volley", "created resource for article ID + articleId");
+                        // Parse the article object directly
+                        int id = articleObj.getInt("id");
+                        String title = articleObj.getString("articleName");
+                        int authorId = 0; // Default value
+
+                        // Parse authors array - extract userId from each author object
+                        List<String> authors = new ArrayList<>();
+                        JSONArray authorsArray = articleObj.optJSONArray("authors");
+                        if (authorsArray != null && authorsArray.length() > 0) {
+                            for (int j = 0; j < authorsArray.length(); j++) {
+                                org.json.JSONObject authorObj = authorsArray.getJSONObject(j);
+                                int userId = authorObj.getInt("userId");
+                                authors.add(String.valueOf(userId));
+
+                                // Use first author's userId as the primary authorId
+                                if (j == 0) {
+                                    authorId = userId;
+                                }
+                            }
                         }
+
+                        String category1 = articleObj.optString("category1", "");
+                        String category2 = articleObj.optString("category2", "");
+                        String category3 = articleObj.optString("category3", "");
+                        String description = articleObj.getString("content");
+
+                        String categories = category1;
+                        if (!category2.isEmpty() && !category2.equals("null")) {
+                            categories += ", " + category2;
+                        }
+                        if (!category3.isEmpty() && !category3.equals("null")) {
+                            categories += ", " + category3;
+                        }
+
+                        Resource resource = new Resource(id, title, authorId, authors, categories, description);
+                        resources.add(resource);
+                        resourceAdapter.notifyItemInserted(resources.size() - 1);
+
+                        Log.d("Volley", "created resource for article ID " + id);
                     }
                 } catch (JSONException e) {
                     Log.e("getArticlesByCategory", "JSON parse error", e);
-                    if (getActivity() != null) {
-                        Toast.makeText(
-                                getActivity().getApplicationContext(),
-                                "Failed to parse article IDs for category " + category,
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
+                    Toast.makeText(
+                            getActivity().getApplicationContext(),
+                            "Failed to parse articles for category " + category,
+                            Toast.LENGTH_LONG
+                    ).show();
                 }
             },
             error -> {
@@ -255,10 +288,8 @@ public class StudentResourceFragment extends Fragment implements AdapterView.OnI
         };
 
         // Add request to the Volley queue
-        if (getActivity() != null) {
-            VolleySingleton.getInstance(getActivity().getApplicationContext())
-                    .addToRequestQueue(jsonObjReq);
-        }
+        VolleySingleton.getInstance(getActivity().getApplicationContext())
+                .addToRequestQueue(jsonObjReq);
     }
 
     private void clear() {

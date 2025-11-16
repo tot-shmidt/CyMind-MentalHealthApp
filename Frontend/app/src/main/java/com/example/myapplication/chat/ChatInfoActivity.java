@@ -84,14 +84,8 @@ public class ChatInfoActivity extends AppCompatActivity implements ChatMembersAd
                 // TODO: Fetch professional names from backend
                 // For now, using placeholder names
                 String profName = "Professional " + profId;
-                if (profId == 59) {
+                if (profId == 71) {
                     profName = "Garrett Thompson";
-                } else if (profId == 1) {
-                    profName = "Dr. Sarah Johnson";
-                } else if (profId == 2) {
-                    profName = "Dr. Michael Chen";
-                } else if (profId == 3) {
-                    profName = "Dr. Emily Rodriguez";
                 }
 
                 // Can remove if not yourself

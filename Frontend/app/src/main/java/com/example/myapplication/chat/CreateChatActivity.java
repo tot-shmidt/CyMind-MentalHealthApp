@@ -77,10 +77,7 @@ public class CreateChatActivity extends AppCompatActivity {
     private void loadAvailableProfessionals() {
         // Temporary hardcoded professionals (for testing until backend is ready)
         List<Professional> professionals = new ArrayList<>();
-        professionals.add(new Professional(59, "Garrett Thompson", "Mental Health Counselor"));
-        professionals.add(new Professional(1, "Dr. Sarah Johnson", "Licensed Therapist"));
-        professionals.add(new Professional(2, "Dr. Michael Chen", "Clinical Psychologist"));
-        professionals.add(new Professional(3, "Dr. Emily Rodriguez", "Counselor"));
+        professionals.add(new Professional(71, "Garrett Thompson", "Mental Health Counselor"));
 
         availableProfessionals.clear();
         availableProfessionals.addAll(professionals);
@@ -154,10 +151,7 @@ public class CreateChatActivity extends AppCompatActivity {
 
                 // Fall back to hardcoded list on error
                 List<Professional> fallbackProfessionals = new ArrayList<>();
-                fallbackProfessionals.add(new Professional(59, "Garrett Thompson", "Mental Health Counselor"));
-                fallbackProfessionals.add(new Professional(1, "Dr. Sarah Johnson", "Licensed Therapist"));
-                fallbackProfessionals.add(new Professional(2, "Dr. Michael Chen", "Clinical Psychologist"));
-                fallbackProfessionals.add(new Professional(3, "Dr. Emily Rodriguez", "Counselor"));
+                fallbackProfessionals.add(new Professional(71, "Garrett Thompson", "Mental Health Counselor"));
 
                 availableProfessionals.clear();
                 availableProfessionals.addAll(fallbackProfessionals);

@@ -69,10 +69,7 @@ public class AddMemberActivity extends AppCompatActivity {
 
         // Load all professionals and filter out existing members
         List<Professional> allProfessionals = new ArrayList<>();
-        allProfessionals.add(new Professional(59, "Garrett Thompson", "Mental Health Counselor"));
-        allProfessionals.add(new Professional(1, "Dr. Sarah Johnson", "Licensed Therapist"));
-        allProfessionals.add(new Professional(2, "Dr. Michael Chen", "Clinical Psychologist"));
-        allProfessionals.add(new Professional(3, "Dr. Emily Rodriguez", "Counselor"));
+        allProfessionals.add(new Professional(71, "Garrett Thompson", "Mental Health Counselor"));
 
         // TODO: Fetch from backend when available
 
