@@ -4,6 +4,7 @@ import cymind.dto.chat.ChatGroupDTO;
 import cymind.dto.chat.CreateChatGroupDTO;
 import cymind.dto.chat.MessageDTO;
 import cymind.enums.UserType;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.*;
 import cymind.repository.ChatGroupRepository;
 import cymind.repository.ChatMessageRepository;
@@ -13,7 +14,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

@@ -4,6 +4,7 @@ import cymind.dto.article.ArticleDTO;
 import cymind.dto.article.CreateArticleDTO;
 import cymind.enums.ExerciseType;
 import cymind.enums.UserType;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.AbstractUser;
 import cymind.model.Article;
 import cymind.model.Exercise;
@@ -18,7 +19,6 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

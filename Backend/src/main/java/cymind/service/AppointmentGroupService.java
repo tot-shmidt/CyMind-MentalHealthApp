@@ -4,6 +4,7 @@ import cymind.dto.appointment.AppointmentDTO;
 import cymind.dto.appointment.AppointmentGroupDTO;
 import cymind.dto.appointment.CreateAppointmentGroupDTO;
 import cymind.enums.UserType;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.AbstractUser;
 import cymind.model.AppointmentGroup;
 import cymind.model.MentalHealthProfessional;
@@ -16,7 +17,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
