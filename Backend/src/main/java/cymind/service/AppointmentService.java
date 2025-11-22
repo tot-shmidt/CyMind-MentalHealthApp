@@ -6,6 +6,7 @@ import cymind.dto.appointment.AppointmentStatusDTO;
 import cymind.enums.AppointmentStatus;
 import cymind.enums.UserType;
 import cymind.exceptions.AppointmentOverlapException;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.*;
 import cymind.repository.AppointmentGroupRepository;
 import cymind.repository.AppointmentRepository;
@@ -17,7 +18,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

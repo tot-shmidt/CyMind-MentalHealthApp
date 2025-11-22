@@ -2,6 +2,7 @@ package cymind.service;
 
 import cymind.dto.mood.CreateMoodEntryDTO;
 import cymind.dto.mood.MoodEntryDTO;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.AbstractUser;
 import cymind.model.JournalEntry;
 import cymind.model.MoodEntry;
@@ -13,7 +14,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

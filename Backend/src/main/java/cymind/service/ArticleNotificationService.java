@@ -1,12 +1,12 @@
 package cymind.service;
 
 import cymind.enums.UserType;
+import cymind.exceptions.AuthorizationDeniedException;
 import cymind.model.AbstractUser;
 import cymind.model.ResourceNotification;
 import cymind.repository.ResourceNotificationRepository;
 import jakarta.persistence.NoResultException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
