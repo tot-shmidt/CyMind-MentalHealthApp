@@ -44,7 +44,7 @@ public class ArticleService {
 
     @Transactional
     public ArticleDTO getArticleById(long id) throws NoResultException, AuthorizationDeniedException {
-        Article article = articleRepository.findById(id);
+        Article article = articleRepository.findArticleById(id);
         if (article == null) {
             throw new NoResultException("Article not found");
         }
@@ -88,7 +88,7 @@ public class ArticleService {
             throw new NoResultException("Professional not found");
         }
 
-        Article article = articleRepository.findById(id);
+        Article article = articleRepository.findArticleById(id);
         if (article == null) {
             throw new NoResultException("Article not found");
         }
@@ -139,7 +139,7 @@ public class ArticleService {
 
     @Transactional
     public void deleteArticle(long id, long userId) throws NoResultException, AuthorizationDeniedException {
-        Article article = articleRepository.findById(id);
+        Article article = articleRepository.findArticleById(id);
         if (article == null) {
             throw new NoResultException("Article not found");
         }
@@ -156,7 +156,7 @@ public class ArticleService {
 
     @Transactional
     public List<Exercise> getExercisesForArticle(long articleId) throws NoResultException, AuthorizationDeniedException {
-        Article article = articleRepository.findById(articleId);
+        Article article = articleRepository.findArticleById(articleId);
         if (article == null) {
             throw new NoResultException("Article not found");
         }

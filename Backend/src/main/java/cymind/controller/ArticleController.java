@@ -1,11 +1,14 @@
 package cymind.controller;
 
+import cymind.dto.comments.CommentDTO;
+import cymind.dto.comments.CreateCommentDTO;
 import cymind.dto.user.ProfessionalDTO;
 import cymind.dto.article.ArticleDTO;
 import cymind.dto.article.CreateArticleDTO;
 import cymind.model.Article;
 import cymind.model.Exercise;
 import cymind.service.ArticleService;
+import cymind.service.CommentService;
 import cymind.service.ProfessionalService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,9 @@ public class ArticleController {
 
     @Autowired
     private ProfessionalService professionalService;
+
+    @Autowired
+    private CommentService commentService;
 
     /**
      * Professional user creates a new article.
@@ -104,6 +110,26 @@ public class ArticleController {
     @GetMapping("/resources/articles/category/{category}")
     ResponseEntity<List<ArticleDTO>> getArticlesByCategory(@PathVariable String category) {
         return new ResponseEntity<>(articleService.getArticlesByCategory(category), HttpStatus.OK);
+    }
+
+    // ~~~ Endpoints for comments ~~~
+    /**
+     * Add a comment to an article.
+     */
+    @PostMapping("/resources/articles/{articleId}/comments")
+    ResponseEntity<CommentDTO> createComment(@PathVariable long id, @Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        return new ResponseEntity<>(commentService.addComment(id, createCommentDTO), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/resources/articles/comments/{commentId}")
+    ResponseEntity<CommentDTO> updateComment(@PathVariable long commentId, @Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        return new ResponseEntity<>(commentService.updateComment(commentId, createCommentDTO), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/resources/articles/comments/{commentId}")
+    ResponseEntity<?> deleteComment(@PathVariable long commentId, @RequestParam("userId") long userId) {
+        commentService.deleteComment(commentId, userId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
