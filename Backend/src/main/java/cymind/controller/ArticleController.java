@@ -117,8 +117,8 @@ public class ArticleController {
      * Add a comment to an article.
      */
     @PostMapping("/resources/articles/{articleId}/comments")
-    ResponseEntity<CommentDTO> createComment(@PathVariable long id, @Valid @RequestBody CreateCommentDTO createCommentDTO) {
-        return new ResponseEntity<>(commentService.addComment(id, createCommentDTO), HttpStatus.CREATED);
+    ResponseEntity<CommentDTO> createComment(@PathVariable long articleId, @Valid @RequestBody CreateCommentDTO createCommentDTO) {
+        return new ResponseEntity<>(commentService.addComment(articleId, createCommentDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/resources/articles/comments/{commentId}")
