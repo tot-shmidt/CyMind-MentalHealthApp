@@ -53,6 +53,10 @@ public class Article {
     )
     private List<Exercise> relatedExercises = new ArrayList<>();
 
+    // List of comments of an articles
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     /**
      *  ~~~ Constructor starts HERE ~~~
      */
