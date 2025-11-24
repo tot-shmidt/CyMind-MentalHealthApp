@@ -5,6 +5,8 @@ import static android.widget.Toast.makeText;
 import static com.example.myapplication.Authorization.generateAuthToken;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +24,12 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +51,8 @@ public class MoodActivity extends AppCompatActivity {
     private int userAge;
     private int moodId;
     private TextView moodDataText;
-    private TextView journalDataText;
+    private RecyclerView journalRecyclerView;
+    private JournalAdapter journalAdapter;
     private RadioButton updateMoodSubmitButton;
     private RadioButton updateJournalSubmitButton;
     private EditText updateMoodIdEditText;
@@ -73,8 +82,12 @@ public class MoodActivity extends AppCompatActivity {
         updateMoodIdEditText = findViewById(R.id.updateMoodIdEditText);
         updateMoodRatingEditText = findViewById(R.id.updateMoodRatingEditText);
 
+        // Setup RecyclerView for journal entries
+        journalRecyclerView = findViewById(R.id.journalRecyclerView);
+        journalRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        journalAdapter = new JournalAdapter(new ArrayList<>());
+        journalRecyclerView.setAdapter(journalAdapter);
 
-        journalDataText = findViewById(R.id.journalData);
         updateJournalSubmitButton = findViewById(R.id.updateJournalSubmitButton);
         updateJournalIdEditText = findViewById(R.id.updateJournalIdEditText);
         updateJournalEntryEditText = findViewById(R.id.updateJournalEntryEditText);
@@ -210,6 +223,9 @@ public class MoodActivity extends AppCompatActivity {
                     }
                     moodDataText.setText(displayText.toString());
 
+                    // Populate chart with mood data
+                    updateChart(moodList);
+
                     makeText(getApplicationContext(), "Retrieved mood entries successfully.", Toast.LENGTH_SHORT).show();
                 },
                 error -> {
@@ -272,15 +288,8 @@ public class MoodActivity extends AppCompatActivity {
                         Log.e("JournalEntry", "Failed to parse JSON response");
                     }
 
-                    // Display mood entries
-                    StringBuilder displayText = new StringBuilder();
-                    for (JournalEntry m : journalList) {
-                        displayText.append("ID: ").append(m.getId())
-                                .append(" -- Date: ").append(m.getDate().substring(5))
-                                .append(" -- Content : ").append(m.getContent())
-                                .append("\n");
-                    }
-                    journalDataText.setText(displayText.toString());
+                    // Update RecyclerView with journal entries
+                    journalAdapter.updateData(journalList);
 
                     makeText(getApplicationContext(), "Retrieved journal entries successfully.", Toast.LENGTH_SHORT).show();
                 },
@@ -499,6 +508,74 @@ public class MoodActivity extends AppCompatActivity {
 
         // Adding request to the Volley request queue
         VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjReq);
+    }
+
+    private void updateChart(List<MoodEntry> moodList) {
+        if (moodList == null || moodList.isEmpty()) {
+            chart.clear();
+            chart.invalidate();
+            return;
+        }
+
+        // Create entries for the chart
+        ArrayList<Entry> entries = new ArrayList<>();
+        final ArrayList<String> dateLabels = new ArrayList<>();
+
+        for (int i = 0; i < moodList.size(); i++) {
+            MoodEntry m = moodList.get(i);
+            // X-axis: index, Y-axis: mood rating
+            entries.add(new Entry(i, m.getMoodRating()));
+            // Store date labels (format: MM-DD)
+            dateLabels.add(m.getDate().substring(5));
+        }
+
+        // Create a dataset with the entries
+        LineDataSet dataSet = new LineDataSet(entries, "Mood Rating");
+
+        // Customize the dataset appearance
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(Color.BLUE);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawCircleHole(false);
+        dataSet.setValueTextSize(10f);
+        dataSet.setDrawFilled(false);
+        dataSet.setMode(LineDataSet.Mode.LINEAR);
+
+        // Create LineData object with the dataset
+        LineData lineData = new LineData(dataSet);
+
+        // Set data to chart
+        chart.setData(lineData);
+
+        // Configure X-axis
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int index = (int) value;
+                if (index >= 0 && index < dateLabels.size()) {
+                    return dateLabels.get(index);
+                }
+                return "";
+            }
+        });
+        xAxis.setLabelRotationAngle(-45);
+
+        // Configure Y-axis (left)
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(5f);
+        leftAxis.setGranularity(1f);
+
+        // Disable right Y-axis
+        YAxis rightAxis = chart.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        // Refresh the chart
+        chart.invalidate();
     }
 
 

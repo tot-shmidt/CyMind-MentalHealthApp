@@ -73,14 +73,12 @@
             android:text="Submit" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/journalData"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/journalRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="450px"
-        android:text="[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]\n[Mood Data]"
-        android:textSize="11pt"
-        android:paddingLeft="20dip"
-        android:paddingRight="20dip"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/moodLinearLayout"/>
 
@@ -88,7 +86,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/journalData">
+        app:layout_constraintTop_toBottomOf="@id/journalRecyclerView">
 
 
         <EditText
