@@ -12,6 +12,7 @@ import cymind.repository.ArticleRepository;
 import cymind.repository.CommentRepository;
 import cymind.repository.StudentRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,16 +31,19 @@ public class CommentService {
 
     @Transactional
     public CommentDTO addComment(Long articleId, CreateCommentDTO dto) {
-        checkAuth(dto.userId());
+        AbstractUser currentUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!currentUser.getId().equals(dto.userId())) {
+            throw new AuthorizationDeniedException("You cannot post comments as another user.");
+        }
 
         Article article = articleRepository.findArticleById(articleId);
         if (article == null) {
-            throw new EntityNotFoundException("Article not found");
+            throw new NoResultException("Article not found");
         }
 
         Student student = studentRepository.findByAbstractUserId(dto.userId());
         if (student == null) {
-            throw new EntityNotFoundException("Student not found");
+            throw new NoResultException("Student not found");
         }
 
         Comment comment = new Comment(dto.content(), student, article);
@@ -53,7 +57,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId.longValue());
 
         if (comment == null) {
-            throw new EntityNotFoundException("Comment not found");
+            throw new NoResultException("Comment not found");
         }
 
         checkAuth(dto.userId());
@@ -69,17 +73,16 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, Long userId) {
+    public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId.longValue());
 
         if (comment == null) {
-            throw new EntityNotFoundException("Comment not found");
+            throw new NoResultException("Comment not found");
         }
 
-        checkAuth(userId);
-
         AbstractUser currentUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        boolean isAuthor = comment.getAuthor().getAbstractUser().getId().equals(userId);
+
+        boolean isAuthor = comment.getAuthor().getAbstractUser().getId().equals(currentUser.getId());
         boolean isProfessional = currentUser.getUserType() == UserType.PROFESSIONAL;
 
         if (!isAuthor && !isProfessional) {

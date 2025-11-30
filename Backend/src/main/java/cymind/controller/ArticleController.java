@@ -127,8 +127,8 @@ public class ArticleController {
     }
 
     @DeleteMapping("/resources/articles/comments/{commentId}")
-    ResponseEntity<?> deleteComment(@PathVariable long commentId, @RequestParam("userId") long userId) {
-        commentService.deleteComment(commentId, userId);
+    ResponseEntity<?> deleteComment(@PathVariable long commentId) {
+        commentService.deleteComment(commentId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
