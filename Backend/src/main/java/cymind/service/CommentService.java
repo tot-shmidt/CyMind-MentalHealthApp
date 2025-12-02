@@ -32,6 +32,7 @@ public class CommentService {
     @Transactional
     public CommentDTO addComment(Long articleId, CreateCommentDTO dto) {
         AbstractUser currentUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         if (!currentUser.getId().equals(dto.userId())) {
             throw new AuthorizationDeniedException("You cannot post comments as another user.");
         }
@@ -55,16 +56,18 @@ public class CommentService {
     @Transactional
     public CommentDTO updateComment(Long commentId, CreateCommentDTO dto) {
         Comment comment = commentRepository.findById(commentId.longValue());
-
         if (comment == null) {
             throw new NoResultException("Comment not found");
         }
 
-        checkAuth(dto.userId());
+        AbstractUser currentUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // This is to check if a student deletes its own comment!!!
-        if (!comment.getAuthor().getAbstractUser().getId().equals(dto.userId())) {
-            throw new AuthorizationDeniedException("You can only edit your own comments");
+        if (!currentUser.getId().equals(dto.userId())) {
+            throw new AuthorizationDeniedException("Cannot edit comment as another user!");
+        }
+
+        if (!comment.getAuthor().getAbstractUser().getId().equals(currentUser.getId())) {
+            throw new AuthorizationDeniedException("Edit only your own comment!");
         }
 
         comment.setContent(dto.content());
@@ -75,7 +78,6 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId.longValue());
-
         if (comment == null) {
             throw new NoResultException("Comment not found");
         }
@@ -85,8 +87,9 @@ public class CommentService {
         boolean isAuthor = comment.getAuthor().getAbstractUser().getId().equals(currentUser.getId());
         boolean isProfessional = currentUser.getUserType() == UserType.PROFESSIONAL;
 
+        // WORKS LIKE THIS: AUTHOR OR PROFESSIONAL CAN DELETE, ALL OTHERS NOT.
         if (!isAuthor && !isProfessional) {
-            throw new AuthorizationDeniedException("You are not authorized to delete this comment");
+            throw new AuthorizationDeniedException("Not authorized to delete this comment");
         }
 
         commentRepository.delete(comment);
@@ -100,12 +103,5 @@ public class CommentService {
                 c.getAuthor().getId(),
                 c.getCreationDate()
         );
-    }
-
-    private void checkAuth(Long userId) {
-        AbstractUser authedUser = (AbstractUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (authedUser.getId() != userId && authedUser.getUserType() != UserType.PROFESSIONAL) {
-            throw new AuthorizationDeniedException("You are not authorized to perform this action.");
-        }
     }
 }
